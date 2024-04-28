@@ -1,0 +1,6 @@
+@SpaManagementSystem.WebApi_HostAddress = http://localhost:5255
+
+GET {{SpaManagementSystem.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

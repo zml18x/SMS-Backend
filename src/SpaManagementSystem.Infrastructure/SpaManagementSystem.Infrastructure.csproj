@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SpaManagementSystem.Application\SpaManagementSystem.Application.csproj" />
+    <ProjectReference Include="..\SpaManagementSystem.Domain\SpaManagementSystem.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
