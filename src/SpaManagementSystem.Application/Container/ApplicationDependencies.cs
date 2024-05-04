@@ -15,7 +15,7 @@ namespace SpaManagementSystem.Application.Container
         /// application services, and handlers can be registered.
         /// </summary>
         /// <param name="services">The collection of service descriptors for registering application layer services.</param>
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+        public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             return services;
         }

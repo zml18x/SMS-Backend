@@ -1,9 +1,12 @@
 using SpaManagementSystem.Infrastructure.Container;
 using SpaManagementSystem.Infrastructure.Data;
+using SpaManagementSystem.Application.Container;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services
+    .AddInfrastructure(builder.Configuration)
+    .AddApplication();
 
 builder.Services.AddControllers();
 
