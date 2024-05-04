@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SpaManagementSystem.Domain.Interfaces;
 using SpaManagementSystem.Infrastructure.Data.Context;
 using SpaManagementSystem.Infrastructure.Identity.Entities;
+using SpaManagementSystem.Infrastructure.Repositories;
 
 namespace SpaManagementSystem.Infrastructure.Container
 {
@@ -27,7 +29,8 @@ namespace SpaManagementSystem.Infrastructure.Container
         {
             services
                 .ConfigureDatabase(configuration)
-                .ConfigureIdentity();
+                .ConfigureIdentity()
+                .ConfigureRepositories();
 
             return services;
         }
@@ -73,6 +76,20 @@ namespace SpaManagementSystem.Infrastructure.Container
                 })
                 .AddEntityFrameworkStores<SmsIdentityDbContext>()
                 .AddDefaultTokenProviders();
+
+            return services;
+        }
+        
+        /// <summary>
+        /// Configures repository services for managing data entities within the application.
+        /// This method registers repository interfaces along with their concrete implementations in the DI container,
+        /// facilitating centralized and standardized data operations across various parts of the application.
+        /// It is designed to be flexible and can be expanded to include additional repositories as needed.
+        /// </summary>
+        /// <param name="services">The collection of services where repositories are registered.</param>
+        private static IServiceCollection ConfigureRepositories(this IServiceCollection services)
+        {
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             return services;
         }
