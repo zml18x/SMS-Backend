@@ -1,0 +1,9 @@
+version: '3'
+services:
+  database:
+    build: docker/database
+    environment:
+      - POSTGRES_USER=SA
+      - POSTGRES_PASSWORD=mAslo#2!X
+    ports:
+     - "2137:5432"
