@@ -1,7 +1,9 @@
+using SpaManagementSystem.Infrastructure.Container;
+using SpaManagementSystem.Infrastructure.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-SpaManagementSystem.Infrastructure.Container.InfrastructureDependencies.ConfigureServices(builder.Services,
-    builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddControllers();
 
@@ -10,7 +12,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-SpaManagementSystem.Infrastructure.Data.DatabaseMigrator.MigrateDatabase(app.Services);
+app.Services.MigrateDatabase();
 
 if (app.Environment.IsDevelopment())
 {
