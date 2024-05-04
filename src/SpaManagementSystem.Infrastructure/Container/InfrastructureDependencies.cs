@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SpaManagementSystem.Infrastructure.Data.Context;
+using SpaManagementSystem.Infrastructure.Identity.Entities;
 
 namespace SpaManagementSystem.Infrastructure.Container
 {
@@ -22,6 +24,7 @@ namespace SpaManagementSystem.Infrastructure.Container
         public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             ConfigureDatabase(services, configuration);
+            ConfigureIdentity(services);
         }
         
         /// <summary>
@@ -36,6 +39,33 @@ namespace SpaManagementSystem.Infrastructure.Container
             {
                 options.UseNpgsql(configuration.GetConnectionString("SmsConnection"));
             });
+            
+            services.AddDbContext<SmsIdentityDbContext>(options =>
+            {
+                options.UseNpgsql(configuration.GetConnectionString("SmsConnection"));
+            });
+        }
+        
+        /// <summary>
+        /// Configures the identity framework services for managing user authentication and authorization within the application.
+        /// </summary>
+        /// <param name="services">The collection of services where identity services are configured.</param>
+        private static void ConfigureIdentity(IServiceCollection services)
+        {
+            services.AddIdentity<User, IdentityRole<Guid>>(options =>
+                {
+                    options.User.RequireUniqueEmail = true;
+
+                    options.Password.RequiredLength = 10;
+                    options.Password.RequireNonAlphanumeric = true;
+                    options.Password.RequireUppercase = true;
+                    options.Password.RequireLowercase = true;
+                    options.Password.RequireDigit = true;
+
+                    options.SignIn.RequireConfirmedEmail = true;
+                })
+                .AddEntityFrameworkStores<SmsIdentityDbContext>()
+                .AddDefaultTokenProviders();
         }
     }
 }
