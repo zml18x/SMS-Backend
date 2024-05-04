@@ -181,9 +181,9 @@ namespace SpaManagementSystem.Infrastructure.Data.IdentityMigrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("05bbc9f1-1175-48c0-9066-ccff71f7f294"), "a2298fef-3419-4a69-9e8d-6e12c6cb7a65", "Employee", "EMPLOYEE" },
-                    { new Guid("05bc7f3d-ba23-41bb-91c8-1c0108c1af9a"), "a79f94c0-7985-44a6-b32a-7368d75890be", "Admin", "ADMIN" },
-                    { new Guid("6aa53b0f-c808-452d-9670-ff7f36743220"), "28caa510-0081-409d-bebb-1c5195fd4463", "Manager", "MANAGER" }
+                    { new Guid("9d218f9b-99f1-4dab-8a72-ca0dcd1afed7"), "8359b84d-d240-4658-837e-541b105547ff", "Manager", "MANAGER" },
+                    { new Guid("9dbf8df2-d68b-46d8-b271-d5bc00568e98"), "d21c982e-f7eb-421e-944a-7330d3a063ea", "Admin", "ADMIN" },
+                    { new Guid("fab3c1c2-7417-480b-9da5-b1cf4354fd92"), "67baa854-d9ba-4530-a7d3-8c974b531caa", "Employee", "EMPLOYEE" }
                 });
 
             migrationBuilder.CreateIndex(
