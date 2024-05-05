@@ -14,12 +14,12 @@ namespace SpaManagementSystem.Application.Requests.UserAccount.Validators
         /// </summary>
         public SignInRequestValidator()
         {
-            RuleFor(r => r.Email)
+            RuleFor(x => x.Email)
                 .NotNull().WithMessage("Email is required.")
                 .NotEmpty().WithMessage("Email is required.")
                 .EmailAddress().WithMessage("Invalid email address.");
 
-            RuleFor(r => r.Password)
+            RuleFor(x => x.Password)
                 .NotNull().WithMessage("Password is required.")
                 .NotEmpty().WithMessage("Password is required");
         }

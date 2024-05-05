@@ -2,6 +2,11 @@
 
 namespace SpaManagementSystem.Application.Common.Validation
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="IRuleBuilder{T, TProperty}"/> to simplify adding common validation rules.
+    /// This static class extends the capabilities of rule builders used in FluentValidation to include custom validations
+    /// for phone numbers, passwords, and names, ensuring consistency and reuse across various parts of the application.
+    /// </summary>
     public static class ValidationExtensions
     {
         /// <summary>

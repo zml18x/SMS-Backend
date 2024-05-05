@@ -19,28 +19,28 @@ namespace SpaManagementSystem.Application.Requests.UserAccount.Validators
         {
             When(x => x.FirstName != null, () =>
             {
-                RuleFor(r => r.FirstName!)
+                RuleFor(x => x.FirstName!)
                     .MatchName()
                     .Length(2 - 50).WithMessage("The first name can be 2 characters long and up to 50 characters long");
             });
 
             When(x => x.LastName != null, () =>
             {
-                RuleFor(r => r.LastName!)
+                RuleFor(x => x.LastName!)
                     .MatchName()
                     .Length(2 - 50).WithMessage("The last name can be 2 characters long and up to 50 characters long");
             });
 
             When(x => x.Gender != null, () =>
             {
-                RuleFor(r => r.DateOfBirth)
+                RuleFor(x => x.DateOfBirth)
                     .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow))
                     .WithMessage("Date of birth must be less than or equal to today's date");
             });
 
             When(x => x.DateOfBirth != null, () =>
             {
-                RuleFor(r => r.Gender)
+                RuleFor(x => x.Gender)
                     .IsEnumName(typeof(GenderType), false)
                     .WithMessage("Gender must be either 'male', 'female', or 'other'.");
             });

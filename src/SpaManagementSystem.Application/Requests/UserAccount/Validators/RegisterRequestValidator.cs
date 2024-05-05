@@ -15,34 +15,34 @@ namespace SpaManagementSystem.Application.Requests.UserAccount.Validators
         /// </summary>
         public RegisterRequestValidator()
         {
-            RuleFor(r => r.Email)
+            RuleFor(x => x.Email)
                 .NotNull().WithMessage("Email is required.")
                 .NotEmpty().WithMessage("Email is required.")
                 .EmailAddress().WithMessage("Invalid email address.");
 
-            RuleFor(r => r.Password)
+            RuleFor(x => x.Password)
                 .MatchPassword();
 
-            RuleFor(r => r.PhoneNumber)
+            RuleFor(x => x.PhoneNumber)
                 .MatchPhoneNumber();
 
-            RuleFor(r => r.FirstName)
+            RuleFor(x => x.FirstName)
                 .NotNull().WithMessage("First name is required.")
                 .NotEmpty().WithMessage("First name is required.")
                 .MatchName()
                 .Length(2, 50).WithMessage("The first name can be 2 characters long and up to 50 characters long");
 
-            RuleFor(r => r.LastName)
+            RuleFor(x => x.LastName)
                 .NotNull().WithMessage("Last name is required.")
                 .NotEmpty().WithMessage("Last name is required.")
                 .MatchName()
                 .Length(2, 50).WithMessage("The last name can be 2 characters long and up to 50 characters long");
             
-            RuleFor(r => r.DateOfBirth)
+            RuleFor(x => x.DateOfBirth)
                 .NotNull().WithMessage("Date of birth is required")
                 .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow)).WithMessage("Date of birth must be less than or equal to today's date");
 
-            RuleFor(r => r.Gender)
+            RuleFor(x => x.Gender)
                 .NotNull().WithMessage("Gender is required.")
                 .NotEmpty().WithMessage("Gender is required")
                 .IsEnumName(typeof(GenderType), false).WithMessage("Gender must be either 'male', 'female', or 'other'.");
