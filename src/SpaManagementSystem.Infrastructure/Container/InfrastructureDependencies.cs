@@ -90,6 +90,7 @@ namespace SpaManagementSystem.Infrastructure.Container
         private static IServiceCollection ConfigureRepositories(this IServiceCollection services)
         {
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
             return services;
         }
