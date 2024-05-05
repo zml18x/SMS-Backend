@@ -17,5 +17,8 @@ namespace SpaManagementSystem.Application.Interfaces
             DateOnly dateOfBirth);
 
         public Task<UserAccountDetailsDto> GetAccountDetailsAsync(Guid userId, string email, string phoneNumber);
+
+        public Task<bool> UpdateProfileAsync(Guid userId, string? firstName, string? lastName, string? gender,
+            DateOnly? dateOfBirth);
     }
 }

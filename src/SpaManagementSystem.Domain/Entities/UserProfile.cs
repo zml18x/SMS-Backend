@@ -49,12 +49,58 @@ namespace SpaManagementSystem.Domain.Entities
             DateOnly dateOfBirth) : base(id)
         {
             SetUserId(userId);
-            SetNames(firstName, lastName);
+            SetFirstName(firstName);
+            SetLastName(lastName);
             SetGender(gender);
             SetDateOfBirth(dateOfBirth);
         }
 
 
+
+        /// <summary>
+        /// Updates the profile with optional new values for first name, last name, gender, and date of birth.
+        /// Any provided values will replace the current ones. If a field is not provided, it will not be updated.
+        /// </summary>
+        /// <param name="firstName">Optional. The new first name to update. If null or whitespace, the first name remains unchanged.</param>
+        /// <param name="lastName">Optional. The new last name to update. If null or whitespace, the last name remains unchanged.</param>
+        /// <param name="gender">Optional. The new gender to update. If null, the gender remains unchanged.</param>
+        /// <param name="dateOfBirth">Optional. The new date of birth to update. If null, the date of birth remains unchanged.</param>
+        /// <returns>True if any data was updated; otherwise, false.
+        /// This can be used to determine if the entity needs to be saved to the database.</returns>
+        public bool UpdateProfile(string? firstName = null, string? lastName = null, GenderType? gender = null,
+            DateOnly? dateOfBirth = null)
+        {
+            var anyDataUpdated = false;
+
+            if (!string.IsNullOrWhiteSpace(firstName))
+            {
+                SetFirstName(firstName);
+                anyDataUpdated = true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(lastName))
+            {
+                SetLastName(lastName);
+                anyDataUpdated = true;
+            }
+
+            if (gender != null)
+            {
+                SetGender((GenderType)gender);
+                anyDataUpdated = true;
+            }
+
+            if (dateOfBirth != null)
+            {
+                SetDateOfBirth((DateOnly)dateOfBirth);
+                anyDataUpdated = true;
+            }
+
+            if (anyDataUpdated)
+                UpdatedAt = DateTime.UtcNow;
+
+            return anyDataUpdated;
+        }
 
         /// <summary>
         /// Validates and sets the UserId. Throws an ArgumentException if the UserId is empty.
@@ -68,16 +114,22 @@ namespace SpaManagementSystem.Domain.Entities
         }
 
         /// <summary>
-        /// Validates and sets the user's names. Throws an ArgumentException if the names are null or whitespace.
+        /// Validates and sets the user's first name. Throws an ArgumentException if the first name are null or whitespace.
         /// </summary>
         /// <param name="firstName">The first name to set.</param>
-        /// <param name="lastName">The last name to set.</param>
-        private void SetNames(string firstName, string lastName)
+        private void SetFirstName(string firstName)
         {
             FirstName = !string.IsNullOrWhiteSpace(firstName)
                 ? firstName
                 : throw new ArgumentException("First name cannot be null or whitespace", nameof(firstName));
-            
+        }
+
+        /// <summary>
+        /// Validates and sets the user's last name. Throws an ArgumentException if the last name are null or whitespace.
+        /// </summary>
+        /// <param name="lastName">The last name to set.</param>
+        private void SetLastName(string lastName)
+        {
             LastName = !string.IsNullOrWhiteSpace(lastName)
                 ? lastName
                 : throw new ArgumentException("Last name cannot be null or whitespace", nameof(lastName));

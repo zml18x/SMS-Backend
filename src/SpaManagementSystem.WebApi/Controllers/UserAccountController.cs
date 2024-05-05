@@ -13,7 +13,7 @@ namespace SpaManagementSystem.WebApi.Controllers
     [ApiController]
     public class UserAccountController : ControllerBase
     {
-        private Guid UserId => User.Identity!.IsAuthenticated == true ? Guid.Parse(User.Identity.Name!) : Guid.Empty;
+        private Guid UserId => User.Identity!.IsAuthenticated ? Guid.Parse(User.Identity.Name!) : Guid.Empty;
         private readonly SignInManager<User> _signInManager;
         private readonly IUserService _userService;
         private readonly IJwtService _jwtService;
@@ -114,6 +114,22 @@ namespace SpaManagementSystem.WebApi.Controllers
             return new OkObjectResult(userProfileDto);
         }
         
+        [Authorize]
+        [HttpPatch("UpdateProfile")]
+        public async Task<IActionResult> UpdateProfileAsync([FromBody] UpdateProfileRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _userService.UpdateProfileAsync(UserId, request.FirstName, request.LastName,
+                request.Gender, request.DateOfBirth);
+
+            if (result)
+                return Ok("The profile has been updated successfully.");
+
+            return BadRequest("No changes were made to the profile.");
+        }
+        
         [HttpPost("Manage/ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfirmEmailRequest request)
         {
@@ -207,6 +223,75 @@ namespace SpaManagementSystem.WebApi.Controllers
 
                 return Ok("Email address changed successfully.");
             }
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.Code, error.Description);
+
+            return BadRequest(ModelState);
+        }
+        
+        [Authorize]
+        [HttpPatch("Manage/ChangePassword")]
+        public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _signInManager.UserManager.FindByIdAsync(UserId.ToString());
+
+            if (user == null)
+                return NotFound("User account not found");
+
+            var result = await _signInManager.UserManager
+                .ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+
+            if (result.Succeeded)
+                return Ok("Password changed successfully.");
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.Code, error.Description);
+
+            return BadRequest(ModelState);
+        }
+        
+        [HttpPost("Manage/SendResetPasswordToken")]
+        public async Task<IActionResult> SendResetPasswordTokenAsync([FromBody] SendResetPasswordTokenRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
+
+            if (user != null)
+            {
+                var token = await _signInManager.UserManager.GeneratePasswordResetTokenAsync(user);
+
+                if (string.IsNullOrWhiteSpace(token))
+                    return StatusCode(StatusCodes.Status500InternalServerError,
+                        "An error occurred while generating the password reset token.");
+
+                await _emailSender.SendPasswordResetCodeAsync(user, user.Email!, token);
+            }
+
+            return Ok("A password reset request has been sent. If the provided email address exists in our system," +
+                      " you will receive an email with instructions.");
+        }
+        
+        [HttpPatch("Manage/ResetPassword")]
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
+
+            if (user == null)
+                return BadRequest("Password reset failed. Please check your email and try again.");
+
+            var result = await _signInManager.UserManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
+
+            if (result.Succeeded)
+                return Ok("Password reset successfully. Please login with your new password.");
 
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.Code, error.Description);
