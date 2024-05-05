@@ -8,9 +8,9 @@
     public class SendConfirmationEmailRequest
     {
         /// <summary>
-        /// Gets or sets the email address to which the confirmation email will be sent.
+        /// Gets the email address to which the confirmation email will be sent.
         /// </summary>
-        public string Email { get; set; }
+        public string Email { get; init; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendConfirmationEmailRequest"/> class with a specified email address.
