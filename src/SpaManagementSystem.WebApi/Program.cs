@@ -2,6 +2,7 @@ using Microsoft.OpenApi.Models;
 using SpaManagementSystem.Infrastructure.Data;
 using SpaManagementSystem.Infrastructure.Container;
 using SpaManagementSystem.Application.Container;
+using SpaManagementSystem.WebApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionsHandlingMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
