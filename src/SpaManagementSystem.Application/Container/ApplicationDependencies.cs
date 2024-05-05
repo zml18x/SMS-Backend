@@ -1,4 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.Extensions.DependencyInjection;
+using SpaManagementSystem.Application.Services;
+using SpaManagementSystem.Application.Interfaces;
+using SpaManagementSystem.Application.Requests.UserAccount.Validators;
 
 namespace SpaManagementSystem.Application.Container
 {
@@ -11,12 +16,48 @@ namespace SpaManagementSystem.Application.Container
     {
         /// <summary>
         /// Configures core services and dependencies for the application layer.
-        /// This method serves as a stub for future extensions where application-specific services such as domain services,
-        /// application services, and handlers can be registered.
+        /// This method is the entry point for adding application-specific services such as domain services,
+        /// application services, and validation mechanisms to the IServiceCollection.
         /// </summary>
         /// <param name="services">The collection of service descriptors for registering application layer services.</param>
+        /// <returns>The IServiceCollection with registered services, supporting fluent configuration.</returns>
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
+            services.ConfigureServices();
+            services.ConfigureFluentValidation();
+            
+            return services;
+        }
+        
+
+        /// <summary>
+        /// Registers services specific to the application's core functionalities.
+        /// This method is used internally to add scoped services which are essential
+        /// for the application's operation and are utilized across various components of the application.
+        /// </summary>
+        /// <param name="services">The collection of service descriptors where services are registered.</param>
+        /// <returns>The IServiceCollection with added scoped services, enabling chained configurations.</returns>
+        private static IServiceCollection ConfigureServices(this IServiceCollection services)
+        {
+            services.AddScoped<IUserService, UserService>();
+
+            return services;
+        }
+
+        /// <summary>
+        /// Configures FluentValidation integration with the application.
+        /// This method sets up automatic validation and client-side adapters for models based on FluentValidation.
+        /// It also registers all validators within the assembly that contains the RegisterRequestValidator,
+        /// ensuring that they are available to validate incoming requests.
+        /// </summary>
+        /// <param name="services">The collection of service descriptors for registering FluentValidation services.</param>
+        /// <returns>The IServiceCollection with FluentValidation services configured, supporting fluent configuration.</returns>
+        private static IServiceCollection ConfigureFluentValidation(this IServiceCollection services)
+        {
+            services.AddFluentValidationAutoValidation()
+                .AddFluentValidationClientsideAdapters()
+                .AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
+
             return services;
         }
     }

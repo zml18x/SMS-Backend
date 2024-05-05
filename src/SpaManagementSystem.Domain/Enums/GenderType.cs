@@ -21,4 +21,35 @@
         /// </summary>
         Other
     }
+    
+    /// <summary>
+    /// Provides utility methods for converting strings to <see cref="GenderType"/> values.
+    /// </summary>
+    public static class GenderTypeHelper
+    {
+        /// <summary>
+        /// Converts a string representation of a gender into the corresponding <see cref="GenderType"/> enum.
+        /// This method performs a case-insensitive comparison of the input string with known gender types.
+        /// </summary>
+        /// <param name="genderString">The gender string to convert.</param>
+        /// <returns>A <see cref="GenderType"/> that corresponds to the given string.
+        /// Returns <see cref="GenderType.Other"/> if the input does not match known gender types.</returns>
+        public static GenderType ConvertToGenderType(string genderString)
+        {
+            if (genderString.ToLower() == "male")
+            {
+                return GenderType.Male;
+            }
+            else if (genderString.ToLower() == "female")
+            {
+                return GenderType.Female;
+            }
+            else if (genderString.ToLower() == "other")
+            {
+                return GenderType.Other;
+            }
+
+            return GenderType.Other;
+        }
+    }
 }

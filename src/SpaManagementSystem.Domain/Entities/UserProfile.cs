@@ -74,11 +74,11 @@ namespace SpaManagementSystem.Domain.Entities
         /// <param name="lastName">The last name to set.</param>
         private void SetNames(string firstName, string lastName)
         {
-            FirstName = string.IsNullOrWhiteSpace(firstName)
+            FirstName = !string.IsNullOrWhiteSpace(firstName)
                 ? firstName
                 : throw new ArgumentException("First name cannot be null or whitespace", nameof(firstName));
             
-            LastName = string.IsNullOrWhiteSpace(lastName)
+            LastName = !string.IsNullOrWhiteSpace(lastName)
                 ? lastName
                 : throw new ArgumentException("Last name cannot be null or whitespace", nameof(lastName));
         }
