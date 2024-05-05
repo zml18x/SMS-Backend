@@ -134,5 +134,34 @@ namespace SpaManagementSystem.WebApi.Controllers
 
             return BadRequest(confirmationFailedMsg);
         }
+        
+        [HttpPost("Manage/SendConfirmationEmail")]
+        public async Task<IActionResult> SendConfirmationEmailAsync([FromBody] SendConfirmationEmailRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
+
+            var successMsg = "Confirmation email sent successfully. Please check your inbox, " +
+                             "including the spam folder, for further instructions.";
+
+            if (user == null)
+                return Ok(successMsg);
+
+            if (user.EmailConfirmed)
+                return Ok("Email already confirmed.");
+            
+
+            var token = await _signInManager.UserManager.GenerateEmailConfirmationTokenAsync(user);
+
+            if (string.IsNullOrWhiteSpace(token))
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Failed to generate email confirmation token.");
+
+            await _emailSender.SendConfirmationLinkAsync(user, user.Email!, token);
+
+            return Ok(successMsg);
+        }
     }
 }

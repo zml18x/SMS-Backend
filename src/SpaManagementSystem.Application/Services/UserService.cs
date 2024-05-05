@@ -1,8 +1,9 @@
-﻿using SpaManagementSystem.Application.Dto;
-using SpaManagementSystem.Domain.Enums;
+﻿using SpaManagementSystem.Domain.Enums;
 using SpaManagementSystem.Domain.Entities;
 using SpaManagementSystem.Domain.Interfaces;
+using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Interfaces;
+
 
 namespace SpaManagementSystem.Application.Services
 {
