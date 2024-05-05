@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using SpaManagementSystem.Application.Exceptions;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.UserAccount;
@@ -162,6 +162,56 @@ namespace SpaManagementSystem.WebApi.Controllers
             await _emailSender.SendConfirmationLinkAsync(user, user.Email!, token);
 
             return Ok(successMsg);
+        }
+        
+        [Authorize]
+        [HttpPost("Manage/SendConfirmationChangeEmail")]
+        public async Task<IActionResult> ChangeEmailAsync([FromBody] ChangeEmailRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _signInManager.UserManager.FindByIdAsync(UserId.ToString());
+
+            if (user == null)
+                return BadRequest("User account not found.");
+
+            var token = await _signInManager.UserManager.GenerateChangeEmailTokenAsync(user, request.NewEmail);
+
+            if (string.IsNullOrWhiteSpace(token))
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "An error occurred while generating the change email token.");
+
+            await _emailSender.SendConfirmationLinkAsync(user, user.Email!, token);
+
+            return Ok("Confirmation email sent successfully. Please check your email for further instructions.");
+        }
+        
+        [Authorize]
+        [HttpPatch("Manage/ConfirmChangedEmail")]
+        public async Task<IActionResult> ConfirmChangedEmail([FromBody] ConfirmationChangeEmailRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _signInManager.UserManager.FindByIdAsync(UserId.ToString());
+
+            if (user == null)
+                return BadRequest("User account not found.");
+
+            var result = await _signInManager.UserManager.ChangeEmailAsync(user, request.NewEmail, request.Token);
+            
+            if (result.Succeeded)
+            {
+                await _signInManager.UserManager.SetUserNameAsync(user, request.NewEmail);
+
+                return Ok("Email address changed successfully.");
+            }
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.Code, error.Description);
+
+            return BadRequest(ModelState);
         }
     }
 }
