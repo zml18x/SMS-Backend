@@ -34,9 +34,23 @@
         /// <param name="id">The unique identifier for the entity, to be provided upon creation.</param>
         protected BaseEntity(Guid id)
         {
-            Id = id;
+            SetId(id);
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
+        }
+
+
+
+        /// <summary>
+        /// Validates and sets the id. Throws an ArgumentException if the Id is empty.
+        /// </summary>
+        /// <param name="id">The unique identifier to set.</param>
+        private void SetId(Guid id)
+        {
+            if (id == Guid.Empty)
+                throw new ArgumentException("User id cannot be empty", nameof(id));
+
+            Id = id;
         }
     }
 }
