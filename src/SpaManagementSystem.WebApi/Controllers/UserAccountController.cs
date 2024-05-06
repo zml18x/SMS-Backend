@@ -79,24 +79,30 @@ namespace SpaManagementSystem.WebApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            
+            var user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
+            if (user == null)
+                return BadRequest("Invalid Credentials");
 
-            var result =
+            var signInResult =
                 await _signInManager.PasswordSignInAsync(request.Email, request.Password, false,
                     lockoutOnFailure: false);
-
-            if (result.Succeeded)
+            
+            if (signInResult.Succeeded)
             {
-                var user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
-
-                if (user == null)
-                    throw new NotFoundException("User account not found");
-
                 var jwtDto = _jwtService.CreateToken(user.Id, user.Email!,
                     await _signInManager.UserManager.GetRolesAsync(user));
 
                 return new OkObjectResult(jwtDto);
             }
-            
+
+            if (signInResult.IsNotAllowed)
+            {
+                var validPassword = await _signInManager.UserManager.CheckPasswordAsync(user, request.Password);
+                if (!user.EmailConfirmed && validPassword)
+                    return BadRequest("Please, confirm your email");
+            }
+
             return BadRequest("Invalid Credentials");
         }
 
@@ -220,7 +226,9 @@ namespace SpaManagementSystem.WebApi.Controllers
             if (result.Succeeded)
             {
                 await _signInManager.UserManager.SetUserNameAsync(user, request.NewEmail);
-
+                user.EmailConfirmed = false;
+                await _signInManager.UserManager.UpdateAsync(user);
+                
                 return Ok("Email address changed successfully.");
             }
 
