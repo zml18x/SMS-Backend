@@ -54,6 +54,7 @@ namespace SpaManagementSystem.Application.Common.Validation
         /// </remarks>
         public static IRuleBuilderOptions<T, string> MatchName<T>(this IRuleBuilder<T, string> rule)
             => rule
-                .Matches(@"^[A-Za-z]+(?:\\s[A-Za-z]+)*$").WithMessage("The name can only consist of letters and spaces");
+                .Matches(@"^[A-Za-z]+(?:\\s[A-Za-z]+)*$")
+                .WithMessage("The name can only consist of letters and spaces");
     }
 }

@@ -21,14 +21,14 @@ namespace SpaManagementSystem.Application.Requests.UserAccount.Validators
             {
                 RuleFor(x => x.FirstName!)
                     .MatchName()
-                    .Length(2 - 50).WithMessage("The first name can be 2 characters long and up to 50 characters long");
+                    .Length(2, 50).WithMessage("The first name can be 2 characters long and up to 50 characters long");
             });
 
             When(x => x.LastName != null, () =>
             {
                 RuleFor(x => x.LastName!)
                     .MatchName()
-                    .Length(2 - 50).WithMessage("The last name can be 2 characters long and up to 50 characters long");
+                    .Length(2, 50).WithMessage("The last name can be 2 characters long and up to 50 characters long");
             });
 
             When(x => x.Gender != null, () =>
