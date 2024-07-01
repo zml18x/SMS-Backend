@@ -1,4 +1,9 @@
 version: '3'
+
+networks:
+  backend:
+    driver: bridge
+   
 services:
   database:
     build: docker/database
@@ -7,3 +12,15 @@ services:
       - POSTGRES_PASSWORD=mAslo#2!X
     ports:
      - "2137:5432"
+    networks:
+     - "backend"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    networks:
+      - backend  

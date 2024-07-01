@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using SpaManagementSystem.Domain.Entities;
 
 namespace SpaManagementSystem.Infrastructure.Data.Context
 {
@@ -23,6 +24,10 @@ namespace SpaManagementSystem.Infrastructure.Data.Context
         /// <param name="options">The options for configuring the context.</param>
         public SmsDbContext(DbContextOptions<SmsDbContext> options) : base(options) { }
 
+        
+        
+        public DbSet<UserProfile> UserProfiles { get; set; }
+        
         
         
         /// <summary>
