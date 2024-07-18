@@ -16,4 +16,8 @@
     <ProjectReference Include="..\SpaManagementSystem.Domain\SpaManagementSystem.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Requests\Salon\Validators\" />
+  </ItemGroup>
+
 </Project>

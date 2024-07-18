@@ -36,6 +36,8 @@ namespace SpaManagementSystem.Domain.Entities
 
 
 
+        public UserProfile(){}
+        
         /// <summary>
         /// Initializes a new instance of the UserProfile with specific details.
         /// </summary>

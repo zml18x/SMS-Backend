@@ -40,6 +40,7 @@ namespace SpaManagementSystem.Application.Container
         private static IServiceCollection ConfigureServices(this IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ISalonService, SalonService>();
 
             return services;
         }

@@ -27,6 +27,8 @@ namespace SpaManagementSystem.Infrastructure.Data.Context
         
         
         public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<Salon> Salons { get; set; }
+        public DbSet<OpeningHours> OpeningHours { get; set; }
         
         
         

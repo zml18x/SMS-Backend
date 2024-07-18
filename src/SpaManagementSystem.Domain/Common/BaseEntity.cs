@@ -24,8 +24,11 @@
         /// and should be updated whenever changes are made to the entity.
         /// </summary>
         public DateTime UpdatedAt { get; protected set; }
-
-
+        
+        
+        
+        protected BaseEntity(){}
+        
         /// <summary>
         /// Initializes a new instance of the BaseEntity class with a specified identifier.
         /// This constructor sets the Id to the provided GUID and initializes the CreatedAt and UpdatedAt properties
