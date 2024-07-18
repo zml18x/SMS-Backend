@@ -2,13 +2,13 @@
 
 namespace SpaManagementSystem.Application.Requests.Salon
 {
-    public class UpdateOpeningHoursRequest
+    public class UpdateSalonOpeningHoursRequest
     {
         public List<OpeningHoursDto> OpeningHours { get; set; }
 
 
 
-        public UpdateOpeningHoursRequest(List<OpeningHoursDto> openingHours)
+        public UpdateSalonOpeningHoursRequest(List<OpeningHoursDto> openingHours)
         {
             OpeningHours = openingHours;
         }

@@ -71,7 +71,7 @@ namespace SpaManagementSystem.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{salonId}/Manage/UpdateOpeningHours")]
-        public async Task<IActionResult> UpdateOpeningHoursAsync(Guid salonId, [FromBody] UpdateOpeningHoursRequest request)
+        public async Task<IActionResult> UpdateOpeningHoursAsync(Guid salonId, [FromBody] UpdateSalonOpeningHoursRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

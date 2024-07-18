@@ -68,7 +68,7 @@ namespace SpaManagementSystem.Application.Services
             return isUpdated;
         }
 
-        public async Task UpdateOpeningHours(Guid salonId, UpdateOpeningHoursRequest request)
+        public async Task UpdateOpeningHours(Guid salonId, UpdateSalonOpeningHoursRequest request)
         {
             var salon = await _salonRepository.GetByIdAsync(salonId);
             

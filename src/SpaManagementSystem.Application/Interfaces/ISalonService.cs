@@ -9,7 +9,7 @@ namespace SpaManagementSystem.Application.Interfaces
         public Task<IEnumerable<SalonDto>> GetAllSalonsByUserIdAsync(Guid userId);
         public Task CreateAsync(Guid userId, CreateSalonRequest createSalonRequest);
         public Task<bool> UpdateSalonAsync(Guid salonId, UpdateSalonDetailsRequest request);
-        public Task UpdateOpeningHours(Guid salonId, UpdateOpeningHoursRequest request);
+        public Task UpdateOpeningHours(Guid salonId, UpdateSalonOpeningHoursRequest request);
         public Task DeleteAsync(Guid salonId);
     }
 }
