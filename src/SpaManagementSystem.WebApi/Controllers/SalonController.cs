@@ -10,9 +10,8 @@ namespace SpaManagementSystem.WebApi.Controllers
     /// </summary>
     [Route("api/Salon")]
     [ApiController]
-    public class SalonController : ControllerBase
+    public class SalonController : BaseController
     {
-        private Guid UserId => User.Identity!.IsAuthenticated ? Guid.Parse(User.Identity.Name!) : Guid.Empty;
         private readonly ISalonService _salonService;
         
         

@@ -13,9 +13,8 @@ namespace SpaManagementSystem.WebApi.Controllers
     /// </summary>
     [Route("api/Account")]
     [ApiController]
-    public class UserAccountController : ControllerBase
+    public class UserAccountController : BaseController
     {
-        private Guid UserId => User.Identity!.IsAuthenticated ? Guid.Parse(User.Identity.Name!) : Guid.Empty;
         private readonly SignInManager<User> _signInManager;
         private readonly IUserService _userService;
         private readonly IJwtService _jwtService;
