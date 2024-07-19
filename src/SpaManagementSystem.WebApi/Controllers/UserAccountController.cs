@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
-using SpaManagementSystem.Application.Exceptions;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.UserAccount;
 using SpaManagementSystem.Infrastructure.Identity.Enums;
@@ -9,6 +8,9 @@ using SpaManagementSystem.Infrastructure.Identity.Entities;
 
 namespace SpaManagementSystem.WebApi.Controllers
 {
+    /// <summary>
+    /// Provides endpoints for user account management including registration, login, profile updates, and email verification.
+    /// </summary>
     [Route("api/Account")]
     [ApiController]
     public class UserAccountController : ControllerBase
@@ -19,7 +21,14 @@ namespace SpaManagementSystem.WebApi.Controllers
         private readonly IJwtService _jwtService;
         private readonly IEmailSender<User> _emailSender;
 
-
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserAccountController"/> class.
+        /// </summary>
+        /// <param name="signInManager">The <see cref="SignInManager{User}"/> used for user sign-in operations.</param>
+        /// <param name="userService">The <see cref="IUserService"/> used for user profile management.</param>
+        /// <param name="jwtService">The <see cref="IJwtService"/> used for JWT token operations.</param>
+        /// <param name="emailSender">The <see cref="IEmailSender{User}"/> used for sending emails.</param>
         public UserAccountController(SignInManager<User> signInManager, IUserService userService,
             IJwtService jwtService, IEmailSender<User> emailSender)
         {
@@ -30,7 +39,12 @@ namespace SpaManagementSystem.WebApi.Controllers
         }
 
 
-
+        
+        /// <summary>
+        /// Registers a new user with the provided details and sends a confirmation email.
+        /// </summary>
+        /// <param name="request">The <see cref="RegisterRequest"/> object containing user registration details.</param>
+        /// <returns>An <see cref="IActionResult"/> representing the result of the registration process.</returns>
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest request)
         {
@@ -73,7 +87,12 @@ namespace SpaManagementSystem.WebApi.Controllers
 
             return BadRequest(ModelState);
         }
-
+        
+        /// <summary>
+        /// Authenticates a user with the provided email and password, and returns a JWT token if successful.
+        /// </summary>
+        /// <param name="request">The <see cref="SignInRequest"/> object containing user sign-in details.</param>
+        /// <returns>An <see cref="IActionResult"/> containing the JWT token or an error message.</returns>
         [HttpPost("SignIn")]
         public async Task<IActionResult> SignInAsync([FromBody] SignInRequest request)
         {
@@ -105,7 +124,11 @@ namespace SpaManagementSystem.WebApi.Controllers
 
             return BadRequest("Invalid Credentials");
         }
-
+        
+        /// <summary>
+        /// Retrieves the current user's account details.
+        /// </summary>
+        /// <returns>An <see cref="IActionResult"/> containing the user's account details.</returns>
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetAccountAsync()
@@ -120,6 +143,11 @@ namespace SpaManagementSystem.WebApi.Controllers
             return new OkObjectResult(userProfileDto);
         }
         
+        /// <summary>
+        /// Updates the current user's profile with the provided details.
+        /// </summary>
+        /// <param name="request">The <see cref="UpdateProfileRequest"/> object containing updated profile details.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the update operation.</returns>
         [Authorize]
         [HttpPatch("UpdateProfile")]
         public async Task<IActionResult> UpdateProfileAsync([FromBody] UpdateProfileRequest request)
@@ -136,6 +164,11 @@ namespace SpaManagementSystem.WebApi.Controllers
             return BadRequest("No changes were made to the profile.");
         }
         
+        /// <summary>
+        /// Confirms the user's email address with the provided token.
+        /// </summary>
+        /// <param name="request">The <see cref="ConfirmEmailRequest"/> object containing the email and token for confirmation.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the email confirmation process.</returns>
         [HttpPost("Manage/ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfirmEmailRequest request)
         {
@@ -157,6 +190,11 @@ namespace SpaManagementSystem.WebApi.Controllers
             return BadRequest(confirmationFailedMsg);
         }
         
+        /// <summary>
+        /// Sends a confirmation email to the specified email address if it is not already confirmed.
+        /// </summary>
+        /// <param name="request">The <see cref="SendConfirmationEmailRequest"/> object containing the email address.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the confirmation email sending process.</returns>
         [HttpPost("Manage/SendConfirmationEmail")]
         public async Task<IActionResult> SendConfirmationEmailAsync([FromBody] SendConfirmationEmailRequest request)
         {
@@ -186,6 +224,11 @@ namespace SpaManagementSystem.WebApi.Controllers
             return Ok(successMsg);
         }
         
+        /// <summary>
+        /// Sends a confirmation email with a token to change the user's email address.
+        /// </summary>
+        /// <param name="request">The <see cref="ChangeEmailRequest"/> object containing the new email address.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of sending the change email confirmation.</returns>
         [Authorize]
         [HttpPost("Manage/SendConfirmationChangeEmail")]
         public async Task<IActionResult> ChangeEmailAsync([FromBody] ChangeEmailRequest request)
@@ -209,6 +252,11 @@ namespace SpaManagementSystem.WebApi.Controllers
             return Ok("Confirmation email sent successfully. Please check your email for further instructions.");
         }
         
+        /// <summary>
+        /// Confirms the user's email address change with the provided token.
+        /// </summary>
+        /// <param name="request">The <see cref="ConfirmationChangeEmailRequest"/> object containing the new email and confirmation token.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the email confirmation process.</returns>
         [Authorize]
         [HttpPatch("Manage/ConfirmChangedEmail")]
         public async Task<IActionResult> ConfirmChangedEmail([FromBody] ConfirmationChangeEmailRequest request)
@@ -238,6 +286,11 @@ namespace SpaManagementSystem.WebApi.Controllers
             return BadRequest(ModelState);
         }
         
+        /// <summary>
+        /// Changes the current user's password.
+        /// </summary>
+        /// <param name="request">The <see cref="ChangePasswordRequest"/> object containing the current and new passwords.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the password change operation.</returns>
         [Authorize]
         [HttpPatch("Manage/ChangePassword")]
         public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequest request)
@@ -262,6 +315,11 @@ namespace SpaManagementSystem.WebApi.Controllers
             return BadRequest(ModelState);
         }
         
+        /// <summary>
+        /// Sends a password reset token to the specified email address.
+        /// </summary>
+        /// <param name="request">The <see cref="SendResetPasswordTokenRequest"/> object containing the email address to send the reset token.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of sending the password reset token.</returns>
         [HttpPost("Manage/SendResetPasswordToken")]
         public async Task<IActionResult> SendResetPasswordTokenAsync([FromBody] SendResetPasswordTokenRequest request)
         {
@@ -285,6 +343,12 @@ namespace SpaManagementSystem.WebApi.Controllers
                       " you will receive an email with instructions.");
         }
         
+        /// <summary>
+        /// Resets the user's password with the provided token and new password.
+        /// </summary>
+        /// <param name="request">The <see cref="ResetPasswordRequest"/>
+        /// object containing the email address, reset token, and new password.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the password reset operation.</returns>
         [HttpPatch("Manage/ResetPassword")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordRequest request)
         {

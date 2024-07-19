@@ -1,20 +1,19 @@
 ﻿namespace SpaManagementSystem.Application.Requests.UserAccount
 {
     /// <summary>
-    /// Represents a request to change a user's email address.
-    /// This class is used to capture and transfer the new email address that a user wishes to update to.
+    /// Represents a request to change the email address.
     /// </summary>
     public class ChangeEmailRequest
     {
         /// <summary>
-        /// Gets the new email address that the user wants to update to.
+        /// Gets the new email address to be set.
         /// </summary>
         public string NewEmail { get; init; }
-
+        
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeEmailRequest"/> class with a specific new email address.
+        /// Initializes a new instance of the <see cref="ChangeEmailRequest"/> class.
         /// </summary>
-        /// <param name="newEmail">The new email address to be updated to the user's account.</param>
+        /// <param name="newEmail">The new email address to be set.</param>
         public ChangeEmailRequest(string newEmail)
         {
             NewEmail = newEmail;

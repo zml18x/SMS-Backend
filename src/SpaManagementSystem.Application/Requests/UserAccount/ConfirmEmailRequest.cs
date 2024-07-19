@@ -1,8 +1,7 @@
 ﻿namespace SpaManagementSystem.Application.Requests.UserAccount
 {
     /// <summary>
-    /// Represents a request for confirming a user's email address with a verification token.
-    /// This class is used to capture and transfer the necessary data for email confirmation processes.
+    /// Represents a request to confirm an email address.
     /// </summary>
     public class ConfirmEmailRequest
     {
@@ -12,15 +11,17 @@
         public string Email { get; init; }
 
         /// <summary>
-        /// Gets the verification token associated with the email confirmation.
+        /// Gets the confirmation token required to validate the email confirmation request.
         /// </summary>
         public string Token { get; init; }
 
+        
+        
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConfirmEmailRequest"/> class with specified email and token.
+        /// Initializes a new instance of the <see cref="ConfirmEmailRequest"/> class.
         /// </summary>
-        /// <param name="email">The email address of the user whose email needs to be confirmed.</param>
-        /// <param name="token">The confirmation token that validates the email address.</param>
+        /// <param name="email">The email address to be confirmed.</param>
+        /// <param name="token">The confirmation token required to validate the email confirmation request.</param>
         public ConfirmEmailRequest(string email, string token)
         {
             Email = email;

@@ -3,9 +3,9 @@
 namespace SpaManagementSystem.Domain.Interfaces
 {
     /// <summary>
-    /// Defines a repository specifically for managing user profile entities.
-    /// This interface extends the generic IRepository interface by adding functionality
-    /// to retrieve user profiles based on user IDs.
+    /// Extends the generic IRepository interface to include additional functionality for managing user profiles.
+    /// Provides methods specific to the UserProfile entity, including retrieving UserProfile by user ID.
+    /// Inherits from IRepository&lt;UserProfile&gt;.
     /// </summary>
     public interface IUserProfileRepository : IRepository<UserProfile>
     {

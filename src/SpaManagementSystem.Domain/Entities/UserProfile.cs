@@ -35,7 +35,10 @@ namespace SpaManagementSystem.Domain.Entities
         public DateOnly DateOfBirth { get; protected set; }
 
 
-
+        
+        /// <summary>
+        /// Initializes a new instance of the UserProfile class.
+        /// </summary>
         public UserProfile(){}
         
         /// <summary>
@@ -105,9 +108,10 @@ namespace SpaManagementSystem.Domain.Entities
         }
 
         /// <summary>
-        /// Validates and sets the UserId. Throws an ArgumentException if the UserId is empty.
+        /// Validates and sets the UserId.
         /// </summary>
         /// <param name="userId">The unique identifier to set.</param>
+        /// <exception cref="ArgumentException">Thrown when the UserId is empty.</exception>
         private void SetUserId(Guid userId)
         {
             UserId = (userId != Guid.Empty)
@@ -116,9 +120,10 @@ namespace SpaManagementSystem.Domain.Entities
         }
 
         /// <summary>
-        /// Validates and sets the user's first name. Throws an ArgumentException if the first name are null or whitespace.
+        /// Validates and sets the user's first name.
         /// </summary>
         /// <param name="firstName">The first name to set.</param>
+        /// <exception cref="ArgumentException">Thrown when the first name is null or whitespace.</exception>
         private void SetFirstName(string firstName)
         {
             FirstName = !string.IsNullOrWhiteSpace(firstName)
@@ -127,9 +132,10 @@ namespace SpaManagementSystem.Domain.Entities
         }
 
         /// <summary>
-        /// Validates and sets the user's last name. Throws an ArgumentException if the last name are null or whitespace.
+        /// Validates and sets the user's last name.
         /// </summary>
         /// <param name="lastName">The last name to set.</param>
+        /// <exception cref="ArgumentException">Thrown when the last name is null or whitespace.</exception>
         private void SetLastName(string lastName)
         {
             LastName = !string.IsNullOrWhiteSpace(lastName)
@@ -138,20 +144,22 @@ namespace SpaManagementSystem.Domain.Entities
         }
 
         /// <summary>
-        /// Validates and sets the Gender property. Throws an ArgumentException if the value is not a defined enum value.
+        /// Validates and sets the Gender property.
         /// </summary>
         /// <param name="gender">The GenderType to set.</param>
+        /// <exception cref="ArgumentException">Thrown when the value is not a defined enum value.</exception>
         private void SetGender(GenderType gender)
         {
             Gender = (Enum.IsDefined(typeof(GenderType), gender))
                 ? gender
-                : throw new ArgumentException("Invalid value for the GenderType enum.",nameof(gender));
+                : throw new ArgumentException("Invalid value for the GenderType.",nameof(gender));
         }
         
         /// <summary>
-        /// Validates and sets the DateOfBirth. Throws an ArgumentException if the date is in the future.
+        /// Validates and sets the DateOfBirth.
         /// </summary>
         /// <param name="dateOfBirth">The DateOnly to set as the date of birth.</param>
+        /// <exception cref="ArgumentException">Thrown when the date is in the future.</exception>
         private void SetDateOfBirth(DateOnly dateOfBirth)
         {
             DateOfBirth = (dateOfBirth <= DateOnly.FromDateTime(DateTime.UtcNow.Date))

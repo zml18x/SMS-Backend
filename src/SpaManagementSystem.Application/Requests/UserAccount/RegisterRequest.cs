@@ -1,23 +1,22 @@
 ﻿namespace SpaManagementSystem.Application.Requests.UserAccount
 {
     /// <summary>
-    /// Represents a request for registering a new user within the Spa Management System.
-    /// This class is used to capture all necessary information needed to create a user account.
+    /// Represents a request to register a new user.
     /// </summary>
     public class RegisterRequest
     {
         /// <summary>
-        /// Gets the email address for the user.
+        /// Gets the email address of the user to register.
         /// </summary>
         public string Email { get; init; }
 
         /// <summary>
-        /// Gets the password for the user.
+        /// Gets the password for the new user account.
         /// </summary>
         public string Password { get; init; }
 
         /// <summary>
-        /// Gets the phone number for the user.
+        /// Gets the phone number of the user.
         /// </summary>
         public string PhoneNumber { get; init; }
 
@@ -32,7 +31,7 @@
         public string LastName { get; init; }
 
         /// <summary>
-        /// Gets the gender of the user as a string.
+        /// Gets the gender of the user.
         /// </summary>
         public string Gender { get; init; }
 
@@ -41,11 +40,13 @@
         /// </summary>
         public DateOnly DateOfBirth { get; init; }
 
+        
+        
         /// <summary>
-        /// Initializes a new instance of the RegisterRequest class with specified details for user registration.
+        /// Initializes a new instance of the <see cref="RegisterRequest"/> class.
         /// </summary>
-        /// <param name="email">The email address of the user.</param>
-        /// <param name="password">The password for the user account.</param>
+        /// <param name="email">The email address of the user to register.</param>
+        /// <param name="password">The password for the new user account.</param>
         /// <param name="phoneNumber">The phone number of the user.</param>
         /// <param name="firstName">The first name of the user.</param>
         /// <param name="lastName">The last name of the user.</param>

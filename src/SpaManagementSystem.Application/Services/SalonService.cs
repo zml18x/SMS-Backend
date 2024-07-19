@@ -7,19 +7,26 @@ using SpaManagementSystem.Application.Requests.Salon;
 
 namespace SpaManagementSystem.Application.Services
 {
+    /// <summary>
+    /// Provides services related to salon management, including CRUD operations and updating opening hours.
+    /// </summary>
     public class SalonService : ISalonService
     {
         private readonly ISalonRepository _salonRepository;
         
         
         
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SalonService"/> with a repository for handling salon data.
+        /// </summary>
+        /// <param name="salonRepository">The repository used for salon data operations.</param>
         public SalonService(ISalonRepository salonRepository)
         {
             _salonRepository = salonRepository;
         }
 
-
-
+    
+        /// <inheritdoc />
         public async Task<SalonDetailsDto?> GetSalonDetailsByIdAsync(Guid salonId)
         {
             var salon = await _salonRepository.GetByIdAsync(salonId);
@@ -32,6 +39,7 @@ namespace SpaManagementSystem.Application.Services
                     new OpeningHoursDto(x.DayOfWeek, x.OpeningTime, x.ClosingTime, x.IsClosed)));
         }
         
+        /// <inheritdoc />
         public async Task<IEnumerable<SalonDto>> GetAllSalonsByUserIdAsync(Guid userId)
         {
             var salons = await _salonRepository.GetAllByUserIdAsync(userId);
@@ -39,6 +47,7 @@ namespace SpaManagementSystem.Application.Services
             return salons.Select(x => new SalonDto(x.Id, x.Name));
         }
         
+        /// <inheritdoc />
         public async Task CreateAsync(Guid userId, CreateSalonRequest createSalonRequest)
         {
             var salon = new Salon(Guid.NewGuid(), userId, createSalonRequest.Name, createSalonRequest.Email,
@@ -50,6 +59,8 @@ namespace SpaManagementSystem.Application.Services
             await _salonRepository.SaveChangesAsync();
         }
         
+        /// <inheritdoc />
+        /// <exception cref="NotFoundException">Thrown when the salon with the specified ID is not found.</exception>
         public async Task<bool> UpdateSalonAsync(Guid salonId, UpdateSalonDetailsRequest request)
         {
             var salon = await _salonRepository.GetByIdAsync(salonId);
@@ -67,7 +78,9 @@ namespace SpaManagementSystem.Application.Services
 
             return isUpdated;
         }
-
+        
+        /// <inheritdoc />
+        /// <exception cref="NotFoundException">Thrown when the salon with the specified ID is not found.</exception>
         public async Task UpdateOpeningHours(Guid salonId, UpdateSalonOpeningHoursRequest request)
         {
             var salon = await _salonRepository.GetByIdAsync(salonId);
@@ -82,7 +95,9 @@ namespace SpaManagementSystem.Application.Services
             _salonRepository.Update(salon);
             await _salonRepository.SaveChangesAsync();
         }
-
+        
+        /// <inheritdoc />
+        /// <exception cref="NotFoundException">Thrown when the salon with the specified ID is not found.</exception>
         public async Task DeleteAsync(Guid salonId)
         {
             var salon = await _salonRepository.GetByIdAsync(salonId);
