@@ -1,9 +1,7 @@
-﻿namespace SpaManagementSystem.Application.Requests.UserAccount
+﻿ namespace SpaManagementSystem.Application.Requests.UserAccount
 {
     /// <summary>
-    /// Represents a request for sending a confirmation email to a user.
-    /// This class is used to capture the necessary data, specifically the user's email address,
-    /// to send an email for confirming account creation or changes.
+    /// Represents a request to send a confirmation email.
     /// </summary>
     public class SendConfirmationEmailRequest
     {
@@ -12,10 +10,12 @@
         /// </summary>
         public string Email { get; init; }
 
+        
+        
         /// <summary>
-        /// Initializes a new instance of the <see cref="SendConfirmationEmailRequest"/> class with a specified email address.
+        /// Initializes a new instance of the <see cref="SendConfirmationEmailRequest"/> class.
         /// </summary>
-        /// <param name="email">The email address of the user who will receive the confirmation email.</param>
+        /// <param name="email">The email address to send the confirmation email to.</param>
         public SendConfirmationEmailRequest(string email)
         {
             Email = email;

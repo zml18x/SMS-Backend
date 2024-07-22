@@ -96,6 +96,7 @@ namespace SpaManagementSystem.Infrastructure.Container
         {
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+            services.AddScoped<ISalonRepository, SalonRepository>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddSingleton<IEmailSender<User>, EmailSender>();
             services.AddSingleton<IEmailService, EmailService>();

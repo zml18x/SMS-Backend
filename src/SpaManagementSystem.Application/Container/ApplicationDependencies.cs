@@ -1,8 +1,11 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.DependencyInjection;
 using SpaManagementSystem.Application.Services;
 using SpaManagementSystem.Application.Interfaces;
+using SpaManagementSystem.Application.Requests.Salon;
+using SpaManagementSystem.Application.Requests.CommonValidators;
 using SpaManagementSystem.Application.Requests.UserAccount.Validators;
 
 namespace SpaManagementSystem.Application.Container
@@ -40,6 +43,10 @@ namespace SpaManagementSystem.Application.Container
         private static IServiceCollection ConfigureServices(this IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ISalonService, SalonService>();
+            services.AddScoped<IValidator<JsonPatchDocument<UpdateSalonDetailsRequest>>,
+                    JsonPatchDocumentValidator<UpdateSalonDetailsRequest>>();
+
 
             return services;
         }

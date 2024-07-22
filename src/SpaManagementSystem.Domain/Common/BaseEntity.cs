@@ -24,11 +24,19 @@
         /// and should be updated whenever changes are made to the entity.
         /// </summary>
         public DateTime UpdatedAt { get; protected set; }
-
-
+        
+        
+        
+        /// <summary>
+        /// Initializes a new instance of the BaseEntity class.
+        /// This parameterless constructor is protected to prevent direct instantiation
+        /// and ensure that derived classes control the creation process.
+        /// </summary>
+        protected BaseEntity(){}
+        
         /// <summary>
         /// Initializes a new instance of the BaseEntity class with a specified identifier.
-        /// This constructor sets the Id to the provided GUID and initializes the CreatedAt and UpdatedAt properties
+        /// This constructor sets the id to the provided GUID and initializes the CreatedAt and UpdatedAt properties
         /// to the current UTC date and time, ensuring that each entity has a distinct and traceable lifecycle start point.
         /// </summary>
         /// <param name="id">The unique identifier for the entity, to be provided upon creation.</param>
@@ -42,13 +50,14 @@
 
 
         /// <summary>
-        /// Validates and sets the id. Throws an ArgumentException if the Id is empty.
+        /// Validates and sets the id.
         /// </summary>
         /// <param name="id">The unique identifier to set.</param>
+        /// <exception cref="ArgumentException">Thrown when the id is empty.</exception>
         private void SetId(Guid id)
         {
             if (id == Guid.Empty)
-                throw new ArgumentException("User id cannot be empty", nameof(id));
+                throw new ArgumentException("Id cannot be empty", nameof(id));
 
             Id = id;
         }

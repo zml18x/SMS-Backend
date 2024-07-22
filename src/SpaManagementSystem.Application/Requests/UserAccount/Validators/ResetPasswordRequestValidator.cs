@@ -4,15 +4,12 @@ using SpaManagementSystem.Application.Common.Validation;
 namespace SpaManagementSystem.Application.Requests.UserAccount.Validators
 {
     /// <summary>
-    /// Provides validation for <see cref="ResetPasswordRequest"/> using FluentValidation.
-    /// This class ensures that the data provided for resetting a password is valid and complete,
-    /// enforcing correctness before the password reset process is initiated.
+    /// Validator class for validating <see cref="ResetPasswordRequest"/> instances.
     /// </summary>
     public class ResetPasswordRequestValidator : AbstractValidator<ResetPasswordRequest>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ResetPasswordRequestValidator"/> class
-        /// and defines the rules for validating the request.
+        /// Initializes a new instance of the <see cref="ResetPasswordRequestValidator"/> class.
         /// </summary>
         public ResetPasswordRequestValidator()
         {

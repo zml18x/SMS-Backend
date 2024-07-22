@@ -5,13 +5,12 @@ using SpaManagementSystem.Application.Common.Validation;
 namespace SpaManagementSystem.Application.Requests.UserAccount.Validators
 {
     /// <summary>
-    /// Validator for <see cref="RegisterRequest"/> using FluentValidation.
-    /// This class defines validation rules for registering a new user, ensuring that all necessary information is provided and valid.
+    /// Validator class for validating <see cref="RegisterRequest"/> instances.
     /// </summary>
     public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="RegisterRequestValidator"/> and defines the rules for validation.
+        /// Initializes a new instance of the <see cref="RegisterRequestValidator"/> class.
         /// </summary>
         public RegisterRequestValidator()
         {

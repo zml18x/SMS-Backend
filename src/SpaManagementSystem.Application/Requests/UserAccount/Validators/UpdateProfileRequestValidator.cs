@@ -5,15 +5,12 @@ using SpaManagementSystem.Domain.Enums;
 namespace SpaManagementSystem.Application.Requests.UserAccount.Validators
 {
     /// <summary>
-    /// Provides validation for <see cref="UpdateProfileRequest"/> using FluentValidation.
-    /// This class ensures that the data provided for updating a user's profile
-    /// is valid and meets the application's standards for each field.
+    /// Validator class for validating <see cref="UpdateProfileRequest"/> instances.
     /// </summary>
     public class UpdateProfileRequestValidator : AbstractValidator<UpdateProfileRequest>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="UpdateProfileRequestValidator"/> class
-        /// and defines the rules for validating the profile update request.
+        /// Initializes a new instance of the <see cref="UpdateProfileRequestValidator"/> class.
         /// </summary>
         public UpdateProfileRequestValidator()
         {

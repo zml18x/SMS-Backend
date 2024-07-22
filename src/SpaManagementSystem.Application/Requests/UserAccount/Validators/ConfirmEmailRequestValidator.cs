@@ -3,13 +3,12 @@
 namespace SpaManagementSystem.Application.Requests.UserAccount.Validators
 {
     /// <summary>
-    /// Validator for <see cref="ConfirmEmailRequest"/> using FluentValidation.
-    /// This class defines validation rules to ensure that the data provided for email confirmation is correct and complete.
+    /// Validator class for validating <see cref="ConfirmEmailRequest"/> instances.
     /// </summary>
     public class ConfirmEmailRequestValidator : AbstractValidator<ConfirmEmailRequest>
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="ConfirmEmailRequestValidator"/> and sets up the validation rules for confirming an email.
+        /// Initializes a new instance of the <see cref="ConfirmEmailRequestValidator"/> class.
         /// </summary>
         public ConfirmEmailRequestValidator()
         {

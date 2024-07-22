@@ -3,15 +3,12 @@
 namespace SpaManagementSystem.Application.Requests.UserAccount.Validators
 {
     /// <summary>
-    /// Provides validation for <see cref="ChangeEmailRequest"/> using FluentValidation.
-    /// This class ensures that the new email provided in the request is valid and not empty,
-    /// enforcing correctness before the email change is processed.
+    /// Validator class for validating <see cref="ChangeEmailRequest"/> instances.
     /// </summary>
     public class ChangeEmailRequestValidator : AbstractValidator<ChangeEmailRequest>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeEmailRequestValidator"/> class
-        /// and defines the rules for validating the request.
+        /// Initializes a new instance of the <see cref="ChangeEmailRequestValidator"/> class.
         /// </summary>
         public ChangeEmailRequestValidator()
         {

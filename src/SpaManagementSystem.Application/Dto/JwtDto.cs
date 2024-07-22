@@ -1,30 +1,27 @@
 ﻿namespace SpaManagementSystem.Application.Dto
 {
     /// <summary>
-    /// Data Transfer Object for conveying JWT information between layers of the application.
-    /// This DTO contains the JWT itself and its expiration date, used primarily for handling user authentication sessions.
+    /// Data Transfer Object (DTO) for representing a JSON Web Token (JWT) and its expiration time.
     /// </summary>
     public class JwtDto
     {
         /// <summary>
-        /// Gets or sets the JSON Web Token (JWT) string.
+        /// Gets or sets the JWT token string.
         /// </summary>
-        /// <value>The JWT used for authenticating user requests.</value>
         public string Token { get; set; }
 
         /// <summary>
-        /// Gets or sets the expiration date and time of the token.
+        /// Gets or sets the expiration date and time of the JWT token.
         /// </summary>
-        /// <value>The date and time at which the token will no longer be valid.</value>
         public DateTime Expire { get; set; }
 
         
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="JwtDto"/> class with specified token and expiration details.
+        /// Initializes a new instance of the <see cref="JwtDto"/> class with the specified token and expiration time.
         /// </summary>
-        /// <param name="token">The JWT used for session authentication.</param>
-        /// <param name="expire">The expiration date and time of the JWT.</param>
+        /// <param name="token">The JWT token string.</param>
+        /// <param name="expire">The expiration date and time of the JWT token.</param>
         public JwtDto(string token, DateTime expire)
         {
             Token = token;

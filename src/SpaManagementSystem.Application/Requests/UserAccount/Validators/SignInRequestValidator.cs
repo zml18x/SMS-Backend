@@ -3,14 +3,12 @@
 namespace SpaManagementSystem.Application.Requests.UserAccount.Validators
 {
     /// <summary>
-    /// Validator for <see cref="SignInRequest"/> using FluentValidation.
-    /// This class defines validation rules to ensure that user credentials provided
-    /// during the sign-in process are correctly formatted and not empty.
+    /// Validator class for validating <see cref="SignInRequest"/> instances.
     /// </summary>
     public class SignInRequestValidator : AbstractValidator<SignInRequest>
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="SignInRequestValidator"/> and sets up the validation rules for signing in.
+        /// Initializes a new instance of the <see cref="SignInRequestValidator"/> class.
         /// </summary>
         public SignInRequestValidator()
         {
