@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Salon;
 
@@ -73,19 +75,42 @@ namespace SpaManagementSystem.WebApi.Controllers
 
             return new JsonResult(salon);
         }
-        
+
         /// <summary>
-        /// Updates the details of a specific salon.
+        /// Updates the details of a specific salon based on the provided <see cref="JsonPatchDocument"/>.
         /// </summary>
         /// <param name="salonId">The unique identifier of the salon to update.</param>
-        /// <param name="request">The <see cref="UpdateSalonDetailsRequest"/> object containing the updated salon details.</param>
-        /// <returns>A <see cref="IActionResult"/> indicating the result of the update operation.</returns>
+        /// <param name="patchDocument">The <see cref="JsonPatchDocument{UpdateSalonDetailsRequest}"/> object containing the details to update.</param>
+        /// <param name="requestValidator">An instance of <see cref="IValidator{UpdateSalonDetailsRequest}"/> used to validate the updated salon details.</param>
+        /// <returns>A <see cref="IActionResult"/> indicating the result of the update operation.
+        /// Returns <see cref="NotFoundResult"/> if the salon is not found,
+        /// <see cref="BadRequestResult"/> if the request is invalid,
+        /// or <see cref="NoContentResult"/> if the update is successful.</returns>
         [Authorize(Roles = "Admin")]
-        [HttpPut("{salonId}/Manage/UpdateDetails")]
-        public async Task<IActionResult> UpdateDetailsAsync(Guid salonId, [FromBody] UpdateSalonDetailsRequest request)
+        [HttpPatch("{salonId}/Manage/UpdateDetails")]
+        public async Task<IActionResult> UpdateDetailsAsync(Guid salonId, [FromBody] JsonPatchDocument<UpdateSalonDetailsRequest> patchDocument,
+            [FromServices] IValidator<UpdateSalonDetailsRequest> requestValidator)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            
+            var existingSalon = await _salonService.GetSalonDetailsByIdAsync(salonId);
+            if (existingSalon == null)
+                return NotFound($"Salon with id '{salonId}' does not found.");
+
+            var request = new UpdateSalonDetailsRequest(existingSalon.Name, existingSalon.Email,
+                existingSalon.PhoneNumber, existingSalon.Description);
+
+            patchDocument.ApplyTo(request, ModelState);
+
+            var requestValidationResult = await requestValidator.ValidateAsync(request);
+            if (!requestValidationResult.IsValid)
+            {
+                foreach (var error in requestValidationResult.Errors)
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+                return BadRequest(ModelState);
+            }
 
             var isUpdated = await _salonService.UpdateSalonAsync(salonId, request);
 
@@ -94,7 +119,7 @@ namespace SpaManagementSystem.WebApi.Controllers
 
             return NoContent();
         }
-        
+
         /// <summary>
         /// Updates the opening hours of a specific salon.
         /// </summary>

@@ -47,7 +47,9 @@ namespace SpaManagementSystem.Domain.Entities
         /// Gets the collection of opening hours for the salon.
         /// </summary>
         public IEnumerable<OpeningHours> OpeningHours => _openingHours;
+        
 
+        
         /// <summary>
         /// Initializes a new instance of the Salon class.
         /// </summary>

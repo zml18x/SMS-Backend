@@ -66,8 +66,8 @@ namespace SpaManagementSystem.Application.Services
             var salon = await _salonRepository.GetByIdAsync(salonId);
 
             if (salon == null)
-                throw new NotFoundException($"The salon with id {salonId} was not found.");
-
+                throw new NotFoundException("");
+            
             var isUpdated = salon.UpdateSalon(request.Name!, request.Email!, request.PhoneNumber!, request.Description);
             
             if (isUpdated)
