@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.OpenApi.Models;
 using SpaManagementSystem.Infrastructure.Data;
 using SpaManagementSystem.Infrastructure.Container;
@@ -16,10 +17,19 @@ builder.Services.AddControllers()
     .AddNewtonsoftJson();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(option =>
+builder.Services.AddSwaggerGen(options =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "SpaManagementSystem API", Version = "v1" });
-    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "SMS API",
+        Description = "An ASP.NET Core Web API for Spa Management System",
+        Contact = new OpenApiContact
+        {
+            Name = "ZML"
+        }
+    });
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
         Description = "Please enter a valid token",
@@ -28,7 +38,7 @@ builder.Services.AddSwaggerGen(option =>
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
-    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -42,6 +52,9 @@ builder.Services.AddSwaggerGen(option =>
             new string[]{}
         }
     });
+
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
 var app = builder.Build();

@@ -24,6 +24,7 @@ namespace SpaManagementSystem.WebApi.Controllers
         private readonly IEmailSender<User> _emailSender;
 
         
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="UserAccountController"/> class.
         /// </summary>
@@ -43,11 +44,28 @@ namespace SpaManagementSystem.WebApi.Controllers
 
         
         /// <summary>
-        /// Registers a new user with the provided details and sends a confirmation email.
+        /// Registers a new user and sends confirmation email.
         /// </summary>
-        /// <param name="request">The <see cref="RegisterRequest"/> object containing user registration details.</param>
-        /// <returns>An <see cref="IActionResult"/> representing the result of the registration process.</returns>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     POST /Account/Register
+        ///     {
+        ///         "email": "example@mail.com",
+        ///         "password": "pa$$w0rD!X",
+        ///         "phoneNumber": "999555111",
+        ///         "firstName": "John",
+        ///         "lastName": "Doe",
+        ///         "gender": "male",
+        ///         "dateOfBirth": "2000-01-01"
+        ///     }
+        /// </remarks>
+        /// <param name="request">The registration request containing user details.</param>
+        /// <response code="201">Returns the newly created user.</response>
+        /// <response code="400">If the request is invalid (e.g. incorrect data was provided) or any error occurs during registration.</response>
+        /// <response code="500">If there is a server error. (e.g. while generating the email confirmation token)</response>
         [HttpPost("Register")]
+        [Consumes("application/json")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest request)
         {
             if (!ModelState.IsValid)
@@ -93,8 +111,22 @@ namespace SpaManagementSystem.WebApi.Controllers
         /// <summary>
         /// Authenticates a user with the provided email and password, and returns a JWT token if successful.
         /// </summary>
-        /// <param name="request">The <see cref="SignInRequest"/> object containing user sign-in details.</param>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     POST /Account/SignIn
+        ///     {
+        ///         "email": "example@mail.com",
+        ///         "password": "pa$$w0rD!X"
+        ///     }
+        /// </remarks>
+        /// <param name="request">The SignInRequest object containing user sign-in details.</param>
         /// <returns>An <see cref="IActionResult"/> containing the JWT token or an error message.</returns>
+        /// <response code="200">Returns the JWT token if authentication is successful.</response>
+        /// <response code="400">Returns an error message if the credentials are invalid or the email is not confirmed.</response>
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(JwtDto), StatusCodes.Status200OK)]
         [HttpPost("SignIn")]
         public async Task<IActionResult> SignInAsync([FromBody] SignInRequest request)
         {
@@ -130,7 +162,20 @@ namespace SpaManagementSystem.WebApi.Controllers
         /// <summary>
         /// Retrieves the current user's account details.
         /// </summary>
-        /// <returns>An <see cref="IActionResult"/> containing the user's account details.</returns>
+        /// <remarks>
+        /// This endpoint retrieves the details of the currently authenticated user.
+        /// 
+        /// Sample request:
+        /// 
+        ///     GET /Account
+        /// 
+        /// </remarks>
+        /// <returns>An <see cref="IActionResult"/> containing the user's account details, or a 404 if the user is not found.</returns>
+        /// <response code="200">Returns the user's account details.</response>
+        /// <response code="404">If the user with the specified ID is not found.</response>
+        /// <response code="401">If the user is not authenticated (authorization failed).</response>
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(UserDetailsDto), StatusCodes.Status200OK)]
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetAccountAsync()
@@ -147,11 +192,28 @@ namespace SpaManagementSystem.WebApi.Controllers
         }
 
         /// <summary>
-        /// Updates the current user's profile with the provided details.
+        /// Updates the current user's profile with the provided details using JSON Patch operations.
         /// </summary>
-        /// <param name="patchDocument">The <see cref="JsonPatchDocument{T}"/> object containing the patch operations to apply to the profile.</param>
+        /// <remarks>
+        /// This endpoint allows users to update their profile information using a JSON Patch document.
+        /// Sample request:
+        /// 
+        ///     PATCH /Account/UpdateProfile
+        ///     [
+        ///         { "op": "replace", "path": "/firstName", "value": "John" },
+        ///         { "op": "replace", "path": "/lastName", "value": "Doe" },
+        ///         { "op": "replace", "path": "/gender", "value": "male" },
+        ///         { "op": "replace", "path": "/dateOfBirth", "value": "2000-01-01" }
+        ///     ]
+        /// </remarks>
+        /// <param name="patchDocument">The JsonPatchDocument object containing the patch operations to apply to the profile.</param>
         /// <param name="requestValidator">The <see cref="IValidator{T}"/> instance used to validate the updated profile request.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the update operation.</returns>
+        /// <response code="200">Indicates that the profile has been successfully updated.</response>
+        /// <response code="400">Indicates that the request is invalid or no changes were made.</response>
+        /// <response code="401">Indicates that the user is not authenticated.</response>
+        /// <response code="404">Indicates that the user profile was not found.</response>
+        [Consumes("application/json")]
         [Authorize]
         [HttpPatch("UpdateProfile")]
         public async Task<IActionResult> UpdateProfileAsync( [FromBody] JsonPatchDocument<UpdateProfileRequest> patchDocument,
@@ -187,8 +249,21 @@ namespace SpaManagementSystem.WebApi.Controllers
         /// <summary>
         /// Confirms the user's email address with the provided token.
         /// </summary>
-        /// <param name="request">The <see cref="ConfirmEmailRequest"/> object containing the email and token for confirmation.</param>
+        /// <remarks>
+        /// This endpoint allows users to confirm their email address using a confirmation token sent to their email.
+        /// Sample request:
+        /// 
+        ///     POST /Account/Manage/ConfirmEmail
+        ///     {
+        ///         "email": "example@mail.com",
+        ///         "token": "confirmationTokenHere"
+        ///     }
+        /// </remarks>
+        /// <param name="request">The ConfirmEmailRequest object containing the email and token for confirmation.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the email confirmation process.</returns>
+        /// <response code="200">Indicates that the email was confirmed successfully.</response>
+        /// <response code="400">Indicates that the confirmation failed due to invalid token or email.</response>
+        [Consumes("application/json")]
         [HttpPost("Manage/ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfirmEmailRequest request)
         {
@@ -211,10 +286,24 @@ namespace SpaManagementSystem.WebApi.Controllers
         }
         
         /// <summary>
-        /// Sends a confirmation email to the specified email address if it is not already confirmed.
+        /// Sends a confirmation email to the user with the provided email address.
         /// </summary>
-        /// <param name="request">The <see cref="SendConfirmationEmailRequest"/> object containing the email address.</param>
-        /// <returns>An <see cref="IActionResult"/> indicating the result of the confirmation email sending process.</returns>
+        /// <remarks>
+        /// This endpoint sends a confirmation email to the specified address if it has not been confirmed yet.
+        /// If the email is already confirmed or if the user does not exist, a corresponding message is returned.
+        /// Sample request:
+        /// 
+        ///     POST /Account/Manage/SendConfirmationEmail
+        ///     {
+        ///         "email": "example@mail.com"
+        ///     }
+        /// </remarks>
+        /// <param name="request">The SendConfirmationEmailRequest object containing the email address for sending the confirmation email.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the email sending process.</returns>
+        /// <response code="200">Indicates that the confirmation email was sent successfully or that the email is already confirmed.</response>
+        /// <response code="400">Indicates that the request is invalid.</response>
+        /// <response code="500">Indicates an internal server error if the email confirmation token could not be generated.</response>
+        [Consumes("application/json")]
         [HttpPost("Manage/SendConfirmationEmail")]
         public async Task<IActionResult> SendConfirmationEmailAsync([FromBody] SendConfirmationEmailRequest request)
         {
@@ -247,8 +336,24 @@ namespace SpaManagementSystem.WebApi.Controllers
         /// <summary>
         /// Sends a confirmation email with a token to change the user's email address.
         /// </summary>
-        /// <param name="request">The <see cref="ChangeEmailRequest"/> object containing the new email address.</param>
+        /// <remarks>
+        /// This endpoint sends a confirmation email with a token to the user's current email address to verify the change of their email address.
+        /// If the user is not found or there is an error generating the token, a corresponding message is returned.
+        /// Sample request:
+        /// 
+        ///     POST /Account/Manage/SendConfirmationChangeEmail
+        ///     {
+        ///         "newEmail": "newemail@example.com"
+        ///     }
+        /// </remarks>
+        /// <param name="request">The ChangeEmailRequest object containing the new email address.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of sending the change email confirmation.</returns>
+        /// <response code="200">Indicates that the confirmation email was sent successfully.</response>
+        /// <response code="400">Indicates that the request is invalid.</response>
+        /// <response code="401">Indicates that the user is not authenticated.</response>
+        /// <response code="404">Indicates that the user profile was not found.</response>
+        /// <response code="500">Indicates an internal server error if the change email token could not be generated.</response>
+        [Consumes("application/json")]
         [Authorize]
         [HttpPost("Manage/SendConfirmationChangeEmail")]
         public async Task<IActionResult> ChangeEmailAsync([FromBody] ChangeEmailRequest request)
@@ -259,7 +364,7 @@ namespace SpaManagementSystem.WebApi.Controllers
             var user = await _signInManager.UserManager.FindByIdAsync(UserId.ToString());
 
             if (user == null)
-                return BadRequest("User account not found.");
+                return NotFound("User account not found.");
 
             var token = await _signInManager.UserManager.GenerateChangeEmailTokenAsync(user, request.NewEmail);
 
@@ -275,8 +380,24 @@ namespace SpaManagementSystem.WebApi.Controllers
         /// <summary>
         /// Confirms the user's email address change with the provided token.
         /// </summary>
-        /// <param name="request">The <see cref="ConfirmationChangeEmailRequest"/> object containing the new email and confirmation token.</param>
+        /// <remarks>
+        /// This endpoint confirms the change of the user's email address using a confirmation token sent to the user's current email address.
+        /// If the token is valid, the user's email address will be updated, and the confirmation status will be reset.
+        /// Sample request:
+        /// 
+        ///     POST /Account/Manage/ConfirmChangedEmail
+        ///     {
+        ///         "newEmail": "newemail@example.com",
+        ///         "token": "confirmationToken"
+        ///     }
+        /// </remarks>
+        /// <param name="request">The ConfirmationChangeEmailRequest object containing the new email address and the confirmation token.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the email confirmation process.</returns>
+        /// <response code="200">Indicates that the email address was successfully changed.</response>
+        /// <response code="400">Indicates that the request is invalid.</response>
+        /// <response code="401">Indicates that the user is not authenticated.</response>
+        /// <response code="404">Indicates that the user profile was not found.</response>
+        [Consumes("application/json")]
         [Authorize]
         [HttpPost("Manage/ConfirmChangedEmail")]
         public async Task<IActionResult> ConfirmChangedEmail([FromBody] ConfirmationChangeEmailRequest request)
@@ -287,7 +408,7 @@ namespace SpaManagementSystem.WebApi.Controllers
             var user = await _signInManager.UserManager.FindByIdAsync(UserId.ToString());
 
             if (user == null)
-                return BadRequest("User account not found.");
+                return NotFound("User account not found.");
 
             var result = await _signInManager.UserManager.ChangeEmailAsync(user, request.NewEmail, request.Token);
             
@@ -309,8 +430,24 @@ namespace SpaManagementSystem.WebApi.Controllers
         /// <summary>
         /// Changes the current user's password.
         /// </summary>
-        /// <param name="request">The <see cref="ChangePasswordRequest"/> object containing the current and new passwords.</param>
+        /// <remarks>
+        /// This endpoint allows the current user to change their password. It requires the current password and the new password to be provided.
+        /// If the current password is incorrect or the new password does not meet the criteria, appropriate error messages will be returned.
+        /// Sample request:
+        /// 
+        ///     POST /Account/Manage/ChangePassword
+        ///     {
+        ///         "currentPassword": "OldPa$$w0rD!",
+        ///         "newPassword": "NewPa$$w0rD!"
+        ///     }
+        /// </remarks>
+        /// <param name="request">The ChangePasswordRequest object containing the current and new passwords.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the password change operation.</returns>
+        /// <response code="200">Indicates that the password was changed successfully.</response>
+        /// <response code="400">Indicates that the request is invalid or the current password is incorrect.</response>
+        /// <response code="401">Indicates that the user is not authenticated.</response>
+        /// <response code="404">Indicates that the user account was not found.</response>
+        [Consumes("application/json")]
         [Authorize]
         [HttpPost("Manage/ChangePassword")]
         public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequest request)
@@ -338,8 +475,24 @@ namespace SpaManagementSystem.WebApi.Controllers
         /// <summary>
         /// Sends a password reset token to the specified email address.
         /// </summary>
-        /// <param name="request">The <see cref="SendResetPasswordTokenRequest"/> object containing the email address to send the reset token.</param>
+        /// <remarks>
+        /// This endpoint sends a password reset token to the provided email address. If the email is associated with an account, 
+        /// a password reset email will be sent with instructions. If the email does not exist in the system, the response will 
+        /// still be successful to avoid exposing whether an email is registered.
+        /// 
+        /// Sample request:
+        /// 
+        ///     POST /Account/Manage/SendResetPasswordToken
+        ///     {
+        ///         "email": "user@example.com"
+        ///     }
+        /// </remarks>
+        /// <param name="request">The SendResetPasswordTokenRequest object containing the email address to send the reset token.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of sending the password reset token.</returns>
+        /// <response code="200">Indicates that a password reset request has been sent successfully, and if the email exists, instructions have been sent.</response>
+        /// <response code="400">Indicates that the request is invalid.</response>
+        /// <response code="500">Indicates an internal server error occurred while generating the password reset token.</response>
+        [Consumes("application/json")]
         [HttpPost("Manage/SendResetPasswordToken")]
         public async Task<IActionResult> SendResetPasswordTokenAsync([FromBody] SendResetPasswordTokenRequest request)
         {
@@ -366,9 +519,25 @@ namespace SpaManagementSystem.WebApi.Controllers
         /// <summary>
         /// Resets the user's password with the provided token and new password.
         /// </summary>
-        /// <param name="request">The <see cref="ResetPasswordRequest"/>
-        /// object containing the email address, reset token, and new password.</param>
+        /// <remarks>
+        /// This endpoint allows users to reset their password using a reset token sent to their email address. The request should include
+        /// the email address, reset token, and new password. If the provided token is valid and the new password meets the criteria,
+        /// the password will be reset successfully. Otherwise, appropriate error messages will be returned.
+        ///
+        /// Sample request:
+        /// 
+        ///     POST /Account/Manage/ResetPassword
+        ///     {
+        ///         "email": "user@example.com",
+        ///         "token": "resetPasswordToken",
+        ///         "newPassword": "NewPa$$w0rD!"
+        ///     }
+        /// </remarks>
+        /// <param name="request">The ResetPasswordRequest object containing the email address, reset token, and new password.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the password reset operation.</returns>
+        /// <response code="200">Indicates that the password was reset successfully and the user can now log in with the new password.</response>
+        /// <response code="400">Indicates that the request is invalid, the user account was not found, or the password reset failed.</response>
+        [Consumes("application/json")]
         [HttpPost("Manage/ResetPassword")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordRequest request)
         {
