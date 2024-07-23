@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using SpaManagementSystem.Application.Interfaces;
+using SpaManagementSystem.Application.Requests.Address;
 using SpaManagementSystem.Application.Requests.Salon;
 
 namespace SpaManagementSystem.WebApi.Controllers
@@ -70,9 +71,6 @@ namespace SpaManagementSystem.WebApi.Controllers
         {
             var salon = await _salonService.GetSalonDetailsByIdAsync(salonId);
 
-            if (salon == null)
-                return NotFound($"Salon with id '{salonId}' does not found.");
-
             return new JsonResult(salon);
         }
 
@@ -95,8 +93,6 @@ namespace SpaManagementSystem.WebApi.Controllers
                 return BadRequest(ModelState);
             
             var existingSalon = await _salonService.GetSalonDetailsByIdAsync(salonId);
-            if (existingSalon == null)
-                return NotFound($"Salon with id '{salonId}' does not found.");
 
             var request = new UpdateSalonDetailsRequest(existingSalon.Name, existingSalon.Email,
                 existingSalon.PhoneNumber, existingSalon.Description);
@@ -113,7 +109,6 @@ namespace SpaManagementSystem.WebApi.Controllers
             }
 
             var isUpdated = await _salonService.UpdateSalonAsync(salonId, request);
-
             if (!isUpdated)
                 return BadRequest("No changes were made to the salon.");
 
@@ -135,6 +130,68 @@ namespace SpaManagementSystem.WebApi.Controllers
 
             await _salonService.UpdateOpeningHours(salonId, request);
             
+            return NoContent();
+        }
+        
+        /// <summary>
+        /// Creates a new address for a specific salon.
+        /// </summary>
+        /// <param name="salonId">The unique identifier of the salon to which the address will be added.</param>
+        /// <param name="request">The <see cref="CreateAddressRequest"/> object containing the address details.</param>
+        /// <returns>A <see cref="IActionResult"/> indicating the result of the address creation operation.</returns>
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{salonId}/Manage/Address/Create")]
+        public async Task<IActionResult> CreateSalonAddressAsync(Guid salonId, [FromBody] CreateAddressRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            await _salonService.AddAddress(salonId, request);
+                
+            return Ok();
+        }
+        
+        /// <summary>
+        /// Updates the address of a specific salon based on the provided <see cref="JsonPatchDocument{UpdateAddressRequest}"/>.
+        /// </summary>
+        /// <param name="salonId">The unique identifier of the salon whose address will be updated.</param>
+        /// <param name="patchDocument">The <see cref="JsonPatchDocument{UpdateAddressRequest}"/> object containing the details to update.</param>
+        /// <param name="requestValidator">An instance of <see cref="IValidator{UpdateAddressRequest}"/> used to validate the updated address details.</param>
+        /// <returns>A <see cref="IActionResult"/> indicating the result of the address update operation.
+        /// Returns <see cref="BadRequestResult"/> if the address does not exist or the request is invalid,
+        /// or <see cref="NoContentResult"/> if the update is successful.</returns>
+        [Authorize(Roles = "Admin")]
+        [HttpPatch("{salonId}/Manage/Address/Update")]
+        public async Task<IActionResult> UpdateSalonAddressAsync(Guid salonId, JsonPatchDocument<UpdateAddressRequest> patchDocument,
+            [FromServices] IValidator<UpdateAddressRequest> requestValidator)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var salon = await _salonService.GetSalonDetailsByIdAsync(salonId);
+            var address = salon.Address;
+
+            if (address == null)
+                return BadRequest($"Address for salon with ID '{salonId}' does not exist");
+            
+            var request = new UpdateAddressRequest(address.Country, address.Region, address.City, address.PostalCode,
+                address.Street, address.BuildingNumber);
+
+            patchDocument.ApplyTo(request);
+            
+            var requestValidationResult = await requestValidator.ValidateAsync(request);
+            if (!requestValidationResult.IsValid)
+            {
+                foreach (var error in requestValidationResult.Errors)
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+                return BadRequest(ModelState);
+            }
+            
+            var isUpdated = await _salonService.UpdateAddress(salonId, request);
+            if (!isUpdated)
+                return BadRequest("No changes were made to the salon address.");
+
             return NoContent();
         }
         

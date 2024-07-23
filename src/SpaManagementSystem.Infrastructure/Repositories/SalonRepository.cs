@@ -30,8 +30,9 @@ namespace SpaManagementSystem.Infrastructure.Repositories
 
         
         /// <inheritdoc />
-        public new async Task<Salon?> GetByIdAsync(Guid salonId)
-            => await _context.Salons.Include(x => x.OpeningHours).FirstOrDefaultAsync(x => x.Id == salonId);
+        public async Task<Salon?> GetWithDetailsByIdAsync(Guid salonId)
+            => await _context.Salons.Include(x => x.OpeningHours).Include(x => x.Address)
+                .FirstOrDefaultAsync(x => x.Id == salonId);
         
         /// <inheritdoc />
         public async Task<Salon?> GetByUserIdAsync(Guid userId)

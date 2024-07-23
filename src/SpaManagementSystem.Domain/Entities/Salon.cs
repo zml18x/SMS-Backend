@@ -37,12 +37,12 @@ namespace SpaManagementSystem.Domain.Entities
         /// Gets the description of the salon.
         /// </summary>
         public string? Description { get; protected set; }
-
+        
         /// <summary>
-        /// Gets the unique identifier for the address of the salon.
+        /// Gets the address of the salon. Can be null.
         /// </summary>
-        public Guid? AddressId { get; protected set; }
-
+        public SalonAddress? Address { get; protected set; }
+        
         /// <summary>
         /// Gets the collection of opening hours for the salon.
         /// </summary>
@@ -64,20 +64,18 @@ namespace SpaManagementSystem.Domain.Entities
         /// <param name="email">The email address of the salon.</param>
         /// <param name="phoneNumber">The phone number of the salon.</param>
         /// <param name="description">The description of the salon.</param>
-        /// <param name="addressId">The unique identifier for the address of the salon.</param>
-        public Salon(Guid id, Guid userId, string name, string email, string phoneNumber, string? description = null,
-            Guid? addressId = null) : base(id)
+        public Salon(Guid id, Guid userId, string name, string email, string phoneNumber,
+            string? description = null) : base(id)
         {
             SetUserId(userId);
             SetName(name);
             SetEmail(email);
             SetPhoneNumber(phoneNumber);
             SetDescription(description);
-            SetAddressId(addressId);
         }
 
 
-        
+
         /// <summary>
         /// Updates the salon's details.
         /// </summary>
@@ -223,21 +221,6 @@ namespace SpaManagementSystem.Domain.Entities
             UserId = (userId != Guid.Empty)
                 ? userId
                 : throw new ArgumentException("The user id cannot be empty", nameof(userId));
-        }
-        
-        /// <summary>
-        /// Validates and sets the AddressId.
-        /// </summary>
-        /// <param name="addressId">The unique identifier for the address to set.</param>
-        /// <exception cref="ArgumentException">Thrown when the AddressId is empty and not null.</exception>
-        private void SetAddressId(Guid? addressId)
-        {
-            if(addressId != null)
-                AddressId = (addressId != Guid.Empty)
-                    ? addressId
-                    : throw new ArgumentException("The address id cannot be empty", nameof(addressId));
-
-            AddressId = addressId;
         }
     }
 }

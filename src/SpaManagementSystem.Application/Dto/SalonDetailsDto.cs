@@ -29,7 +29,12 @@
         /// Gets or sets the description of the salon. This property is optional.
         /// </summary>
         public string? Description { get; set; }
-
+        
+        /// <summary>
+        /// Gets or sets the address of the salon.
+        /// </summary>
+        public AddressDto? Address { get; set; }
+        
         /// <summary>
         /// Gets or sets the collection of opening hours for the salon.
         /// </summary>
@@ -44,9 +49,10 @@
         /// <param name="name">The name of the salon.</param>
         /// <param name="email">The email address of the salon.</param>
         /// <param name="phoneNumber">The phone number of the salon.</param>
-        /// <param name="description">The description of the salon. Can be null.</param>
+        /// <param name="description">The description of the salon. Can be null or empty.</param>
+        /// <param name="address">The address details of the salon. Can be null.</param>
         /// <param name="openingHours">The collection of opening hours for the salon.</param>
-        public SalonDetailsDto(Guid id, string name, string email, string phoneNumber, string? description,
+        public SalonDetailsDto(Guid id, string name, string email, string phoneNumber, string? description, AddressDto? address,
             IEnumerable<OpeningHoursDto> openingHours)
         {
             Id = id;
@@ -54,6 +60,7 @@
             Email = email;
             PhoneNumber = phoneNumber;
             Description = description;
+            Address = address;
             OpeningHours = openingHours;
         }
     }
