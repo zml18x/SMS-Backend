@@ -1,4 +1,5 @@
 ﻿using SpaManagementSystem.Application.Dto;
+using SpaManagementSystem.Application.Requests.UserAccount;
 
 namespace SpaManagementSystem.Application.Interfaces
 {
@@ -19,24 +20,18 @@ namespace SpaManagementSystem.Application.Interfaces
         public Task CreateProfileAsync(Guid userId, string firstName, string lastName, string gender, DateOnly dateOfBirth);
 
         /// <summary>
-        /// Retrieves the account details for a specific user.
+        /// Retrieves the user profile for a specific user.
         /// </summary>
         /// <param name="userId">The unique identifier of the user whose account details are being retrieved.</param>
-        /// <param name="email">The email address associated with the user.</param>
-        /// <param name="phoneNumber">The phone number associated with the user.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the user account details DTO.</returns>
-        public Task<UserAccountDetailsDto> GetAccountDetailsAsync(Guid userId, string email, string phoneNumber);
+        /// <returns>A task that represents the asynchronous operation. The task result contains the user profile DTO.</returns>
+        public Task<UserProfileDto> GetProfileAsync(Guid userId);
 
         /// <summary>
         /// Updates an existing user profile with the provided details.
         /// </summary>
         /// <param name="userId">The unique identifier of the user whose profile is being updated.</param>
-        /// <param name="firstName">Optional. The new first name of the user.</param>
-        /// <param name="lastName">Optional. The new last name of the user.</param>
-        /// <param name="gender">Optional. The new gender of the user.</param>
-        /// <param name="dateOfBirth">Optional. The new date of birth of the user.</param>
+        /// <param name="request">An object containing the new profile details for the user.</param>
         /// <returns>A task that represents the asynchronous operation. The task result indicates whether the update was successful.</returns>
-        public Task<bool> UpdateProfileAsync(Guid userId, string? firstName, string? lastName, string? gender,
-            DateOnly? dateOfBirth);
+        public Task<bool> UpdateProfileAsync(Guid userId, UpdateProfileRequest request);
     }
 }

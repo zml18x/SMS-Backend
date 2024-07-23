@@ -61,43 +61,42 @@ namespace SpaManagementSystem.Domain.Entities
         }
 
 
-
+        
         /// <summary>
-        /// Updates the profile with optional new values for first name, last name, gender, and date of birth.
-        /// Any provided values will replace the current ones. If a field is not provided, it will not be updated.
+        /// Updates the profile information of the entity.
+        /// If any of the provided values differ from the current values,
+        /// the corresponding properties are updated, and the UpdatedAt timestamp is set to the current UTC time.
         /// </summary>
-        /// <param name="firstName">Optional. The new first name to update. If null or whitespace, the first name remains unchanged.</param>
-        /// <param name="lastName">Optional. The new last name to update. If null or whitespace, the last name remains unchanged.</param>
-        /// <param name="gender">Optional. The new gender to update. If null, the gender remains unchanged.</param>
-        /// <param name="dateOfBirth">Optional. The new date of birth to update. If null, the date of birth remains unchanged.</param>
-        /// <returns>True if any data was updated; otherwise, false.
-        /// This can be used to determine if the entity needs to be saved to the database.</returns>
-        public bool UpdateProfile(string? firstName = null, string? lastName = null, GenderType? gender = null,
-            DateOnly? dateOfBirth = null)
+        /// <param name="firstName">The new first name to update.</param>
+        /// <param name="lastName">The new last name to update.</param>
+        /// <param name="gender">The new gender to update.</param>
+        /// <param name="dateOfBirth">The new date of birth to update.</param>
+        /// <returns>Returns true if any profile information was updated, otherwise false.</returns>
+        public bool UpdateProfile(string firstName, string lastName, GenderType gender, DateOnly dateOfBirth)
         {
             var anyDataUpdated = false;
 
-            if (!string.IsNullOrWhiteSpace(firstName))
+            if (FirstName != firstName)
             {
                 SetFirstName(firstName);
                 anyDataUpdated = true;
             }
 
-            if (!string.IsNullOrWhiteSpace(lastName))
+            if (LastName != lastName)
             {
                 SetLastName(lastName);
                 anyDataUpdated = true;
             }
 
-            if (gender != null)
+            if (Gender != gender)
             {
-                SetGender((GenderType)gender);
+                SetGender(gender);
                 anyDataUpdated = true;
             }
 
-            if (dateOfBirth != null)
+            if (DateOfBirth != dateOfBirth)
             {
-                SetDateOfBirth((DateOnly)dateOfBirth);
+                SetDateOfBirth(dateOfBirth);
                 anyDataUpdated = true;
             }
 

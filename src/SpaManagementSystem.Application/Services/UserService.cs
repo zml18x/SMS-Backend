@@ -4,6 +4,7 @@ using SpaManagementSystem.Domain.Interfaces;
 using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Exceptions;
 using SpaManagementSystem.Application.Interfaces;
+using SpaManagementSystem.Application.Requests.UserAccount;
 
 
 namespace SpaManagementSystem.Application.Services
@@ -47,30 +48,31 @@ namespace SpaManagementSystem.Application.Services
         }
 
         /// <inheritdoc />
-        public async Task<UserAccountDetailsDto> GetAccountDetailsAsync(Guid userId, string email, string phoneNumber)
+        /// <exception cref="NotFoundException">Thrown when the user profile is not found for the specified user id.</exception>
+        public async Task<UserProfileDto> GetProfileAsync(Guid userId)
         {
             var userProfile = await _userProfileRepository.GetByUserIdAsync(userId);
 
             if (userProfile == null)
-                return new UserAccountDetailsDto(userId, email, phoneNumber);
+                throw new NotFoundException($"No profile found for user ID '{userId}'.");
 
-            return new UserAccountDetailsDto(userId, email, phoneNumber, userProfile.FirstName, userProfile.LastName,
-                userProfile.Gender.ToString(), userProfile.DateOfBirth);
+            return new UserProfileDto(userProfile.FirstName, userProfile.LastName,
+                userProfile.Gender, userProfile.DateOfBirth);
         }
 
         /// <inheritdoc />
         /// <exception cref="NotFoundException">Thrown when the user profile is not found for the specified user id.</exception>
-        public async Task<bool> UpdateProfileAsync(Guid userId, string? firstName, string? lastName, string? gender,
-            DateOnly? dateOfBirth)
+        public async Task<bool> UpdateProfileAsync(Guid userId, UpdateProfileRequest request)
         {
             var userProfile = await _userProfileRepository.GetByUserIdAsync(userId);
 
             if (userProfile == null)
                 throw new NotFoundException($"The user profile for user with id {userId} was not found.");
-            
-            GenderType? convertedGender = gender == null ? null : GenderTypeHelper.ConvertToGenderType(gender);
-            
-            var isUpdated = userProfile.UpdateProfile(firstName, lastName, convertedGender, dateOfBirth);
+
+            var convertedGender = GenderTypeHelper.ConvertToGenderType(request.Gender);
+
+            var isUpdated = userProfile.UpdateProfile(request.FirstName, request.LastName, convertedGender,
+                request.DateOfBirth);
 
             if (isUpdated)
             {

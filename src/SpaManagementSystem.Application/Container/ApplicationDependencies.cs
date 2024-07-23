@@ -6,6 +6,7 @@ using SpaManagementSystem.Application.Services;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Salon;
 using SpaManagementSystem.Application.Requests.CommonValidators;
+using SpaManagementSystem.Application.Requests.UserAccount;
 using SpaManagementSystem.Application.Requests.UserAccount.Validators;
 
 namespace SpaManagementSystem.Application.Container
@@ -46,6 +47,8 @@ namespace SpaManagementSystem.Application.Container
             services.AddScoped<ISalonService, SalonService>();
             services.AddScoped<IValidator<JsonPatchDocument<UpdateSalonDetailsRequest>>,
                     JsonPatchDocumentValidator<UpdateSalonDetailsRequest>>();
+            services.AddScoped<IValidator<JsonPatchDocument<UpdateProfileRequest>>,
+                JsonPatchDocumentValidator<UpdateProfileRequest>>();
 
 
             return services;

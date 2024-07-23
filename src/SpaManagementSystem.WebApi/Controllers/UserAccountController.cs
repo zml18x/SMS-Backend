@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
+using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.UserAccount;
 using SpaManagementSystem.Infrastructure.Identity.Enums;
@@ -137,32 +140,50 @@ namespace SpaManagementSystem.WebApi.Controllers
             if (user == null)
                 return NotFound($"User with id {UserId} not found");
 
-            var userProfileDto = await _userService.GetAccountDetailsAsync(user.Id, user.Email!, user.PhoneNumber!);
+            var userProfile = await _userService.GetProfileAsync(user.Id);
 
-            return new OkObjectResult(userProfileDto);
+            return new OkObjectResult(new UserDetailsDto(user.Id, user.Email!, user.PhoneNumber!, userProfile.FirstName,
+                userProfile.LastName, userProfile.Gender.ToString(), userProfile.DateOfBirth));
         }
-        
+
         /// <summary>
         /// Updates the current user's profile with the provided details.
         /// </summary>
-        /// <param name="request">The <see cref="UpdateProfileRequest"/> object containing updated profile details.</param>
+        /// <param name="patchDocument">The <see cref="JsonPatchDocument{T}"/> object containing the patch operations to apply to the profile.</param>
+        /// <param name="requestValidator">The <see cref="IValidator{T}"/> instance used to validate the updated profile request.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the update operation.</returns>
         [Authorize]
         [HttpPatch("UpdateProfile")]
-        public async Task<IActionResult> UpdateProfileAsync([FromBody] UpdateProfileRequest request)
+        public async Task<IActionResult> UpdateProfileAsync( [FromBody] JsonPatchDocument<UpdateProfileRequest> patchDocument,
+            [FromServices] IValidator<UpdateProfileRequest> requestValidator)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _userService.UpdateProfileAsync(UserId, request.FirstName, request.LastName,
-                request.Gender, request.DateOfBirth);
+            var existingUserProfile = await _userService.GetProfileAsync(UserId);
+
+            var request = new UpdateProfileRequest(existingUserProfile.FirstName, existingUserProfile.LastName,
+                existingUserProfile.Gender.ToString(), existingUserProfile.DateOfBirth);
+
+            patchDocument.ApplyTo(request, ModelState);
+
+            var requestValidationResult = await requestValidator.ValidateAsync(request);
+            if (!requestValidationResult.IsValid)
+            {
+                foreach (var error in requestValidationResult.Errors)
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+                return BadRequest(ModelState);
+            }
+
+            var result = await _userService.UpdateProfileAsync(UserId, request);
 
             if (result)
                 return Ok("The profile has been updated successfully.");
 
             return BadRequest("No changes were made to the profile.");
         }
-        
+
         /// <summary>
         /// Confirms the user's email address with the provided token.
         /// </summary>
@@ -257,7 +278,7 @@ namespace SpaManagementSystem.WebApi.Controllers
         /// <param name="request">The <see cref="ConfirmationChangeEmailRequest"/> object containing the new email and confirmation token.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the result of the email confirmation process.</returns>
         [Authorize]
-        [HttpPatch("Manage/ConfirmChangedEmail")]
+        [HttpPost("Manage/ConfirmChangedEmail")]
         public async Task<IActionResult> ConfirmChangedEmail([FromBody] ConfirmationChangeEmailRequest request)
         {
             if (!ModelState.IsValid)
@@ -291,7 +312,7 @@ namespace SpaManagementSystem.WebApi.Controllers
         /// <param name="request">The <see cref="ChangePasswordRequest"/> object containing the current and new passwords.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the password change operation.</returns>
         [Authorize]
-        [HttpPatch("Manage/ChangePassword")]
+        [HttpPost("Manage/ChangePassword")]
         public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequest request)
         {
             if (!ModelState.IsValid)
@@ -348,7 +369,7 @@ namespace SpaManagementSystem.WebApi.Controllers
         /// <param name="request">The <see cref="ResetPasswordRequest"/>
         /// object containing the email address, reset token, and new password.</param>
         /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the password reset operation.</returns>
-        [HttpPatch("Manage/ResetPassword")]
+        [HttpPost("Manage/ResetPassword")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordRequest request)
         {
             if (!ModelState.IsValid)
