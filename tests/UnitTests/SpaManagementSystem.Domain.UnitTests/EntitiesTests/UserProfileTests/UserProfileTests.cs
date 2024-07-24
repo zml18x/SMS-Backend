@@ -1,13 +1,14 @@
 ﻿using FluentAssertions;
 using SpaManagementSystem.Domain.Enums;
 using SpaManagementSystem.Domain.Entities;
+using Xunit;
 
 namespace SpaManagementSystem.Domain.UnitTests.EntitiesTests.UserProfileTests
 {
     public class UserProfileTests
     {
         [Fact]
-        public void UserProfileConstructorSetsPropertiesCorrectly()
+        public void UserProfile_Constructor_SetsPropertiesCorrectly()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -31,7 +32,7 @@ namespace SpaManagementSystem.Domain.UnitTests.EntitiesTests.UserProfileTests
         }
         
         [Fact]
-        public void UserProfileConstructorShouldThrowsArgumentExceptionWhenIdIsIncorrect()
+        public void UserProfile_Constructor_ShouldThrowArgumentException_WhenIdIsEmpty()
         {
             // Arrange
             var id = Guid.Empty;
@@ -41,14 +42,13 @@ namespace SpaManagementSystem.Domain.UnitTests.EntitiesTests.UserProfileTests
             var gender = GenderType.Male;
             var dateOfBirth = DateOnly.FromDateTime(DateTime.Today.AddYears(-20));
             
-
             // Act & Assert
             new Action(() => new UserProfile(id, userId, firstName, lastName, gender, dateOfBirth))
                 .Should().Throw<ArgumentException>();
         }
         
         [Fact]
-        public void UserProfileConstructorShouldThrowsArgumentExceptionWhenUserIdIsIncorrect()
+        public void UserProfile_Constructor_ShouldThrowArgumentException_WhenUserIdIsEmpty()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -58,14 +58,13 @@ namespace SpaManagementSystem.Domain.UnitTests.EntitiesTests.UserProfileTests
             var gender = GenderType.Male;
             var dateOfBirth = DateOnly.FromDateTime(DateTime.Today.AddYears(-20));
             
-
             // Act & Assert
             new Action(() => new UserProfile(id, userId, firstName, lastName, gender, dateOfBirth))
                 .Should().Throw<ArgumentException>();
         }
         
         [Fact]
-        public void UserProfileConstructorShouldThrowsArgumentExceptionWhenFirstNameIsNull()
+        public void UserProfile_Constructor_ShouldThrowArgumentException_WhenFirstNameIsNull()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -74,14 +73,13 @@ namespace SpaManagementSystem.Domain.UnitTests.EntitiesTests.UserProfileTests
             var gender = GenderType.Male;
             var dateOfBirth = DateOnly.FromDateTime(DateTime.Today.AddYears(-20));
             
-
             // Act & Assert
             new Action(() => new UserProfile(id, userId, null!, lastName, gender, dateOfBirth))
                 .Should().Throw<ArgumentException>();
         }
         
         [Fact]
-        public void UserProfileConstructorShouldThrowsArgumentExceptionWhenLastNameIsNull()
+        public void UserProfile_Constructor_ShouldThrowArgumentException_WhenLastNameIsNull()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -90,14 +88,13 @@ namespace SpaManagementSystem.Domain.UnitTests.EntitiesTests.UserProfileTests
             var gender = GenderType.Male;
             var dateOfBirth = DateOnly.FromDateTime(DateTime.Today.AddYears(-20));
             
-
             // Act & Assert
             new Action(() => new UserProfile(id, userId, firstName, null!, gender, dateOfBirth))
                 .Should().Throw<ArgumentException>();
         }
         
         [Fact]
-        public void UserProfileConstructorShouldThrowsArgumentExceptionWhenGenderIsNotDefinedGenderTypeEnumValue()
+        public void UserProfile_Constructor_ShouldThrowArgumentException_WhenGenderIsInvalid()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -107,14 +104,13 @@ namespace SpaManagementSystem.Domain.UnitTests.EntitiesTests.UserProfileTests
             var gender = (GenderType)200;
             var dateOfBirth = DateOnly.FromDateTime(DateTime.Today.AddYears(-20));
             
-
             // Act & Assert
             new Action(() => new UserProfile(id, userId, firstName, lastName, gender, dateOfBirth))
                 .Should().Throw<ArgumentException>();
         }
         
         [Fact]
-        public void UserProfileConstructorShouldThrowsArgumentExceptionWhenDateOfBirthIsInTheFuture()
+        public void UserProfile_Constructor_ShouldThrowArgumentException_WhenDateOfBirthIsInTheFuture()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -124,7 +120,6 @@ namespace SpaManagementSystem.Domain.UnitTests.EntitiesTests.UserProfileTests
             var gender = GenderType.Male;
             var dateOfBirth = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
             
-
             // Act & Assert
             new Action(() => new UserProfile(id, userId, firstName, lastName, gender, dateOfBirth))
                 .Should().Throw<ArgumentException>();
