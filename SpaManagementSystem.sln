@@ -7,9 +7,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpaManagementSystem.Domain"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpaManagementSystem.Application", "src\SpaManagementSystem.Application\SpaManagementSystem.Application.csproj", "{EE5A44CB-F160-476F-BD06-684F3CF29A2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaManagementSystem.Infrastructure", "src\SpaManagementSystem.Infrastructure\SpaManagementSystem.Infrastructure.csproj", "{03830B69-8A3C-40E0-A688-5BD58399186E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpaManagementSystem.Infrastructure", "src\SpaManagementSystem.Infrastructure\SpaManagementSystem.Infrastructure.csproj", "{03830B69-8A3C-40E0-A688-5BD58399186E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaManagementSystem.WebApi", "src\SpaManagementSystem.WebApi\SpaManagementSystem.WebApi.csproj", "{F7014345-495D-4FEC-B352-4EDA85E3615C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpaManagementSystem.WebApi", "src\SpaManagementSystem.WebApi\SpaManagementSystem.WebApi.csproj", "{F7014345-495D-4FEC-B352-4EDA85E3615C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaManagementSystem.Domain.UnitTests", "tests\UnitTests\SpaManagementSystem.Domain.UnitTests\SpaManagementSystem.Domain.UnitTests.csproj", "{43DD309D-0089-4C81-8B9E-4BB38486B328}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaManagementSystem.Infrastructure.UnitTests", "tests\UnitTests\SpaManagementSystem.Infrastructure.UnitTests\SpaManagementSystem.Infrastructure.UnitTests.csproj", "{4E5B9434-ACA3-49CF-A915-AD90B585F77E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaManagementSystem.Application.UnitTests", "tests\UnitTests\SpaManagementSystem.Application.UnitTests\SpaManagementSystem.Application.UnitTests.csproj", "{25BE1B95-F263-4031-9C31-6013DCC302AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaManagementSystem.WebApi.UnitTests", "tests\UnitTests\SpaManagementSystem.WebApi.UnitTests\SpaManagementSystem.WebApi.UnitTests.csproj", "{DCDFF603-2FF4-48BF-82D4-CF1712FB0848}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +41,22 @@ Global
 		{F7014345-495D-4FEC-B352-4EDA85E3615C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7014345-495D-4FEC-B352-4EDA85E3615C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7014345-495D-4FEC-B352-4EDA85E3615C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43DD309D-0089-4C81-8B9E-4BB38486B328}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43DD309D-0089-4C81-8B9E-4BB38486B328}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43DD309D-0089-4C81-8B9E-4BB38486B328}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43DD309D-0089-4C81-8B9E-4BB38486B328}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E5B9434-ACA3-49CF-A915-AD90B585F77E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E5B9434-ACA3-49CF-A915-AD90B585F77E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E5B9434-ACA3-49CF-A915-AD90B585F77E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E5B9434-ACA3-49CF-A915-AD90B585F77E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25BE1B95-F263-4031-9C31-6013DCC302AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25BE1B95-F263-4031-9C31-6013DCC302AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25BE1B95-F263-4031-9C31-6013DCC302AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25BE1B95-F263-4031-9C31-6013DCC302AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCDFF603-2FF4-48BF-82D4-CF1712FB0848}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCDFF603-2FF4-48BF-82D4-CF1712FB0848}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCDFF603-2FF4-48BF-82D4-CF1712FB0848}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCDFF603-2FF4-48BF-82D4-CF1712FB0848}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
