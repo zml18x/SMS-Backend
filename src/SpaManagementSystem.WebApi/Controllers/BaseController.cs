@@ -1,27 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace SpaManagementSystem.WebApi.Controllers
+namespace SpaManagementSystem.WebApi.Controllers;
+
+/// <summary>
+/// A base class for api controller in SpaManagementSystem.
+/// </summary>
+[ApiController]
+[Route("[controller]")]
+public class BaseController : ControllerBase
 {
     /// <summary>
-    /// A base class for api controller in SpaManagementSystem.
+    /// Gets the User ID as a GUID if the user is authenticated; otherwise, returns Guid.Empty.
     /// </summary>
-    [ApiController]
-    [Route("[controller]")]
-    public class BaseController : ControllerBase
-    {
-        /// <summary>
-        /// Gets the User ID as a GUID if the user is authenticated; otherwise, returns Guid.Empty.
-        /// </summary>
-        protected Guid UserId
-        {
-            get
-            {
-                if (User?.Identity?.IsAuthenticated == true)
-                    if (Guid.TryParse(User.Identity.Name, out var userId))
-                        return userId;
+    protected Guid UserId => User?.Identity?.IsAuthenticated == true
+        ? Guid.TryParse(User.Identity.Name, out var userId) ? userId : Guid.Empty
+        : Guid.Empty;
 
-                return Guid.Empty;
-            }
-        }
-    }
+
 }
