@@ -153,7 +153,7 @@ public class UserAccountController : BaseController
         {
             var validPassword = await _signInManager.UserManager.CheckPasswordAsync(user, request.Password);
             if (!user.EmailConfirmed && validPassword)
-                return BadRequest("Please, confirm your email");
+                return BadRequest("Email not confirmed.");
         }
 
         return BadRequest("Invalid Credentials");
