@@ -2,12 +2,13 @@
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.DependencyInjection;
+using SpaManagementSystem.Application.Mappers;
 using SpaManagementSystem.Application.Services;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Salon;
-using SpaManagementSystem.Application.Requests.CommonValidators;
 using SpaManagementSystem.Application.Requests.UserAccount;
 using SpaManagementSystem.Application.Requests.UserAccount.Validators;
+using SpaManagementSystem.Application.Requests.Common.Validators;
 
 namespace SpaManagementSystem.Application.Container;
 
@@ -29,6 +30,7 @@ public static class ApplicationDependencies
     {
         services.ConfigureServices();
         services.ConfigureFluentValidation();
+        services.ConfigureAutoMapper();
             
         return services;
     }
@@ -45,11 +47,6 @@ public static class ApplicationDependencies
     {
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ISalonService, SalonService>();
-        services.AddScoped<IValidator<JsonPatchDocument<UpdateSalonDetailsRequest>>,
-            JsonPatchDocumentValidator<UpdateSalonDetailsRequest>>();
-        services.AddScoped<IValidator<JsonPatchDocument<UpdateProfileRequest>>,
-            JsonPatchDocumentValidator<UpdateProfileRequest>>();
-
 
         return services;
     }
@@ -67,7 +64,25 @@ public static class ApplicationDependencies
         services.AddFluentValidationAutoValidation()
             .AddFluentValidationClientsideAdapters()
             .AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
+        
+        services.AddScoped<IValidator<JsonPatchDocument<UpdateSalonDetailsRequest>>,
+            JsonPatchDocumentValidator<UpdateSalonDetailsRequest>>();
+        services.AddScoped<IValidator<JsonPatchDocument<UpdateProfileRequest>>,
+            JsonPatchDocumentValidator<UpdateProfileRequest>>();
 
+        return services;
+    }
+     
+    /// <summary>
+    /// Configures AutoMapper for the application.
+    /// This method registers AutoMapper with the provided profile, enabling mapping configuration for DTOs and entities.
+    /// </summary>
+    /// <param name="services">The collection of service descriptors for registering AutoMapper services.</param>
+    /// <returns>The <see cref="IServiceCollection"/> with AutoMapper configured, supporting fluent configuration.</returns>
+    private static IServiceCollection ConfigureAutoMapper(this IServiceCollection services)
+    {
+        services.AddAutoMapper(typeof(AutoMapperProfile));
+        
         return services;
     }
 }

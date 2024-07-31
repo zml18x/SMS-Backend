@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.JsonPatch;
 
-namespace SpaManagementSystem.Application.Requests.CommonValidators;
+namespace SpaManagementSystem.Application.Requests.Common.Validators;
 
 /// <summary>
 /// Validator for JSON Patch documents to ensure that each operation is valid.

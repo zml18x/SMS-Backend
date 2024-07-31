@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace SpaManagementSystem.Application.Requests.Address.Validators;
+namespace SpaManagementSystem.Application.Requests.Common.Validators;
 
 /// <summary>
 /// Validator for <see cref="UpdateAddressRequest"/> to enforce validation rules.

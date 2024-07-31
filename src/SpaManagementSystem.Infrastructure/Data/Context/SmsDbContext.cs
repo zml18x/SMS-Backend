@@ -28,8 +28,6 @@ public class SmsDbContext : DbContext
         
     public DbSet<UserProfile> UserProfiles { get; set; }
     public DbSet<Salon> Salons { get; set; }
-    public DbSet<OpeningHours> OpeningHours { get; set; }
-    public DbSet<SalonAddress> SalonAddresses { get; set; }
         
         
         
@@ -42,6 +40,39 @@ public class SmsDbContext : DbContext
     /// <param name="modelBuilder">The model builder instance used to construct the model for this context.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<UserProfile>(entity =>
+        {
+            entity.Property(x => x.Id).IsRequired();
+            entity.Property(x => x.UserId).IsRequired();
+            entity.Property(x => x.FirstName).IsRequired();
+            entity.Property(x => x.LastName).IsRequired();
+            entity.Property(x => x.Gender).IsRequired();
+            entity.Property(x => x.DateOfBirth).IsRequired();
+            
+            entity.HasKey(x => x.Id);
+        });
+        
+        modelBuilder.Entity<Salon>(entity =>
+        {
+            entity.Property(x => x.Id).IsRequired();
+            entity.Property(x => x.Name).IsRequired();
+            entity.Property(x => x.PhoneNumber).IsRequired();
+            entity.Property(x => x.Email).IsRequired();
+            
+            entity.HasKey(x => x.Id);
+            
+            entity.OwnsMany(x => x.OpeningHours, s =>
+            {
+                s.Property(oh => oh.DayOfWeek).IsRequired();
+                s.Property(oh => oh.OpeningTime).IsRequired();
+                s.Property(oh => oh.ClosingTime).IsRequired();
+                s.WithOwner().HasForeignKey("SalonId");
+                s.HasKey("SalonId", "DayOfWeek");
+            });
+
+            entity.OwnsOne(x => x.Address);
+        });
+        
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema("SMS");
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());

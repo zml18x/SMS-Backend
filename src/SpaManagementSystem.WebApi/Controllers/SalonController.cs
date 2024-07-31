@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Interfaces;
-using SpaManagementSystem.Application.Requests.Address;
 using SpaManagementSystem.Application.Requests.Salon;
+using SpaManagementSystem.Application.Requests.Common;
 
 namespace SpaManagementSystem.WebApi.Controllers;
 
@@ -140,7 +140,7 @@ public class SalonController : BaseController
     ///     PATCH /Salon/{salonId}/Manage/UpdateDetails
     ///     [
     ///         { "op": "replace", "path": "/name", "value": "New Salon Name" },
-    ///         { "op": "replace", "path": "/phoneNumber", "value": "321321111" },
+    ///         { "op": "replace", "path": "/phoneNumber", "value": "321321321" },
     ///         { "op": "replace", "path": "/email", "value": "newExample@mail.com" },
     ///         { "op": "replace", "path": "/description", "value": "Example description" }
     ///     ]
@@ -185,163 +185,139 @@ public class SalonController : BaseController
 
         return NoContent();
     }
-
+    
     /// <summary>
-    /// Updates the opening hours of a specific salon.
+    /// Adds opening hours for a specific salon.
     /// </summary>
-    /// <param name="salonId">The unique identifier of the salon to update.</param>
-    /// <param name="request">The UpdateSalonOpeningHoursRequest object containing the updated opening hours.</param>
+    /// <param name="salonId">The unique identifier of the salon to add opening hours to.</param>
+    /// <param name="request">The <see cref="OpeningHoursRequest"/> object containing the opening hours details.</param>
     /// <remarks>
-    /// This endpoint allows you to update the opening hours for a specific salon. The request body should
-    /// contain the opening hours in the format specified below.
-    ///
     /// Sample request:
     /// 
-    ///     PUT /Salon/{salonId}/Manage/UpdateOpeningHours
+    ///     POST /Salon/{salonId}/Manage/OpeningHours
     ///     {
-    ///         "openingHours": [
-    ///             {
-    ///                 "dayOfWeek": 0, // 0 for Sunday, 1 for Monday, ..., 6 for Saturday
-    ///                 "openingTime": "09:00:00",
-    ///                 "closingTime": "18:00:00",
-    ///                 "isClosed": false
-    ///             },
-    ///             {
-    ///                 "dayOfWeek": 1,
-    ///                 "openingTime": "09:00:00",
-    ///                 "closingTime": "18:00:00",
-    ///                 "isClosed": true
-    ///             },
-    ///             // ... other days
-    ///         ]
+    ///         "DayOfWeek": 0,
+    ///         "OpeningTime": "09:00:00",
+    ///         "ClosingTime": "18:00:00"
     ///     }
+    /// 
     /// </remarks>
-    /// <returns>A <see cref="IActionResult"/> indicating the result of the update operation.
-    /// Returns <see cref="NoContentResult"/> if the update is successful,
-    /// or <see cref="BadRequestResult"/> if the request is invalid.</returns>
-    /// <response code="204">If the update was successful and no content is returned.</response>
-    /// <response code="400">If the request is invalid or if there is an error updating the opening hours.</response>
+    /// <returns>A <see cref="IActionResult"/> indicating the result of the add operation.</returns>
+    /// <response code="201">Indicates that the opening hours were added successfully.</response>
+    /// <response code="400">Indicates that the request is invalid due to bad request or validation errors.</response>
     /// <response code="401">If the request is not authenticated.</response>
     /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
-    /// <response code="404">If the salon with the specified ID is not found.</response>
     [Consumes("application/json")]
     [Authorize(Roles = "Admin")]
-    [HttpPut("{salonId}/Manage/UpdateOpeningHours")]
-    public async Task<IActionResult> UpdateOpeningHoursAsync(Guid salonId, [FromBody] UpdateSalonOpeningHoursRequest request)
+    [HttpPost("{salonId}/Manage/OpeningHours")]
+    public async Task<IActionResult> AddOpeningHoursAsync(Guid salonId, [FromBody] OpeningHoursRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        await _salonService.UpdateOpeningHours(salonId, request);
+        await _salonService.AddOpeningHoursAsync(salonId, request);
+            
+        return Created();
+    }
+    
+    /// <summary>
+    /// Updates opening hours for a specific salon.
+    /// </summary>
+    /// <param name="salonId">The unique identifier of the salon to update opening hours for.</param>
+    /// <param name="request">The <see cref="OpeningHoursRequest"/> object containing the opening hours details.</param>
+    /// <remarks>
+    /// Sample request:
+    /// 
+    ///     PUT /Salon/{salonId}/Manage/OpeningHours
+    ///     {
+    ///         "DayOfWeek": 0,
+    ///         "OpeningTime": "09:00:00",
+    ///         "ClosingTime": "18:00:00"
+    ///     }
+    ///  
+    /// </remarks>
+    /// <returns>A <see cref="IActionResult"/> indicating the result of the update operation.</returns>
+    /// <response code="204">Indicates that the opening hours were updated successfully.</response>
+    /// <response code="400">Indicates that the request is invalid due to bad request or validation errors.</response>
+    /// <response code="401">If the request is not authenticated.</response>
+    /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
+    [Consumes("application/json")]
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{salonId}/Manage/OpeningHours")]
+    public async Task<IActionResult> UpdateOpeningHoursAsync(Guid salonId, [FromBody] OpeningHoursRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        await _salonService.UpdateOpeningHoursAsync(salonId, request);
             
         return NoContent();
     }
-        
+    
     /// <summary>
-    /// Creates a new address for a specific salon.
+    /// Deletes opening hours for a specific salon.
     /// </summary>
-    /// <param name="salonId">The unique identifier of the salon to which the address will be added.</param>
-    /// <param name="request">The CreateAddressRequest object containing the address details.</param>
+    /// <param name="salonId">The unique identifier of the salon whose opening hours will be deleted.</param>
+    /// <param name="dayOfWeek">The day of the week whose opening hours will be deleted.</param>
     /// <remarks>
-    /// This endpoint allows an admin to create a new address for a specific salon. The request body should
-    /// contain the details of the address to be added.
-    ///
     /// Sample request:
     /// 
-    ///     POST /Salon/{salonId}/Manage/Address/Create
-    ///     {
-    ///         "country": "Poland",
-    ///         "region": "Małopolskie",
-    ///         "city": "Zakopane",
-    ///         "postalCode": "34-500",
-    ///         "street": "Ulica",
-    ///         "buildingNumber": "10x"
-    ///     }
+    ///     DELETE /Salon/{salonId}/Manage/OpeningHours/{dayOfWeek}
+    /// 
     /// </remarks>
-    /// <returns>A <see cref="IActionResult"/> indicating the result of the address creation operation.
-    /// Returns <see cref="OkResult"/> if the address was created successfully, or <see cref="BadRequestResult"/> if the request is invalid.</returns>
-    /// <response code="200">If the address was created successfully.</response>
-    /// <response code="400">If the request is invalid.</response>
+    /// <returns>A <see cref="IActionResult"/> indicating the result of the delete operation.</returns>
+    /// <response code="204">Indicates that the opening hours were deleted successfully.</response>
+    /// <response code="400">Indicates that the request is invalid due to bad request or validation errors.</response>
     /// <response code="401">If the request is not authenticated.</response>
     /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
-    /// <response code="404">If the salon with the specified ID is not found.</response>
-    [Produces("application/json")]
+    [Consumes("application/json")]
     [Authorize(Roles = "Admin")]
-    [HttpPost("{salonId}/Manage/Address/Create")]
-    public async Task<IActionResult> CreateSalonAddressAsync(Guid salonId, [FromBody] CreateAddressRequest request)
+    [HttpDelete("{salonId}/Manage/OpeningHours/{dayOfWeek}")]
+    public async Task<IActionResult> RemoveOpeningHoursAsync(Guid salonId, DayOfWeek dayOfWeek)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        await _salonService.AddAddress(salonId, request);
-                
-        return Ok();
+        await _salonService.RemoveOpeningHoursAsync(salonId, dayOfWeek);
+
+        return NoContent();
     }
-        
+    
     /// <summary>
-    /// Updates the address of a specific salon based on the provided JsonPatchDocument/>.
+    /// Updates the address for a specific salon.
     /// </summary>
     /// <param name="salonId">The unique identifier of the salon whose address will be updated.</param>
-    /// <param name="patchDocument">The JsonPatchDocument object containing the details to update.</param>
-    /// <param name="requestValidator">An instance of <see cref="IValidator{UpdateAddressRequest}"/> used to validate the updated address details.</param>
+    /// <param name="request">The <see cref="UpdateAddressRequest"/> object containing the address details.</param>
     /// <remarks>
-    /// This endpoint allows an admin to update the address of a specific salon using a JSON Patch document. 
-    /// The request body should contain the changes to be applied to the salon's address.
-    ///
     /// Sample request:
     /// 
-    ///     PATCH /Salon/{salonId}/Manage/Address/Update
-    ///     [
-    ///         { "op": "replace", "path": "/country", "value": "Polska" },
-    ///         { "op": "replace", "path": "/region", "value": "Małopolskie" }
-    ///         { "op": "replace", "path": "/city", "value": "Zakopane" },
-    ///         { "op": "replace", "path": "/postalCode", "value": "34-500" }
-    ///         { "op": "replace", "path": "/street", "value": "Ulica" },
-    ///         { "op": "replace", "path": "/buildingNumber", "value": "100x" }
-    ///     ]
+    ///     PUT /Salon/{salonId}/Manage/Address
+    ///     {
+    ///         "Country": "Poland",
+    ///         "Region": "Małopolskie",
+    ///         "City": "Warsaw",
+    ///         "PostalCode": "00-001",
+    ///         "Street": "Example street",
+    ///         "BuildingNumber": "1"
+    ///     }
+    ///  
     /// </remarks>
-    /// <returns>A <see cref="IActionResult"/> indicating the result of the address update operation.
-    /// Returns <see cref="BadRequestResult"/> if the address does not exist or the request is invalid,
-    /// or <see cref="NoContentResult"/> if the update is successful.</returns>
-    /// <response code="204">If the address was updated successfully.</response>
-    /// <response code="400">If the request is invalid or the address does not exist.</response>
+    /// <returns>A <see cref="IActionResult"/> indicating the result of the update operation.</returns>
+    /// <response code="200">Indicates that the address was updated successfully.</response>
+    /// <response code="400">Indicates that the request is invalid due to bad request or validation errors.</response>
     /// <response code="401">If the request is not authenticated.</response>
     /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
-    /// <response code="404">If the salon with the specified ID is not found.</response>
-    [Produces("application/json")]
+    [Consumes("application/json")]
     [Authorize(Roles = "Admin")]
-    [HttpPatch("{salonId}/Manage/Address/Update")]
-    public async Task<IActionResult> UpdateSalonAddressAsync(Guid salonId, JsonPatchDocument<UpdateAddressRequest> patchDocument,
-        [FromServices] IValidator<UpdateAddressRequest> requestValidator)
+    [HttpPut("{salonId}/Manage/Address")]
+    public async Task<IActionResult> UpdateAddressAsync(Guid salonId, [FromBody] UpdateAddressRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var salon = await _salonService.GetSalonDetailsByIdAsync(salonId);
-        var address = salon.Address;
-
-        if (address == null)
-            return BadRequest($"Address for salon with ID '{salonId}' does not exist");
-            
-        var request = new UpdateAddressRequest(address.Country, address.Region, address.City, address.PostalCode,
-            address.Street, address.BuildingNumber);
-
-        patchDocument.ApplyTo(request);
-            
-        var requestValidationResult = await requestValidator.ValidateAsync(request);
-        if (!requestValidationResult.IsValid)
-        {
-            foreach (var error in requestValidationResult.Errors)
-                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-
-            return BadRequest(ModelState);
-        }
-            
-        var isUpdated = await _salonService.UpdateAddress(salonId, request);
-        if (!isUpdated)
-            return BadRequest("No changes were made to the salon address.");
-
-        return NoContent();
+        await _salonService.UpdateAddressAsync(salonId, request);
+                
+        return Ok();
     }
         
     /// <summary>
@@ -363,9 +339,9 @@ public class SalonController : BaseController
     /// <response code="401">If the request is not authenticated.</response>
     /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
     /// <response code="404">If the salon with the specified ID is not found.</response>
-    [Produces("application/json")]
+    [Consumes("application/json")]
     [Authorize(Roles = "Admin")]
-    [HttpDelete("{salonId}/Manage/Delete")]
+    [HttpDelete("{salonId}")]
     public async Task<IActionResult> DeleteAsync(Guid salonId)
     {
         await _salonService.DeleteAsync(salonId);

@@ -1,6 +1,7 @@
 ﻿using System.Net.Mail;
 using System.Text.RegularExpressions;
 using SpaManagementSystem.Domain.Common;
+using SpaManagementSystem.Domain.ValueObjects;
 
 namespace SpaManagementSystem.Domain.Entities;
 
@@ -41,7 +42,7 @@ public class Salon : BaseEntity
     /// <summary>
     /// Gets the address of the salon. Can be null.
     /// </summary>
-    public SalonAddress? Address { get; protected set; }
+    public Address? Address { get; protected set; }
         
     /// <summary>
     /// Gets the collection of opening hours for the salon.
@@ -115,32 +116,63 @@ public class Salon : BaseEntity
 
         return anyDataUpdated;
     }
-        
-    /// <summary>
-    /// Adds or updates the opening hours for a specific day of the week.
-    /// </summary>
-    /// <param name="dayOfWeek">The day of the week to set the opening hours for.</param>
-    /// <param name="openingTime">The opening time for the specified day.</param>
-    /// <param name="closingTime">The closing time for the specified day.</param>
-    /// <param name="isClosed">Indicates if the salon is closed on the specified day.</param>
-    public void AddOrUpdateOpeningHours(DayOfWeek dayOfWeek, TimeSpan openingTime, TimeSpan closingTime, bool isClosed = false)
-    {
-        var existingOpeningHour = _openingHours.FirstOrDefault(x => x.DayOfWeek == dayOfWeek);
 
-        if (existingOpeningHour == null)
-            _openingHours.Add(new OpeningHours(Guid.NewGuid(), Id, dayOfWeek, openingTime, closingTime, isClosed));
-        else
-            existingOpeningHour.UpdateHours(openingTime, closingTime, isClosed);
-    }
-        
     /// <summary>
-    /// Sets the default opening hours for the salon (9 AM to 6 PM) for all days of the week.
+    /// Updates the salon's address
     /// </summary>
-    public void SetDefaultOpeningHours()
+    /// <param name="address">The new address</param>
+    public void UpdateAddress(Address address)
     {
-        foreach (var day in (DayOfWeek[])Enum.GetValues(typeof(DayOfWeek)))
-            _openingHours.Add(new(Guid.NewGuid(), Id, day, new TimeSpan(9, 0, 0),
-                new TimeSpan(18, 0, 0)));
+        Address = address;
+    }
+    
+    /// <summary>
+    /// Adds a new opening hours entry for a specific day of the week. 
+    /// </summary>
+    /// <param name="openingHours">The opening hours entry to be added.</param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if opening hours for the specified day already exist in the collection.
+    /// </exception>
+    public void AddOpeningHours(OpeningHours openingHours)
+    {
+        if (_openingHours.Any(x => x.DayOfWeek == openingHours.DayOfWeek))
+            throw new InvalidOperationException($"Opening hours for {openingHours.DayOfWeek} already exist.");
+
+        _openingHours.Add(openingHours);
+    }
+    
+    /// <summary>
+    /// Updates the existing opening hours entry for a specific day of the week. 
+    /// </summary>
+    /// <param name="openingHours">The updated opening hours entry.</param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if no opening hours entry is found for the specified day of the week.
+    /// </exception>
+    public void UpdateOpeningHours(OpeningHours openingHours)
+    {
+        var existingOpeningHours = _openingHours.FirstOrDefault(oh => oh.DayOfWeek == openingHours.DayOfWeek);
+        if (existingOpeningHours == null)
+            throw new InvalidOperationException($"No opening hours found for {openingHours.DayOfWeek}.");
+
+        _openingHours.Remove(existingOpeningHours);
+        _openingHours.Add(openingHours);
+    }
+    
+    /// <summary>
+    /// Removes the opening hours entry for a specific day of the week. 
+    /// </summary>
+    /// <param name="dayOfWeek">The day of the week for which the opening hours entry should be removed.</param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if no opening hours entry is found for the specified day of the week.
+    /// </exception>
+    public void RemoveOpeningHours(DayOfWeek dayOfWeek)
+    {
+        var openingHours = _openingHours.FirstOrDefault(oh => oh.DayOfWeek == dayOfWeek);
+
+        if (openingHours == null)
+            throw new InvalidOperationException($"No opening hours found for {dayOfWeek}.");
+
+        _openingHours.Remove(openingHours);
     }
         
     /// <summary>

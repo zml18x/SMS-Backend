@@ -23,7 +23,8 @@ public interface IUserService
     /// Retrieves the user profile for a specific user.
     /// </summary>
     /// <param name="userId">The unique identifier of the user whose account details are being retrieved.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the user profile DTO.</returns>
+    /// <returns>A task that represents the asynchronous operation.
+    /// The task result contains a <see cref="UserProfileDto"/> object with the user profile data.</returns>
     public Task<UserProfileDto> GetProfileAsync(Guid userId);
 
     /// <summary>

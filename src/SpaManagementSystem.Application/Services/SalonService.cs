@@ -1,31 +1,34 @@
-﻿using SpaManagementSystem.Domain.Entities;
+﻿using AutoMapper;
+using SpaManagementSystem.Domain.Entities;
 using SpaManagementSystem.Domain.Interfaces;
+using SpaManagementSystem.Domain.ValueObjects;
 using SpaManagementSystem.Application.Dto;
-using SpaManagementSystem.Application.Exceptions;
 using SpaManagementSystem.Application.Interfaces;
-using SpaManagementSystem.Application.Requests.Address;
 using SpaManagementSystem.Application.Requests.Salon;
+using SpaManagementSystem.Application.Requests.Common;
+using SpaManagementSystem.Application.Extensions.RepositoryExtensions;
 
 namespace SpaManagementSystem.Application.Services;
 
 /// <summary>
-/// Provides services related to salon management, including CRUD operations and updating opening hours.
+/// Service responsible for salon managing. Implements <see cref="ISalonService"/>.
 /// </summary>
 public class SalonService : ISalonService
 {
     private readonly ISalonRepository _salonRepository;
-    private readonly IRepository<SalonAddress> _addressRepository;
+    private readonly IMapper _mapper;
         
         
         
     /// <summary>
-    /// Initializes a new instance of the <see cref="SalonService"/> with a repository for handling salon data.
+    /// Initializes a new instance of the <see cref="SalonService"/> with a repository for handling salon data and a mapper for object-object mapping.
     /// </summary>
     /// <param name="salonRepository">The repository used for salon data operations.</param>
-    public SalonService(ISalonRepository salonRepository, IRepository<SalonAddress> addressRepository)
+    /// <param name="mapper">The mapper to handle object-object mapping.</param>
+    public SalonService(ISalonRepository salonRepository, IMapper mapper)
     {
         _salonRepository = salonRepository;
-        _addressRepository = addressRepository;
+        _mapper = mapper;
     }
 
     
@@ -33,27 +36,17 @@ public class SalonService : ISalonService
     /// <inheritdoc />
     public async Task<SalonDetailsDto> GetSalonDetailsByIdAsync(Guid salonId)
     {
-        var salon = await _salonRepository.GetWithDetailsByIdAsync(salonId);
+        var salon = await _salonRepository.GetByIdOrFailAsync(salonId);
 
-        if (salon == null)
-            throw new NotFoundException($"Salon with ID '{salonId}' does not found.");
-
-        var addressDto = (salon.Address == null)
-            ? null
-            : new AddressDto(salon.Address.Country, salon.Address.Region, salon.Address.City,
-                salon.Address.PostalCode, salon.Address.Street, salon.Address.BuildingNumber);
-
-        return new SalonDetailsDto(salon.Id, salon.Name, salon.Email, salon.PhoneNumber, salon.Description,
-            addressDto, salon.OpeningHours.Select(x =>
-                new OpeningHoursDto(x.DayOfWeek, x.OpeningTime, x.ClosingTime, x.IsClosed)));
+        return _mapper.Map<SalonDetailsDto>(salon);
     }
         
     /// <inheritdoc />
     public async Task<IEnumerable<SalonDto>> GetAllSalonsByUserIdAsync(Guid userId)
     {
         var salons = await _salonRepository.GetAllByUserIdAsync(userId);
-
-        return salons.Select(x => new SalonDto(x.Id, x.Name));
+  
+        return _mapper.Map<IEnumerable<SalonDto>>(salons);
     }
         
     /// <inheritdoc />
@@ -62,22 +55,16 @@ public class SalonService : ISalonService
         var salon = new Salon(Guid.NewGuid(), userId, createSalonRequest.Name, createSalonRequest.Email,
             createSalonRequest.PhoneNumber);
             
-        salon.SetDefaultOpeningHours();
-            
         await _salonRepository.CreateAsync(salon);
         await _salonRepository.SaveChangesAsync();
     }
         
     /// <inheritdoc />
-    /// <exception cref="NotFoundException">Thrown when the salon with the specified ID is not found.</exception>
     public async Task<bool> UpdateSalonAsync(Guid salonId, UpdateSalonDetailsRequest request)
     {
-        var salon = await _salonRepository.GetByIdAsync(salonId);
-
-        if (salon == null)
-            throw new NotFoundException("");
+        var salon = await _salonRepository.GetByIdOrFailAsync(salonId);
             
-        var isUpdated = salon.UpdateSalon(request.Name!, request.Email!, request.PhoneNumber!, request.Description);
+        var isUpdated = salon.UpdateSalon(request.Name, request.Email, request.PhoneNumber, request.Description);
             
         if (isUpdated)
         {
@@ -87,77 +74,56 @@ public class SalonService : ISalonService
 
         return isUpdated;
     }
-        
+    
     /// <inheritdoc />
-    /// <exception cref="NotFoundException">Thrown when the salon with the specified ID is not found.</exception>
-    public async Task UpdateOpeningHours(Guid salonId, UpdateSalonOpeningHoursRequest request)
+    public async Task AddOpeningHoursAsync(Guid salonId, OpeningHoursRequest request)
     {
-        var salon = await _salonRepository.GetByIdAsync(salonId);
-            
-        if (salon == null)
-            throw new NotFoundException($"The salon with id {salonId} was not found.");
+        var salon = await _salonRepository.GetByIdOrFailAsync(salonId);
 
-        foreach (var openingHours in request.OpeningHours)
-            salon.AddOrUpdateOpeningHours(openingHours.DayOfWeek, openingHours.OpeningTime,
-                openingHours.ClosingTime, openingHours.IsClosed);
-            
+        salon.AddOpeningHours(new OpeningHours(request.DayOfWeek, request.OpeningTime, request.ClosingTime));
+
+        _salonRepository.Update(salon);
+        await _salonRepository.SaveChangesAsync();
+    }
+    
+    /// <inheritdoc />
+    public async Task UpdateOpeningHoursAsync(Guid salonId, OpeningHoursRequest request)
+    {
+        var salon = await _salonRepository.GetByIdOrFailAsync(salonId);
+
+        salon.UpdateOpeningHours(new OpeningHours(request.DayOfWeek, request.OpeningTime, request.ClosingTime));
+        _salonRepository.Update(salon);
+        await _salonRepository.SaveChangesAsync();
+    }
+    
+    /// <inheritdoc />
+    public async Task RemoveOpeningHoursAsync(Guid salonId, DayOfWeek dayOfWeek)
+    {
+        var salon = await _salonRepository.GetByIdOrFailAsync(salonId);
+        
+        salon.RemoveOpeningHours(dayOfWeek);
+        _salonRepository.Update(salon);
+        await _salonRepository.SaveChangesAsync();
+    }
+    
+    /// <inheritdoc />
+    public async Task UpdateAddressAsync(Guid salonId, UpdateAddressRequest request)
+    {
+        var salon = await _salonRepository.GetByIdOrFailAsync(salonId);
+
+        var address = new Address(request.Country, request.Region, request.City,
+            request.PostalCode, request.Street, request.BuildingNumber);
+
+        salon.UpdateAddress(address);
+
         _salonRepository.Update(salon);
         await _salonRepository.SaveChangesAsync();
     }
         
     /// <inheritdoc />
-    /// <exception cref="NotFoundException">Thrown when the salon with the specified ID is not found.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the salon already has an address.</exception>
-    public async Task AddAddress(Guid salonId, CreateAddressRequest request)
-    {
-        var salon = await _salonRepository.GetWithDetailsByIdAsync(salonId);
-            
-        if (salon == null)
-            throw new NotFoundException($"The salon with id {salonId} was not found.");
-
-        if (salon.Address != null)
-            throw new InvalidOperationException($"Salon with ID '{salonId}' already has address.");
-
-        var address = new SalonAddress(Guid.NewGuid(), salonId, request.Country, request.Region, request.City,
-            request.PostalCode, request.Street, request.BuildingNumber);
-
-        await _addressRepository.CreateAsync(address);
-        await _addressRepository.SaveChangesAsync();
-    }
-        
-    /// <inheritdoc />
-    /// <exception cref="NotFoundException">Thrown when the salon with the specified ID is not found.</exception>
-    /// <exception cref="NotFoundException">Thrown when the address for salon with the specified ID is not found.</exception>
-    public async Task<bool> UpdateAddress(Guid salonId, UpdateAddressRequest request)
-    {
-        var salon = await _salonRepository.GetWithDetailsByIdAsync(salonId);
-            
-        if (salon == null)
-            throw new NotFoundException($"The salon with id {salonId} was not found.");
-
-        if (salon.Address == null)
-            throw new NotFoundException($"The address for the salon with id {salonId} was not found.");
-
-        var isUpdated = salon.Address.UpdateAddress(request.Country, request.Region, request.City, request.PostalCode,
-            request.Street, request.BuildingNumber);
-            
-        if (isUpdated)
-        {
-            _salonRepository.Update(salon);
-            await _salonRepository.SaveChangesAsync();
-        }
-
-        return isUpdated;
-    }
-        
-    /// <inheritdoc />
-    /// <exception cref="NotFoundException">Thrown when the salon with the specified ID is not found.</exception>
     public async Task DeleteAsync(Guid salonId)
     {
-        var salon = await _salonRepository.GetByIdAsync(salonId);
-            
-        if (salon == null)
-            throw new NotFoundException($"The salon with id {salonId} was not found.");
+        var salon = await _salonRepository.GetByIdOrFailAsync(salonId);
 
         _salonRepository.Delete(salon);
         await _salonRepository.SaveChangesAsync();

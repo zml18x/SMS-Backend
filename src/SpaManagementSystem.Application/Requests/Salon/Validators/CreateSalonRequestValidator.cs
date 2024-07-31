@@ -4,7 +4,7 @@ using SpaManagementSystem.Application.Common.Validation;
 namespace SpaManagementSystem.Application.Requests.Salon.Validators;
 
 /// <summary>
-/// Validator class for validating <see cref="CreateSalonRequest"/> instances.
+/// Validator class for validating <see cref="CreateSalonRequest"/>.
 /// </summary>
 public class CreateSalonRequestValidator : AbstractValidator<CreateSalonRequest>
 {

@@ -22,7 +22,12 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
                     Email = table.Column<string>(type: "text", nullable: false),
                     PhoneNumber = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: true),
-                    AddressId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Address_Country = table.Column<string>(type: "text", nullable: true),
+                    Address_Region = table.Column<string>(type: "text", nullable: true),
+                    Address_City = table.Column<string>(type: "text", nullable: true),
+                    Address_PostalCode = table.Column<string>(type: "text", nullable: true),
+                    Address_Street = table.Column<string>(type: "text", nullable: true),
+                    Address_BuildingNumber = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -36,18 +41,14 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
                 schema: "SMS",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    SalonId = table.Column<Guid>(type: "uuid", nullable: false),
                     DayOfWeek = table.Column<int>(type: "integer", nullable: false),
+                    SalonId = table.Column<Guid>(type: "uuid", nullable: false),
                     OpeningTime = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    ClosingTime = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    IsClosed = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    ClosingTime = table.Column<TimeSpan>(type: "interval", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OpeningHours", x => x.Id);
+                    table.PrimaryKey("PK_OpeningHours", x => new { x.SalonId, x.DayOfWeek });
                     table.ForeignKey(
                         name: "FK_OpeningHours_Salons_SalonId",
                         column: x => x.SalonId,
@@ -56,12 +57,6 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OpeningHours_SalonId",
-                schema: "SMS",
-                table: "OpeningHours",
-                column: "SalonId");
         }
 
         /// <inheritdoc />

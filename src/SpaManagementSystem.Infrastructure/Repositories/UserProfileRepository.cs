@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SpaManagementSystem.Application.Exceptions;
 using SpaManagementSystem.Domain.Entities;
 using SpaManagementSystem.Domain.Interfaces;
 using SpaManagementSystem.Infrastructure.Data.Context;
@@ -6,9 +7,9 @@ using SpaManagementSystem.Infrastructure.Data.Context;
 namespace SpaManagementSystem.Infrastructure.Repositories;
 
 /// <summary>
-/// Represents a repository specifically tailored for managing user profile entities.
+/// Represents a repository  for managing user profile.
 /// This repository implements both the general repository operations provided through the Repository base class
-/// and the specific operations defined in the IUserProfileRepository interface.
+/// and the specific operations defined in the <see cref="IUserProfileRepository"/>.
 /// </summary>
 public class UserProfileRepository : Repository<UserProfile>, IUserProfileRepository
 {
@@ -17,19 +18,24 @@ public class UserProfileRepository : Repository<UserProfile>, IUserProfileReposi
 
 
     /// <summary>
-    /// Initializes a new instance of the UserProfileRepository using the specified database context.
-    /// This constructor ensures the repository is ready to manage UserProfile entities by passing the context
-    /// to the base repository class.
+    /// Initializes a new instance of the <see cref="UserProfileRepository"/> class with the specified context.
     /// </summary>
-    /// <param name="context">The database context used for UserProfile entity operations.</param>
+    /// <param name="context">The database context used for salon data operations.</param>
     public UserProfileRepository(SmsDbContext context) : base(context)
     {
         _context = context;
     }
 
 
-        
+
     /// <inheritdoc />
-    public async Task<UserProfile?> GetByUserIdAsync(Guid userId)
-        => await Task.FromResult(await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId));
+    /// <exception cref="NotFoundException">Thrown when no user profile is found for the specified <paramref name="userId"/>.</exception>
+    public async Task<UserProfile> GetByUserIdAsync(Guid userId)
+    {
+        var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
+        if (userProfile == null)
+            throw new NotFoundException($"User profile for user id {userId} was not found.");
+
+        return userProfile;
+    }
 }

@@ -18,9 +18,8 @@ public interface IRepository<TEntity> where TEntity : class
     /// Retrieves a single entity by its unique identifier asynchronously.
     /// </summary>
     /// <param name="entityId">The unique identifier of the entity to retrieve.</param>
-    /// <returns>A task that represents the asynchronous operation and contains the entity found,
-    /// or null if no entity is found.</returns>
-    public Task<TEntity?> GetByIdAsync(Guid entityId);
+    /// <returns>A task that represents the asynchronous operation and contains the entity.</returns>
+    public Task<TEntity> GetByIdAsync(Guid entityId);
 
     /// <summary>
     /// Creates a new entity asynchronously.
