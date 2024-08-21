@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SpaManagementSystem.Application.Exceptions;
 using SpaManagementSystem.Domain.Entities;
 using SpaManagementSystem.Domain.Interfaces;
 using SpaManagementSystem.Infrastructure.Data.Context;
+using SpaManagementSystem.Application.Exceptions;
 
 namespace SpaManagementSystem.Infrastructure.Repositories;
 
@@ -30,11 +30,9 @@ public class UserProfileRepository : Repository<UserProfile>, IUserProfileReposi
 
     /// <inheritdoc />
     /// <exception cref="NotFoundException">Thrown when no user profile is found for the specified <paramref name="userId"/>.</exception>
-    public async Task<UserProfile> GetByUserIdAsync(Guid userId)
+    public async Task<UserProfile?> GetByUserIdAsync(Guid userId)
     {
         var userProfile = await _context.UserProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
-        if (userProfile == null)
-            throw new NotFoundException($"User profile for user id {userId} was not found.");
 
         return userProfile;
     }

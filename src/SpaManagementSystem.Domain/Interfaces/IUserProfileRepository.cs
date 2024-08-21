@@ -16,5 +16,5 @@ public interface IUserProfileRepository : IRepository<UserProfile>
     /// <returns>
     /// A task that represents the asynchronous operation and returns the user profile associated with the specified user ID.
     /// </returns>
-    public Task<UserProfile> GetByUserIdAsync(Guid userId);
+    public Task<UserProfile?> GetByUserIdAsync(Guid userId);
 }

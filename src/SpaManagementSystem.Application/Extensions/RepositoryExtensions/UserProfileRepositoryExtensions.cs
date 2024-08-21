@@ -1,6 +1,6 @@
-﻿using SpaManagementSystem.Application.Exceptions;
-using SpaManagementSystem.Domain.Entities;
+﻿using SpaManagementSystem.Domain.Entities;
 using SpaManagementSystem.Domain.Interfaces;
+using SpaManagementSystem.Application.Exceptions;
 
 namespace SpaManagementSystem.Application.Extensions.RepositoryExtensions;
 
@@ -24,7 +24,7 @@ public static class UserProfileRepositoryExtensions
         if (userId == Guid.Empty)
             throw new ArgumentException("The user id cannot be empty", nameof(userId));
 
-        var userProfile = await repository.GetByUserIdOrFailAsync(userId);
+        var userProfile = await repository.GetByUserIdAsync(userId);
         if (userProfile == null)
             throw new NotFoundException($"The user profile for user with id {userId} was not found.");
 

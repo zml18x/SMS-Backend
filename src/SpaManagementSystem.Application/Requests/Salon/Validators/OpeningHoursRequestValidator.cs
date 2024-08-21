@@ -10,7 +10,7 @@ public class OpeningHoursRequestValidator : AbstractValidator<OpeningHoursReques
     public OpeningHoursRequestValidator()
     {
         RuleFor(x => x.DayOfWeek)
-            .NotEmpty().WithMessage("Day of week cannot be empty.")
+            .NotNull().WithMessage("Day of week cannot be empty.")
             .IsInEnum().WithMessage(x => $"Invalid day of week ({x.DayOfWeek}).");
         
         RuleFor(x => x.OpeningTime)

@@ -176,8 +176,8 @@ public class UserAccountController : BaseController
     /// <response code="401">If the user is not authenticated (authorization failed).</response>
     [Produces("application/json")]
     [ProducesResponseType(typeof(UserDetailsDto), StatusCodes.Status200OK)]
+    [Authorize(Roles = "Employee,Manager,Admin")]
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> GetAccountAsync()
     {
         var user = await _signInManager.UserManager.FindByIdAsync(UserId.ToString());
@@ -214,7 +214,7 @@ public class UserAccountController : BaseController
     /// <response code="401">Indicates that the user is not authenticated.</response>
     /// <response code="404">Indicates that the user profile was not found.</response>
     [Consumes("application/json")]
-    [Authorize]
+    [Authorize(Roles = "Employee,Manager,Admin")]
     [HttpPatch("UpdateProfile")]
     public async Task<IActionResult> UpdateProfileAsync( [FromBody] JsonPatchDocument<UpdateProfileRequest> patchDocument,
         [FromServices] IValidator<UpdateProfileRequest> requestValidator)
@@ -354,7 +354,7 @@ public class UserAccountController : BaseController
     /// <response code="404">Indicates that the user profile was not found.</response>
     /// <response code="500">Indicates an internal server error if the change email token could not be generated.</response>
     [Consumes("application/json")]
-    [Authorize]
+    [Authorize(Roles = "Employee,Manager,Admin")]
     [HttpPost("Manage/SendConfirmationChangeEmail")]
     public async Task<IActionResult> ChangeEmailAsync([FromBody] ChangeEmailRequest request)
     {
@@ -398,7 +398,7 @@ public class UserAccountController : BaseController
     /// <response code="401">Indicates that the user is not authenticated.</response>
     /// <response code="404">Indicates that the user profile was not found.</response>
     [Consumes("application/json")]
-    [Authorize]
+    [Authorize(Roles = "Employee,Manager,Admin")]
     [HttpPost("Manage/ConfirmChangedEmail")]
     public async Task<IActionResult> ConfirmChangedEmail([FromBody] ConfirmationChangeEmailRequest request)
     {
@@ -448,7 +448,7 @@ public class UserAccountController : BaseController
     /// <response code="401">Indicates that the user is not authenticated.</response>
     /// <response code="404">Indicates that the user account was not found.</response>
     [Consumes("application/json")]
-    [Authorize]
+    [Authorize(Roles = "Employee,Manager,Admin")]
     [HttpPost("Manage/ChangePassword")]
     public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequest request)
     {

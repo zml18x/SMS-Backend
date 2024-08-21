@@ -115,7 +115,7 @@ public class SalonController : BaseController
     /// <response code="401">If the request is not authenticated.</response>
     [Produces("application/json")]
     [ProducesResponseType(typeof(SalonDetailsDto), StatusCodes.Status200OK)]
-    [Authorize]
+    [Authorize("Admin, Manager, Employee")]
     [HttpGet("{salonId}")]
     public async Task<IActionResult> GetSalonAsync(Guid salonId)
     {
@@ -155,7 +155,7 @@ public class SalonController : BaseController
     /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
     /// <response code="404">If the salon with the specified ID is not found.</response>
     [Produces("application/json-patch+json")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, Manager")]
     [HttpPatch("{salonId}/Manage/UpdateDetails")]
     public async Task<IActionResult> UpdateDetailsAsync(Guid salonId, [FromBody] JsonPatchDocument<UpdateSalonDetailsRequest> patchDocument,
         [FromServices] IValidator<UpdateSalonDetailsRequest> requestValidator)
@@ -208,7 +208,7 @@ public class SalonController : BaseController
     /// <response code="401">If the request is not authenticated.</response>
     /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
     [Consumes("application/json")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, Manager")]
     [HttpPost("{salonId}/Manage/OpeningHours")]
     public async Task<IActionResult> AddOpeningHoursAsync(Guid salonId, [FromBody] OpeningHoursRequest request)
     {
@@ -242,7 +242,7 @@ public class SalonController : BaseController
     /// <response code="401">If the request is not authenticated.</response>
     /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
     [Consumes("application/json")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, Manager")]
     [HttpPut("{salonId}/Manage/OpeningHours")]
     public async Task<IActionResult> UpdateOpeningHoursAsync(Guid salonId, [FromBody] OpeningHoursRequest request)
     {
@@ -271,7 +271,7 @@ public class SalonController : BaseController
     /// <response code="401">If the request is not authenticated.</response>
     /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
     [Consumes("application/json")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, Manager")]
     [HttpDelete("{salonId}/Manage/OpeningHours/{dayOfWeek}")]
     public async Task<IActionResult> RemoveOpeningHoursAsync(Guid salonId, DayOfWeek dayOfWeek)
     {
@@ -308,7 +308,7 @@ public class SalonController : BaseController
     /// <response code="401">If the request is not authenticated.</response>
     /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
     [Consumes("application/json")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, Manager")]
     [HttpPut("{salonId}/Manage/Address")]
     public async Task<IActionResult> UpdateAddressAsync(Guid salonId, [FromBody] UpdateAddressRequest request)
     {
