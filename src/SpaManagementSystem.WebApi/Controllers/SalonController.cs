@@ -14,23 +14,8 @@ namespace SpaManagementSystem.WebApi.Controllers;
 /// </summary>
 [Route("api/Salon")]
 [ApiController]
-public class SalonController : BaseController
+public class SalonController(ISalonService salonService) : BaseController
 {
-    private readonly ISalonService _salonService;
-        
-        
-        
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SalonController"/> class with the specified <see cref="ISalonService"/>.
-    /// </summary>
-    /// <param name="salonService">The <see cref="ISalonService"/> instance used to perform salon-related operations.</param>
-    public SalonController(ISalonService salonService)
-    {
-        _salonService = salonService;
-    }
-        
-        
-        
     /// <summary>
     /// Creates a new salon with the provided details.
     /// </summary>
@@ -63,7 +48,7 @@ public class SalonController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        await _salonService.CreateAsync(UserId, request);
+        await salonService.CreateAsync(UserId, request);
 
         return Created("api/Salon", null);
     }
@@ -90,7 +75,7 @@ public class SalonController : BaseController
     [HttpGet("List")]
     public async Task<IActionResult> GetAllSalonsAsync()
     {
-        var salons = await _salonService.GetAllSalonsByUserIdAsync(UserId);
+        var salons = await salonService.GetAllSalonsByUserIdAsync(UserId);
 
         return new JsonResult(salons);
     }
@@ -119,7 +104,7 @@ public class SalonController : BaseController
     [HttpGet("{salonId}")]
     public async Task<IActionResult> GetSalonAsync(Guid salonId)
     {
-        var salon = await _salonService.GetSalonDetailsByIdAsync(salonId);
+        var salon = await salonService.GetSalonDetailsByIdAsync(salonId);
 
         return new JsonResult(salon);
     }
@@ -163,7 +148,7 @@ public class SalonController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
             
-        var existingSalon = await _salonService.GetSalonDetailsByIdAsync(salonId);
+        var existingSalon = await salonService.GetSalonDetailsByIdAsync(salonId);
 
         var request = new UpdateSalonDetailsRequest(existingSalon.Name, existingSalon.Email,
             existingSalon.PhoneNumber, existingSalon.Description);
@@ -179,7 +164,7 @@ public class SalonController : BaseController
             return BadRequest(ModelState);
         }
 
-        var isUpdated = await _salonService.UpdateSalonAsync(salonId, request);
+        var isUpdated = await salonService.UpdateSalonAsync(salonId, request);
         if (!isUpdated)
             return BadRequest("No changes were made to the salon.");
 
@@ -215,7 +200,7 @@ public class SalonController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        await _salonService.AddOpeningHoursAsync(salonId, request);
+        await salonService.AddOpeningHoursAsync(salonId, request);
             
         return Created();
     }
@@ -249,7 +234,7 @@ public class SalonController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        await _salonService.UpdateOpeningHoursAsync(salonId, request);
+        await salonService.UpdateOpeningHoursAsync(salonId, request);
             
         return NoContent();
     }
@@ -278,7 +263,7 @@ public class SalonController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        await _salonService.RemoveOpeningHoursAsync(salonId, dayOfWeek);
+        await salonService.RemoveOpeningHoursAsync(salonId, dayOfWeek);
 
         return NoContent();
     }
@@ -315,7 +300,7 @@ public class SalonController : BaseController
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        await _salonService.UpdateAddressAsync(salonId, request);
+        await salonService.UpdateAddressAsync(salonId, request);
                 
         return Ok();
     }
@@ -344,7 +329,7 @@ public class SalonController : BaseController
     [HttpDelete("{salonId}")]
     public async Task<IActionResult> DeleteAsync(Guid salonId)
     {
-        await _salonService.DeleteAsync(salonId);
+        await salonService.DeleteAsync(salonId);
 
         return NoContent();
     }
