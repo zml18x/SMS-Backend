@@ -1,4 +1,4 @@
-﻿namespace SpaManagementSystem.Application.Requests.UserAccount;
+﻿namespace SpaManagementSystem.Application.Requests.Auth;
 
 /// <summary>
 /// Represents a request for user sign-in.

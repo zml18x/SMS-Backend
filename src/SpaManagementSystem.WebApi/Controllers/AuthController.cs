@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using SpaManagementSystem.Infrastructure.Identity.Enums;
 using SpaManagementSystem.Infrastructure.Identity.Entities;
 using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Interfaces;
-using SpaManagementSystem.Application.Requests.UserAccount;
+using SpaManagementSystem.Application.Requests.Auth;
 
 namespace SpaManagementSystem.WebApi.Controllers;
 
@@ -14,16 +15,67 @@ public class AuthController(SignInManager<User> signInManager, IJwtService jwtSe
     : BaseController
 {
     /// <summary>
+    /// Registers a new user.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    /// 
+    ///     POST api/Auth/Register
+    ///     {
+    ///         "email": "example@mail.com",
+    ///         "password": "pa$$w0rD!X",
+    ///         "phoneNumber": "999555111",
+    ///     }
+    /// 
+    /// </remarks>
+    /// <param name="request">The registration request containing user details.</param>
+    /// <response code="201">Returns the newly created user.</response>
+    /// <response code="400">If the request is invalid (e.g. incorrect data was provided) or any error occurs during registration.</response>
+    [HttpPost("Register")]
+    [Consumes("application/json")]
+    public async Task<IActionResult> RegisterAsync([FromBody] UserRegisterRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+            
+        var user = new User { UserName = request.Email, Email = request.Email, PhoneNumber = request.PhoneNumber };
+
+        var result = await signInManager.UserManager.CreateAsync(user, request.Password);
+        if (result.Succeeded)
+        {
+            try
+            {
+                await signInManager.UserManager.AddToRoleAsync(user, RoleType.Admin.ToString());
+
+                return Created("api/Account", null);
+            }
+            catch
+            {
+                await signInManager.UserManager.RemoveFromRoleAsync(user, RoleType.Admin.ToString());
+                await signInManager.UserManager.DeleteAsync(user);
+
+                throw;
+            }
+        }
+
+        foreach (var error in result.Errors)
+            ModelState.AddModelError(error.Code, error.Description);
+
+        return BadRequest(ModelState);
+    }
+    
+    /// <summary>
     /// Authenticates a user with the provided email and password, and returns a JWT token if successful.
     /// </summary>
     /// <remarks>
     /// Sample request:
     /// 
-    ///     POST /Account/SignIn
+    ///     POST api/Auth/SignIn
     ///     {
     ///         "email": "example@mail.com",
     ///         "password": "pa$$w0rD!X"
     ///     }
+    /// 
     /// </remarks>
     /// <param name="request">The SignInRequest object containing user sign-in details.</param>
     /// <returns>An <see cref="IActionResult"/> containing the JWT token or an error message.</returns>
@@ -71,11 +123,12 @@ public class AuthController(SignInManager<User> signInManager, IJwtService jwtSe
     /// This endpoint allows users to confirm their email address using a confirmation token sent to their email.
     /// Sample request:
     /// 
-    ///     POST /Account/Manage/ConfirmEmail
+    ///     POST api/Auth//ConfirmEmail
     ///     {
     ///         "email": "example@mail.com",
     ///         "token": "confirmationTokenHere"
     ///     }
+    /// 
     /// </remarks>
     /// <param name="request">The ConfirmEmailRequest object containing the email and token for confirmation.</param>
     /// <returns>An <see cref="IActionResult"/> indicating the result of the email confirmation process.</returns>
@@ -111,10 +164,11 @@ public class AuthController(SignInManager<User> signInManager, IJwtService jwtSe
     /// If the email is already confirmed or if the user does not exist, a corresponding message is returned.
     /// Sample request:
     /// 
-    ///     POST /Account/Manage/SendConfirmationEmail
+    ///     POST api/Auth/SendConfirmationEmail
     ///     {
     ///         "email": "example@mail.com"
     ///     }
+    /// 
     /// </remarks>
     /// <param name="request">The SendConfirmationEmailRequest object containing the email address for sending the confirmation email.</param>
     /// <returns>An <see cref="IActionResult"/> indicating the result of the email sending process.</returns>
@@ -159,10 +213,11 @@ public class AuthController(SignInManager<User> signInManager, IJwtService jwtSe
     /// If the user is not found or there is an error generating the token, a corresponding message is returned.
     /// Sample request:
     /// 
-    ///     POST /Account/Manage/SendConfirmationChangeEmail
+    ///     POST api/Auth/SendConfirmationChangeEmail
     ///     {
     ///         "newEmail": "newemail@example.com"
     ///     }
+    /// 
     /// </remarks>
     /// <param name="request">The ChangeEmailRequest object containing the new email address.</param>
     /// <returns>An <see cref="IActionResult"/> indicating the result of sending the change email confirmation.</returns>
@@ -203,11 +258,12 @@ public class AuthController(SignInManager<User> signInManager, IJwtService jwtSe
     /// If the token is valid, the user's email address will be updated, and the confirmation status will be reset.
     /// Sample request:
     /// 
-    ///     POST /Account/Manage/ConfirmChangedEmail
+    ///     POST api/Auth/ConfirmChangedEmail
     ///     {
     ///         "newEmail": "newemail@example.com",
     ///         "token": "confirmationToken"
     ///     }
+    /// 
     /// </remarks>
     /// <param name="request">The ConfirmationChangeEmailRequest object containing the new email address and the confirmation token.</param>
     /// <returns>An <see cref="IActionResult"/> indicating the result of the email confirmation process.</returns>
@@ -245,7 +301,7 @@ public class AuthController(SignInManager<User> signInManager, IJwtService jwtSe
         return BadRequest(ModelState);
     }
     
-        /// <summary>
+    /// <summary>
     /// Changes the current user's password.
     /// </summary>
     /// <remarks>
@@ -253,11 +309,12 @@ public class AuthController(SignInManager<User> signInManager, IJwtService jwtSe
     /// If the current password is incorrect or the new password does not meet the criteria, appropriate error messages will be returned.
     /// Sample request:
     /// 
-    ///     POST /Account/Manage/ChangePassword
+    ///     POST api/Auth/ChangePassword
     ///     {
     ///         "currentPassword": "OldPa$$w0rD!",
     ///         "newPassword": "NewPa$$w0rD!"
     ///     }
+    /// 
     /// </remarks>
     /// <param name="request">The ChangePasswordRequest object containing the current and new passwords.</param>
     /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the password change operation.</returns>
@@ -304,6 +361,7 @@ public class AuthController(SignInManager<User> signInManager, IJwtService jwtSe
     ///     {
     ///         "email": "user@example.com"
     ///     }
+    /// 
     /// </remarks>
     /// <param name="request">The SendResetPasswordTokenRequest object containing the email address to send the reset token.</param>
     /// <returns>An <see cref="IActionResult"/> indicating the result of sending the password reset token.</returns>
@@ -350,6 +408,7 @@ public class AuthController(SignInManager<User> signInManager, IJwtService jwtSe
     ///         "token": "resetPasswordToken",
     ///         "newPassword": "NewPa$$w0rD!"
     ///     }
+    /// 
     /// </remarks>
     /// <param name="request">The ResetPasswordRequest object containing the email address, reset token, and new password.</param>
     /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the password reset operation.</returns>

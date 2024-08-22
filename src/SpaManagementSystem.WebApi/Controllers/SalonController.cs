@@ -9,9 +9,6 @@ using SpaManagementSystem.Application.Requests.Common;
 
 namespace SpaManagementSystem.WebApi.Controllers;
 
-/// <summary>
-/// Controller for managing salons. Provides endpoints for creating, retrieving, updating, and deleting salons.
-/// </summary>
 [Route("api/Salon")]
 [ApiController]
 public class SalonController(ISalonService salonService) : BaseController
@@ -100,7 +97,7 @@ public class SalonController(ISalonService salonService) : BaseController
     /// <response code="401">If the request is not authenticated.</response>
     [Produces("application/json")]
     [ProducesResponseType(typeof(SalonDetailsDto), StatusCodes.Status200OK)]
-    [Authorize("Admin, Manager, Employee")]
+    [Authorize(Roles="Admin, Manager, Employee")]
     [HttpGet("{salonId}")]
     public async Task<IActionResult> GetSalonAsync(Guid salonId)
     {

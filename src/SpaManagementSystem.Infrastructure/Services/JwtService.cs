@@ -55,14 +55,7 @@ public class JwtService : IJwtService
             throw new InvalidOperationException("Failed to create JWT token.", ex);
         }
     }
-        
-    /// <summary>
-    /// Constructs the claims to be embedded in the JWT based on the user's identity and roles.
-    /// </summary>
-    /// <param name="userId">The user's unique identifier.</param>
-    /// <param name="userEmail">The user's email address.</param>
-    /// <param name="userRoles">A list of roles associated with the user.</param>
-    /// <returns>A list of claims for the JWT.</returns>
+    
     private List<Claim> CreateClaims(Guid userId, string userEmail, IList<string> userRoles)
     {
         var jwtSub = _configuration.GetSection("JWT:JwtRegisteredClaimNamesSub").Value!;
@@ -84,24 +77,14 @@ public class JwtService : IJwtService
 
         return claims;
     }
-        
-    /// <summary>
-    /// Creates signing credentials using the symmetric security key from the configuration.
-    /// </summary>
-    /// <returns>Signing credentials using HMAC SHA512 signature.</returns>
+    
     private SigningCredentials CreateSigningCredentials()
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JWT:Key").Value!));
 
         return new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
     }
-        
-    /// <summary>
-    /// Generates a JWT using the provided claims and signing credentials.
-    /// </summary>
-    /// <param name="claims">Claims to include in the JWT.</param>
-    /// <param name="signingCredentials">Credentials used to sign the JWT.</param>
-    /// <returns>A JwtSecurityToken.</returns>
+    
     private JwtSecurityToken CreateJwtToken(List<Claim> claims, SigningCredentials signingCredentials)
     {
         var expire = DateTime.UtcNow.AddMinutes(int.Parse(_configuration.GetSection("JWT:ExpiryMinutes").Value!));
@@ -117,11 +100,7 @@ public class JwtService : IJwtService
 
         return token;
     }
-        
-    /// <summary>
-    /// Validates critical configuration settings necessary for JWT creation.
-    /// Throws an exception if any configuration setting is invalid or missing.
-    /// </summary>
+    
     private void ValidateConfiguration()
     {
         if (string.IsNullOrEmpty(_configuration["JWT:Key"]))

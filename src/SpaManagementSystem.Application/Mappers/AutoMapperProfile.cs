@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Domain.Entities;
 using SpaManagementSystem.Domain.ValueObjects;
+using SpaManagementSystem.Application.Dto;
 
 namespace SpaManagementSystem.Application.Mappers;
 
@@ -15,7 +15,6 @@ public class AutoMapperProfile : Profile
     /// </summary>
     public AutoMapperProfile()
     {
-        CreateMap<UserProfile, UserProfileDto>();
         CreateMap<Salon, SalonDto>();
         CreateMap<Salon, SalonDetailsDto>();
         CreateMap<OpeningHours, OpeningHoursDto>();

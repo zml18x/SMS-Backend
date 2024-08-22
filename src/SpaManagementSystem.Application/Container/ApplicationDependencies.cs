@@ -6,8 +6,7 @@ using SpaManagementSystem.Application.Mappers;
 using SpaManagementSystem.Application.Services;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Salon;
-using SpaManagementSystem.Application.Requests.UserAccount;
-using SpaManagementSystem.Application.Requests.UserAccount.Validators;
+using SpaManagementSystem.Application.Requests.Auth.Validators;
 using SpaManagementSystem.Application.Requests.Common.Validators;
 
 namespace SpaManagementSystem.Application.Container;
@@ -34,15 +33,7 @@ public static class ApplicationDependencies
             
         return services;
     }
-        
-
-    /// <summary>
-    /// Registers services specific to the application's core functionalities.
-    /// This method is used internally to add scoped services which are essential
-    /// for the application's operation and are utilized across various components of the application.
-    /// </summary>
-    /// <param name="services">The collection of service descriptors where services are registered.</param>
-    /// <returns>The IServiceCollection with added scoped services, enabling chained configurations.</returns>
+    
     private static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
         services.AddScoped<IUserService, UserService>();
@@ -50,15 +41,7 @@ public static class ApplicationDependencies
 
         return services;
     }
-
-    /// <summary>
-    /// Configures FluentValidation integration with the application.
-    /// This method sets up automatic validation and client-side adapters for models based on FluentValidation.
-    /// It also registers all validators within the assembly that contains the RegisterRequestValidator,
-    /// ensuring that they are available to validate incoming requests.
-    /// </summary>
-    /// <param name="services">The collection of service descriptors for registering FluentValidation services.</param>
-    /// <returns>The IServiceCollection with FluentValidation services configured, supporting fluent configuration.</returns>
+    
     private static IServiceCollection ConfigureFluentValidation(this IServiceCollection services)
     {
         services.AddFluentValidationAutoValidation()
@@ -67,18 +50,10 @@ public static class ApplicationDependencies
         
         services.AddScoped<IValidator<JsonPatchDocument<UpdateSalonDetailsRequest>>,
             JsonPatchDocumentValidator<UpdateSalonDetailsRequest>>();
-        services.AddScoped<IValidator<JsonPatchDocument<UpdateProfileRequest>>,
-            JsonPatchDocumentValidator<UpdateProfileRequest>>();
 
         return services;
     }
-     
-    /// <summary>
-    /// Configures AutoMapper for the application.
-    /// This method registers AutoMapper with the provided profile, enabling mapping configuration for DTOs and entities.
-    /// </summary>
-    /// <param name="services">The collection of service descriptors for registering AutoMapper services.</param>
-    /// <returns>The <see cref="IServiceCollection"/> with AutoMapper configured, supporting fluent configuration.</returns>
+    
     private static IServiceCollection ConfigureAutoMapper(this IServiceCollection services)
     {
         services.AddAutoMapper(typeof(AutoMapperProfile));

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace SpaManagementSystem.Application.Requests.UserAccount.Validators;
+namespace SpaManagementSystem.Application.Requests.Auth.Validators;
 
 /// <summary>
 /// Validator class for validating <see cref="SendConfirmationEmailRequest"/> instances.

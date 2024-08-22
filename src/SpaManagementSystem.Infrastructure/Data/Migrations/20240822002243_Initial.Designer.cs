@@ -2,23 +2,26 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SpaManagementSystem.Infrastructure.Data.Context;
 
 #nullable disable
 
-namespace SpaManagementSystem.Infrastructure.Data.IdentityMigrations
+namespace SpaManagementSystem.Infrastructure.Data.Migrations
 {
-    [DbContext(typeof(SmsIdentityDbContext))]
-    partial class SmsIdentityDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(SmsDbContext))]
+    [Migration("20240822002243_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("SMS")
-                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("ProductVersion", "8.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -52,22 +55,22 @@ namespace SpaManagementSystem.Infrastructure.Data.IdentityMigrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("9dbf8df2-d68b-46d8-b271-d5bc00568e98"),
-                            ConcurrencyStamp = "d21c982e-f7eb-421e-944a-7330d3a063ea",
+                            Id = new Guid("14a4947f-74ee-492f-b190-441b2400438c"),
+                            ConcurrencyStamp = "7900064d-43a8-4603-b4f9-dd8dbf0ed726",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("9d218f9b-99f1-4dab-8a72-ca0dcd1afed7"),
-                            ConcurrencyStamp = "8359b84d-d240-4658-837e-541b105547ff",
+                            Id = new Guid("36adb3bf-0099-4f33-bb86-0c2d64b6b1ca"),
+                            ConcurrencyStamp = "9928810d-0f2c-4e54-83d5-215f0da63e24",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = new Guid("fab3c1c2-7417-480b-9da5-b1cf4354fd92"),
-                            ConcurrencyStamp = "67baa854-d9ba-4530-a7d3-8c974b531caa",
+                            Id = new Guid("92622558-b8e2-4285-b011-0fa169b3af32"),
+                            ConcurrencyStamp = "d2eb539e-b6d0-41bd-8264-e99f1ec37e8f",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         });
@@ -174,6 +177,41 @@ namespace SpaManagementSystem.Infrastructure.Data.IdentityMigrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("UserTokens", "SMS");
+                });
+
+            modelBuilder.Entity("SpaManagementSystem.Domain.Entities.Salon", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Salons", "SMS");
                 });
 
             modelBuilder.Entity("SpaManagementSystem.Infrastructure.Identity.Entities.User", b =>
@@ -290,6 +328,72 @@ namespace SpaManagementSystem.Infrastructure.Data.IdentityMigrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SpaManagementSystem.Domain.Entities.Salon", b =>
+                {
+                    b.OwnsOne("SpaManagementSystem.Domain.ValueObjects.Address", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("SalonId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("BuildingNumber")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Country")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("PostalCode")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Region")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<string>("Street")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.HasKey("SalonId");
+
+                            b1.ToTable("Salons", "SMS");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SalonId");
+                        });
+
+                    b.OwnsMany("SpaManagementSystem.Domain.ValueObjects.OpeningHours", "OpeningHours", b1 =>
+                        {
+                            b1.Property<Guid>("SalonId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("DayOfWeek")
+                                .HasColumnType("integer");
+
+                            b1.Property<TimeSpan>("ClosingTime")
+                                .HasColumnType("interval");
+
+                            b1.Property<TimeSpan>("OpeningTime")
+                                .HasColumnType("interval");
+
+                            b1.HasKey("SalonId", "DayOfWeek");
+
+                            b1.ToTable("OpeningHours", "SMS");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SalonId");
+                        });
+
+                    b.Navigation("Address");
+
+                    b.Navigation("OpeningHours");
                 });
 #pragma warning restore 612, 618
         }

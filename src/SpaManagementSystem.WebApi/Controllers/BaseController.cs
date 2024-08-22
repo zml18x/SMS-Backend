@@ -15,6 +15,4 @@ public class BaseController : ControllerBase
     protected Guid UserId => User?.Identity?.IsAuthenticated == true
         ? Guid.TryParse(User.Identity.Name, out var userId) ? userId : Guid.Empty
         : Guid.Empty;
-
-
 }
