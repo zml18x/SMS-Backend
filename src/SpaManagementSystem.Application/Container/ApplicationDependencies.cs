@@ -27,9 +27,10 @@ public static class ApplicationDependencies
     /// <returns>The IServiceCollection with registered services, supporting fluent configuration.</returns>
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.ConfigureServices();
-        services.ConfigureFluentValidation();
-        services.ConfigureAutoMapper();
+        services
+            .ConfigureServices()
+            .ConfigureFluentValidation()
+            .ConfigureAutoMapper();
             
         return services;
     }
