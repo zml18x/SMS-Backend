@@ -12,9 +12,9 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
     public SmsDbContext() { }
     public SmsDbContext(DbContextOptions<SmsDbContext> options) : base(options) { }
-
-
-
+    
+    
+    
     public DbSet<Salon> Salons { get; set; }
     
     

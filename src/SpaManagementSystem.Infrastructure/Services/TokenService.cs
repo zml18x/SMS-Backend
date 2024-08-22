@@ -8,41 +8,32 @@ using SpaManagementSystem.Application.Interfaces;
 
 namespace SpaManagementSystem.Infrastructure.Services;
 
-/// <summary>
-/// Service responsible for creating JWT tokens for user authentication.
-/// This class handles the generation of JWTs using user details and the application's JWT configuration settings.
-/// </summary>
-public class JwtService : IJwtService
+public class TokenService : ITokenService
 {
     private readonly IConfiguration _configuration;
 
 
-        
-    /// <summary>
-    /// Initializes a new instance of the JwtService with the application's configuration.
-    /// </summary>
-    /// <param name="configuration">Configuration properties, typically from app settings.</param>
-    public JwtService(IConfiguration configuration)
+    
+    public TokenService(IConfiguration configuration)
     {
         _configuration = configuration;
         ValidateConfiguration();
     }
 
 
-        
-    /// <inheritdoc />
-    public JwtDto CreateToken(Guid userId, string userEmail, IList<string> userRoles)
+    
+    public JwtDto CreateJwtToken(UserDto user)
     {
         try
         {
-            if (userId == Guid.Empty)
-                throw new ArgumentException("User ID cannot be empty.", nameof(userId));
+            if (user.Id == Guid.Empty)
+                throw new ArgumentException("User ID cannot be empty.", nameof(user.Id));
 
-            if (string.IsNullOrWhiteSpace(userEmail))
-                throw new ArgumentException("User email cannot be null", nameof(userEmail));
+            if (string.IsNullOrWhiteSpace(user.Email))
+                throw new ArgumentException("User email cannot be null", nameof(user.Email));
 
 
-            var token = CreateJwtToken(CreateClaims(userId, userEmail, userRoles), CreateSigningCredentials());
+            var token = CreateJwtToken(CreateClaims(user.Id, user.Email, user.Roles), CreateSigningCredentials());
 
             var tokenHandler = new JwtSecurityTokenHandler();
 

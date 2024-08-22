@@ -34,7 +34,9 @@ public class UserAccountController(SignInManager<User> signInManager) : BaseCont
         var user = await signInManager.UserManager.FindByIdAsync(UserId.ToString());
         if (user == null)
             return NotFound($"User with id {UserId} not found");
-
-        return new OkObjectResult(new UserDto(user.Id, user.Email!, user.PhoneNumber!));
+        
+        var userRoles = await signInManager.UserManager.GetRolesAsync(user);
+        
+        return new OkObjectResult(new UserDto(user.Id, user.Email!, user.PhoneNumber!,userRoles));
     }
 }

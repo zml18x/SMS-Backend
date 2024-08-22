@@ -329,7 +329,7 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("SpaManagementSystem.Domain.Entities.Salon", b =>
                 {
-                    b.OwnsOne("SpaManagementSystem.Domain.ValueObjects.Address", "Address", b1 =>
+                    b.OwnsOne("SpaManagementSystem.Domain.Entities.Salon.Address#SpaManagementSystem.Domain.ValueObjects.Address", "Address", b1 =>
                         {
                             b1.Property<Guid>("SalonId")
                                 .HasColumnType("uuid");
@@ -366,7 +366,7 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
                                 .HasForeignKey("SalonId");
                         });
 
-                    b.OwnsMany("SpaManagementSystem.Domain.ValueObjects.OpeningHours", "OpeningHours", b1 =>
+                    b.OwnsMany("SpaManagementSystem.Domain.Entities.Salon.OpeningHours#SpaManagementSystem.Domain.ValueObjects.OpeningHours", "OpeningHours", b1 =>
                         {
                             b1.Property<Guid>("SalonId")
                                 .HasColumnType("uuid");

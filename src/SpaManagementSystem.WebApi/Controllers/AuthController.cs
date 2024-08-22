@@ -11,8 +11,8 @@ namespace SpaManagementSystem.WebApi.Controllers;
 
 [ApiController]
 [Route("api/Auth")]
-public class AuthController(SignInManager<User> signInManager, IJwtService jwtService, IEmailSender<User> emailSender)
-    : BaseController
+public class AuthController(SignInManager<User> signInManager, ITokenService tokenService, IEmailSender<User> emailSender,
+    IUserService userService) : BaseController
 {
     /// <summary>
     /// Registers a new user.
@@ -100,10 +100,10 @@ public class AuthController(SignInManager<User> signInManager, IJwtService jwtSe
             
         if (signInResult.Succeeded)
         {
-            var jwtDto = jwtService.CreateToken(user.Id, user.Email!,
-                await signInManager.UserManager.GetRolesAsync(user));
+            var userRoles = await signInManager.UserManager.GetRolesAsync(user);
+            var accessToken = tokenService.CreateJwtToken(new UserDto(user.Id, user.Email!, user.PhoneNumber!, userRoles));
 
-            return new OkObjectResult(jwtDto);
+            return new OkObjectResult(accessToken);
         }
 
         if (signInResult.IsNotAllowed)
