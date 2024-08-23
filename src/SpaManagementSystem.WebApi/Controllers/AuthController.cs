@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 using SpaManagementSystem.Infrastructure.Identity.Enums;
 using SpaManagementSystem.Infrastructure.Identity.Entities;
 using SpaManagementSystem.Application.Dto;
@@ -12,27 +14,27 @@ namespace SpaManagementSystem.WebApi.Controllers;
 [ApiController]
 [Route("api/Auth")]
 public class AuthController(SignInManager<User> signInManager, ITokenService tokenService, IEmailSender<User> emailSender,
-    IUserService userService) : BaseController
+    IRefreshTokenService refreshTokenService) : BaseController
 {
     /// <summary>
-    /// Registers a new user.
+    /// Registers a new user with the provided email, password, and phone number.
     /// </summary>
     /// <remarks>
-    /// Sample request:
-    /// 
-    ///     POST api/Auth/Register
-    ///     {
-    ///         "email": "example@mail.com",
-    ///         "password": "pa$$w0rD!X",
-    ///         "phoneNumber": "999555111",
-    ///     }
-    /// 
+    /// This endpoint allows a client to create a new user account by providing an email, password, and phone number.
+    /// Upon successful registration, the user is assigned the "Admin" role.
     /// </remarks>
-    /// <param name="request">The registration request containing user details.</param>
-    /// <response code="201">Returns the newly created user.</response>
-    /// <response code="400">If the request is invalid (e.g. incorrect data was provided) or any error occurs during registration.</response>
-    [HttpPost("Register")]
+    /// <param name="request">The request object containing the user's email, password, and phone number.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the registration.
+    /// </returns>
+    /// <response code="201">User was successfully registered and assigned to the "Admin" role.</response>
+    /// <response code="400">Returned if the registration failed due to validation errors or other issues.</response>
+    /// <response code="500">Returned if an unexpected error occurs during the processing of the request.</response>
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("Register")]
     public async Task<IActionResult> RegisterAsync([FromBody] UserRegisterRequest request)
     {
         if (!ModelState.IsValid)
@@ -65,25 +67,24 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     }
     
     /// <summary>
-    /// Authenticates a user with the provided email and password, and returns a JWT token if successful.
+    /// Authenticates a user with their email and password, and returns a JWT access token and a refresh token.
     /// </summary>
     /// <remarks>
-    /// Sample request:
-    /// 
-    ///     POST api/Auth/SignIn
-    ///     {
-    ///         "email": "example@mail.com",
-    ///         "password": "pa$$w0rD!X"
-    ///     }
-    /// 
+    /// This endpoint allows a client to sign in by providing valid credentials (email and password).
+    /// If the authentication is successful, the user receives a JWT access token and a refresh token for further authenticated requests.
     /// </remarks>
-    /// <param name="request">The SignInRequest object containing user sign-in details.</param>
-    /// <returns>An <see cref="IActionResult"/> containing the JWT token or an error message.</returns>
-    /// <response code="200">Returns the JWT token if authentication is successful.</response>
-    /// <response code="400">Returns an error message if the credentials are invalid or the email is not confirmed.</response>
+    /// <param name="request">The request object containing the user's email and password.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the sign-in.
+    /// </returns>
+    /// <response code="200">Returns the JWT access token, its expiration time, and a refresh token with its expiration time.</response>
+    /// <response code="400">Returned if the credentials are invalid, the email is not confirmed or if the request data is incorrect.</response>
+    /// <response code="500">Returned if an unexpected error occurs during the processing of the request.</response>
     [Consumes("application/json")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(JwtDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("SignIn")]
     public async Task<IActionResult> SignInAsync([FromBody] SignInRequest request)
     {
@@ -97,13 +98,19 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
         var signInResult =
             await signInManager.PasswordSignInAsync(request.Email, request.Password, false,
                 lockoutOnFailure: false);
-            
+        
         if (signInResult.Succeeded)
         {
             var userRoles = await signInManager.UserManager.GetRolesAsync(user);
             var accessToken = tokenService.CreateJwtToken(new UserDto(user.Id, user.Email!, user.PhoneNumber!, userRoles));
+            var refreshToken = tokenService.CreateRefreshToken(user.Id);
+            
+            await refreshTokenService.SaveRefreshToken(refreshToken);
 
-            return new OkObjectResult(accessToken);
+            var response = new AuthResponseDto(accessToken.Token, accessToken.Expire, refreshToken.Token,
+                refreshToken.ExpirationTime);
+
+            return Ok(response);
         }
 
         if (signInResult.IsNotAllowed)
@@ -117,24 +124,86 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     }
     
     /// <summary>
-    /// Confirms the user's email address with the provided token.
+    /// Handles the refreshing of JWT access tokens using a valid refresh token.
     /// </summary>
     /// <remarks>
-    /// This endpoint allows users to confirm their email address using a confirmation token sent to their email.
-    /// Sample request:
-    /// 
-    ///     POST api/Auth//ConfirmEmail
-    ///     {
-    ///         "email": "example@mail.com",
-    ///         "token": "confirmationTokenHere"
-    ///     }
-    /// 
+    /// This endpoint allows a client to refresh an expired access token by providing a valid refresh token.
     /// </remarks>
-    /// <param name="request">The ConfirmEmailRequest object containing the email and token for confirmation.</param>
-    /// <returns>An <see cref="IActionResult"/> indicating the result of the email confirmation process.</returns>
-    /// <response code="200">Indicates that the email was confirmed successfully.</response>
-    /// <response code="400">Indicates that the confirmation failed due to invalid token or email.</response>
+    /// <param name="request">The request object containing the current access token and refresh token.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the token refresh operation.
+    /// </returns>
+    /// <response code="200">Returns the new access token and refresh token along with their expiration times.</response>
+    /// <response code="400">Returned if the provided tokens are invalid, expired, or if the request data is incorrect.</response>
+    /// <response code="404">Returned if the user associated with the provided token could not be found.</response>
+    /// <response code="500">Returned if an unexpected error occurs during the processing of the request.</response>
     [Consumes("application/json")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("Refresh")]
+    public async Task<IActionResult> RefreshAsync([FromBody] RefreshRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        ClaimsPrincipal principal;
+
+        try
+        {
+            principal = tokenService.GetPrincipalFromExpiredToken(request.AccessToken);
+        }
+        catch(SecurityTokenException e)
+        {
+            return BadRequest($"Access token error: {e.Message}");
+        }
+
+        if (!Guid.TryParse(principal.Identity?.Name, out var userId))
+            return BadRequest("Invalid user ID in token.");
+
+        var isValidRefreshToken = await refreshTokenService.IsValidToken(userId, request.RefreshToken);
+        if (!isValidRefreshToken)
+            return BadRequest("Refresh token is invalid or has expired.");
+
+        var user = await signInManager.UserManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            return NotFound("User not found.");
+        
+        var userRoles = await signInManager.UserManager.GetRolesAsync(user);
+        if (!userRoles.Any())
+            return BadRequest("User roles could not be retrieved.");
+        
+        var newJwt = tokenService.CreateJwtToken(new UserDto(user.Id, user.Email!, user.PhoneNumber!, userRoles));
+        var newRefreshToken = tokenService.CreateRefreshToken(userId);
+
+        await refreshTokenService.SaveRefreshToken(newRefreshToken);
+
+        var response = new AuthResponseDto(newJwt.Token, newJwt.Expire, newRefreshToken.Token,
+            newRefreshToken.ExpirationTime);
+
+        return Ok(response);
+    }
+    
+    /// <summary>
+    /// Confirms a user's email address using a confirmation token.
+    /// </summary>
+    /// <remarks>
+    /// This endpoint allows a client to confirm a user's email address by providing the user's email and a confirmation token.
+    /// The token is typically sent to the user's email address as part of the registration or email change process.
+    /// </remarks>
+    /// <param name="request">The request object containing the user's email and confirmation token.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the email confirmation process.
+    /// </returns>
+    /// <response code="200">Email was confirmed successfully.</response>
+    /// <response code="400">Returned if the confirmation token is invalid or the email could not be confirmed.</response>
+    /// <response code="500">Returned if an unexpected error occurs during the processing of the request.</response>
+    [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("ConfirmEmail")]
     public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfirmEmailRequest request)
     {
@@ -157,25 +226,23 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     }
     
     /// <summary>
-    /// Sends a confirmation email to the user with the provided email address.
+    /// Sends an email confirmation link to the specified user's email address.
     /// </summary>
     /// <remarks>
-    /// This endpoint sends a confirmation email to the specified address if it has not been confirmed yet.
-    /// If the email is already confirmed or if the user does not exist, a corresponding message is returned.
-    /// Sample request:
-    /// 
-    ///     POST api/Auth/SendConfirmationEmail
-    ///     {
-    ///         "email": "example@mail.com"
-    ///     }
-    /// 
+    /// This endpoint allows a client to request a confirmation email to be sent to a user's email address. 
+    /// The email contains a link that the user can use to confirm their email address.
     /// </remarks>
-    /// <param name="request">The SendConfirmationEmailRequest object containing the email address for sending the confirmation email.</param>
-    /// <returns>An <see cref="IActionResult"/> indicating the result of the email sending process.</returns>
-    /// <response code="200">Indicates that the confirmation email was sent successfully or that the email is already confirmed.</response>
-    /// <response code="400">Indicates that the request is invalid.</response>
-    /// <response code="500">Indicates an internal server error if the email confirmation token could not be generated.</response>
+    /// <param name="request">The request object containing the user's email.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the email sending process.
+    /// </returns>
+    /// <response code="200">The confirmation email was sent successfully, or the email is already confirmed.</response>
+    /// <response code="400">Returned if the request data is invalid.</response>
+    /// <response code="500">Returned if the token generation fails and the email could not be sent.</response>
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("SendConfirmationEmail")]
     public async Task<IActionResult> SendConfirmationEmailAsync([FromBody] SendConfirmationEmailRequest request)
     {
@@ -206,27 +273,27 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     }
     
     /// <summary>
-    /// Sends a confirmation email with a token to change the user's email address.
+    /// Sends a confirmation email to change the user's email address.
     /// </summary>
     /// <remarks>
-    /// This endpoint sends a confirmation email with a token to the user's current email address to verify the change of their email address.
-    /// If the user is not found or there is an error generating the token, a corresponding message is returned.
-    /// Sample request:
-    /// 
-    ///     POST api/Auth/SendConfirmationChangeEmail
-    ///     {
-    ///         "newEmail": "newemail@example.com"
-    ///     }
-    /// 
+    /// This endpoint allows a logged-in user to request a confirmation email to change their email address.
+    /// The email contains a link that the user can use to confirm the change of their email address.
     /// </remarks>
-    /// <param name="request">The ChangeEmailRequest object containing the new email address.</param>
-    /// <returns>An <see cref="IActionResult"/> indicating the result of sending the change email confirmation.</returns>
-    /// <response code="200">Indicates that the confirmation email was sent successfully.</response>
-    /// <response code="400">Indicates that the request is invalid.</response>
-    /// <response code="401">Indicates that the user is not authenticated.</response>
-    /// <response code="404">Indicates that the user profile was not found.</response>
-    /// <response code="500">Indicates an internal server error if the change email token could not be generated.</response>
+    /// <param name="request">The request object containing the new email address.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the email sending process.
+    /// </returns>
+    /// <response code="200">The confirmation email was sent successfully.</response>
+    /// <response code="400">Returned if the request data is invalid.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="404">Returned if the user account could not be found.</response>
+    /// <response code="500">Returned if the token generation fails.</response>
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Admin, Manager, Employee")]
     [HttpPost("SendConfirmationChangeEmail")]
     public async Task<IActionResult> ChangeEmailAsync([FromBody] ChangeEmailRequest request)
@@ -251,27 +318,26 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     }
     
     /// <summary>
-    /// Confirms the user's email address change with the provided token.
+    /// Confirms the change of the user's email address using a confirmation token.
     /// </summary>
     /// <remarks>
-    /// This endpoint confirms the change of the user's email address using a confirmation token sent to the user's current email address.
-    /// If the token is valid, the user's email address will be updated, and the confirmation status will be reset.
-    /// Sample request:
-    /// 
-    ///     POST api/Auth/ConfirmChangedEmail
-    ///     {
-    ///         "newEmail": "newemail@example.com",
-    ///         "token": "confirmationToken"
-    ///     }
-    /// 
+    /// This endpoint allows a logged-in user to confirm the change of their email address by providing the new email address and the confirmation token.
     /// </remarks>
-    /// <param name="request">The ConfirmationChangeEmailRequest object containing the new email address and the confirmation token.</param>
-    /// <returns>An <see cref="IActionResult"/> indicating the result of the email confirmation process.</returns>
-    /// <response code="200">Indicates that the email address was successfully changed.</response>
-    /// <response code="400">Indicates that the request is invalid.</response>
-    /// <response code="401">Indicates that the user is not authenticated.</response>
-    /// <response code="404">Indicates that the user profile was not found.</response>
+    /// <param name="request">The request object containing the new email address and confirmation token.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the email change process.
+    /// </returns>
+    /// <response code="200">The email address was changed successfully.</response>
+    /// <response code="400">Returned if the request data is invalid.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="404">Returned if the user account could not be found.</response>
+    /// <response code="500">Returned if an unexpected error occurs during the processing of the request.</response>
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Admin, Manager, Employee")]
     [HttpPost("ConfirmChangedEmail")]
     public async Task<IActionResult> ConfirmChangedEmail([FromBody] ConfirmationChangeEmailRequest request)
@@ -302,27 +368,26 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     }
     
     /// <summary>
-    /// Changes the current user's password.
+    /// Changes the user's password.
     /// </summary>
     /// <remarks>
-    /// This endpoint allows the current user to change their password. It requires the current password and the new password to be provided.
-    /// If the current password is incorrect or the new password does not meet the criteria, appropriate error messages will be returned.
-    /// Sample request:
-    /// 
-    ///     POST api/Auth/ChangePassword
-    ///     {
-    ///         "currentPassword": "OldPa$$w0rD!",
-    ///         "newPassword": "NewPa$$w0rD!"
-    ///     }
-    /// 
+    /// This endpoint allows a logged-in user to change their password by providing the current password and a new password.
     /// </remarks>
-    /// <param name="request">The ChangePasswordRequest object containing the current and new passwords.</param>
-    /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the password change operation.</returns>
-    /// <response code="200">Indicates that the password was changed successfully.</response>
-    /// <response code="400">Indicates that the request is invalid or the current password is incorrect.</response>
-    /// <response code="401">Indicates that the user is not authenticated.</response>
-    /// <response code="404">Indicates that the user account was not found.</response>
+    /// <param name="request">The request object containing the current and new passwords.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the password change process.
+    /// </returns>
+    /// <response code="200">The password was changed successfully.</response>
+    /// <response code="400">Returned if the request data is invalid.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="404">Returned if the user account could not be found.</response>
+    /// <response code="500">Returned if an unexpected error occurs during the processing of the request.</response>
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Admin, Manager, Employee")]
     [HttpPost("ChangePassword")]
     public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequest request)
@@ -348,27 +413,23 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     }
         
     /// <summary>
-    /// Sends a password reset token to the specified email address.
+    /// Sends a password reset token to the user's email address.
     /// </summary>
     /// <remarks>
-    /// This endpoint sends a password reset token to the provided email address. If the email is associated with an account, 
-    /// a password reset email will be sent with instructions. If the email does not exist in the system, the response will 
-    /// still be successful to avoid exposing whether an email is registered.
-    /// 
-    /// Sample request:
-    /// 
-    ///     POST /Account/Manage/SendResetPasswordToken
-    ///     {
-    ///         "email": "user@example.com"
-    ///     }
-    /// 
+    /// This endpoint allows a user to request a password reset token by providing their email address. 
+    /// The token will be sent to the user's email address if it exists in the system.
     /// </remarks>
-    /// <param name="request">The SendResetPasswordTokenRequest object containing the email address to send the reset token.</param>
-    /// <returns>An <see cref="IActionResult"/> indicating the result of sending the password reset token.</returns>
-    /// <response code="200">Indicates that a password reset request has been sent successfully, and if the email exists, instructions have been sent.</response>
-    /// <response code="400">Indicates that the request is invalid.</response>
-    /// <response code="500">Indicates an internal server error occurred while generating the password reset token.</response>
+    /// <param name="request">The request object containing the user's email address.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the password reset token sending process.
+    /// </returns>
+    /// <response code="200">The password reset token was sent successfully.</response>
+    /// <response code="400">Returned if the request data is invalid.</response>
+    /// <response code="500">Returned if the token generation fails.</response>
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("SendResetPasswordToken")]
     public async Task<IActionResult> SendResetPasswordTokenAsync([FromBody] SendResetPasswordTokenRequest request)
     {
@@ -393,28 +454,22 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     }
         
     /// <summary>
-    /// Resets the user's password with the provided token and new password.
+    /// Resets the user's password using a password reset token.
     /// </summary>
     /// <remarks>
-    /// This endpoint allows users to reset their password using a reset token sent to their email address. The request should include
-    /// the email address, reset token, and new password. If the provided token is valid and the new password meets the criteria,
-    /// the password will be reset successfully. Otherwise, appropriate error messages will be returned.
-    ///
-    /// Sample request:
-    /// 
-    ///     POST /Account/Manage/ResetPassword
-    ///     {
-    ///         "email": "user@example.com",
-    ///         "token": "resetPasswordToken",
-    ///         "newPassword": "NewPa$$w0rD!"
-    ///     }
-    /// 
+    /// This endpoint allows a user to reset their password by providing their email address, a password reset token, and a new password.
     /// </remarks>
-    /// <param name="request">The ResetPasswordRequest object containing the email address, reset token, and new password.</param>
-    /// <returns>An <see cref="IActionResult"/> indicating the success or failure of the password reset operation.</returns>
-    /// <response code="200">Indicates that the password was reset successfully and the user can now log in with the new password.</response>
-    /// <response code="400">Indicates that the request is invalid, the user account was not found, or the password reset failed.</response>
+    /// <param name="request">The request object containing the user's email, password reset token, and new password.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the password reset process.
+    /// </returns>
+    /// <response code="200">The password was reset successfully.</response>
+    /// <response code="400">Returned if the request data is invalid or the user account could not be found.</response>
+    /// <response code="500">Returned if the password reset failed due to an internal error.</response>
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("ResetPassword")]
     public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordRequest request)
     {

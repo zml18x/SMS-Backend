@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
@@ -46,7 +47,39 @@ public class TokenService : ITokenService
             throw new InvalidOperationException("Failed to create JWT token.", ex);
         }
     }
-    
+
+    public RefreshTokenDto CreateRefreshToken(Guid userId)
+    {
+        var randomBytes = new byte[64];
+        RandomNumberGenerator.Fill(randomBytes);
+
+        var expirationTime =
+            DateTime.UtcNow.AddDays(int.Parse(_configuration.GetSection("JWT:RefreshTokenExpirationDays").Value!));
+
+        return new RefreshTokenDto(userId, Convert.ToBase64String(randomBytes), expirationTime);
+    }
+
+    public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+    {
+        var tokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false,
+            ValidateIssuer = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]!)),
+            ValidateLifetime = false
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+
+        if (securityToken is not JwtSecurityToken jwtSecurityToken ||
+            !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512Signature,
+                StringComparison.InvariantCultureIgnoreCase)) throw new SecurityTokenException("Invalid access token.");
+
+        return principal;
+    }
+
     private List<Claim> CreateClaims(Guid userId, string userEmail, IList<string> userRoles)
     {
         var jwtSub = _configuration.GetSection("JWT:JwtRegisteredClaimNamesSub").Value!;
@@ -54,12 +87,12 @@ public class TokenService : ITokenService
 
         var claims = new List<Claim>()
         {
-            new Claim(JwtRegisteredClaimNames.Sub, jwtSub),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
-            new Claim(ClaimTypes.NameIdentifier,userId.ToString()),
-            new Claim(ClaimTypes.Name,userId.ToString()),
-            new Claim(ClaimTypes.Email,userEmail)
+            new (JwtRegisteredClaimNames.Sub, jwtSub),
+            new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new (JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
+            new (ClaimTypes.NameIdentifier,userId.ToString()),
+            new (ClaimTypes.Name,userId.ToString()),
+            new (ClaimTypes.Email,userEmail)
         };
 
         if (userRoles.Any())

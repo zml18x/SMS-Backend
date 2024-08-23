@@ -1,6 +1,6 @@
 ﻿using System.Net;
+using System.Text.Json;
 using System.Security.Authentication;
-using Newtonsoft.Json;
 using SpaManagementSystem.Application.Exceptions;
 using SpaManagementSystem.Infrastructure.Exceptions;
 
@@ -67,7 +67,7 @@ public class ExceptionsHandlingMiddleware
             _ => code
         };
 
-        var result = JsonConvert.SerializeObject(new { Error = ex.Message, Code = code });
+        var result = JsonSerializer.Serialize(new { Error = ex.Message, Code = code });
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)code;

@@ -39,6 +39,7 @@ public static class ApplicationDependencies
     {
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ISalonService, SalonService>();
+        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
         return services;
     }
