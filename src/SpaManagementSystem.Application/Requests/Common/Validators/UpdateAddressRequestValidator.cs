@@ -2,9 +2,6 @@
 
 namespace SpaManagementSystem.Application.Requests.Common.Validators;
 
-/// <summary>
-/// Validator for <see cref="UpdateAddressRequest"/> to enforce validation rules.
-/// </summary>
 public class UpdateAddressRequestValidator : AbstractValidator<UpdateAddressRequest>
 {
     public UpdateAddressRequestValidator()

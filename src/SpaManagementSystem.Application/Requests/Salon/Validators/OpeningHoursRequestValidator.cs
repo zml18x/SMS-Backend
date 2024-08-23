@@ -2,9 +2,6 @@
 
 namespace SpaManagementSystem.Application.Requests.Salon.Validators;
 
-/// <summary>
-/// Validator for the <see cref="OpeningHoursRequest"/>.
-/// </summary>
 public class OpeningHoursRequestValidator : AbstractValidator<OpeningHoursRequest>
 {
     public OpeningHoursRequestValidator()

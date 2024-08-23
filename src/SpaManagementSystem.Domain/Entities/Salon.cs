@@ -5,66 +5,20 @@ using SpaManagementSystem.Domain.ValueObjects;
 
 namespace SpaManagementSystem.Domain.Entities;
 
-/// <summary>
-/// Represents a salon within the Spa Management System.
-/// Inherits from BaseEntity and includes additional fields specific to a salon such as name,
-/// email, phone number, description, address ID, and opening hours.
-/// </summary>
 public class Salon : BaseEntity
 {
     private ISet<OpeningHours> _openingHours = new HashSet<OpeningHours>();
-        
-    /// <summary>
-    /// Gets the unique identifier for the associated user.
-    /// </summary>
     public Guid UserId { get; protected set; }
-
-    /// <summary>
-    /// Gets the name of the salon.
-    /// </summary>
     public string Name { get; protected set; } = String.Empty;
-
-    /// <summary>
-    /// Gets the email address of the salon.
-    /// </summary>
     public string Email { get; protected set; } = String.Empty;
-
-    /// <summary>
-    /// Gets the phone number of the salon.
-    /// </summary>
     public string PhoneNumber { get; protected set; } = String.Empty;
-
-    /// <summary>
-    /// Gets the description of the salon.
-    /// </summary>
     public string? Description { get; protected set; }
-        
-    /// <summary>
-    /// Gets the address of the salon. Can be null.
-    /// </summary>
     public Address? Address { get; protected set; }
-        
-    /// <summary>
-    /// Gets the collection of opening hours for the salon.
-    /// </summary>
     public IEnumerable<OpeningHours> OpeningHours => _openingHours;
         
 
-        
-    /// <summary>
-    /// Initializes a new instance of the Salon class.
-    /// </summary>
+    
     public Salon(){}
-
-    /// <summary>
-    /// Initializes a new instance of the Salon class with specific details.
-    /// </summary>
-    /// <param name="id">The unique identifier for the salon.</param>
-    /// <param name="userId">The user's unique identifier.</param>
-    /// <param name="name">The name of the salon.</param>
-    /// <param name="email">The email address of the salon.</param>
-    /// <param name="phoneNumber">The phone number of the salon.</param>
-    /// <param name="description">The description of the salon.</param>
     public Salon(Guid id, Guid userId, string name, string email, string phoneNumber,
         string? description = null) : base(id)
     {
@@ -116,11 +70,7 @@ public class Salon : BaseEntity
 
         return anyDataUpdated;
     }
-
-    /// <summary>
-    /// Updates the salon's address
-    /// </summary>
-    /// <param name="address">The new address</param>
+    
     public void UpdateAddress(Address address)
     {
         Address = address;
@@ -144,7 +94,7 @@ public class Salon : BaseEntity
     /// <summary>
     /// Updates the existing opening hours entry for a specific day of the week. 
     /// </summary>
-    /// <param name="openingHours">The updated opening hours entry.</param>
+    /// <param name="openingHours">The updated opening hours' entry.</param>
     /// <exception cref="InvalidOperationException">
     /// Thrown if no opening hours entry is found for the specified day of the week.
     /// </exception>
@@ -174,12 +124,7 @@ public class Salon : BaseEntity
 
         _openingHours.Remove(openingHours);
     }
-        
-    /// <summary>
-    /// Validates and sets the name of the salon.
-    /// </summary>
-    /// <param name="name">The name to set.</param>
-    /// <exception cref="ArgumentException">Thrown when the name is null, whitespace, or exceeds 30 characters.</exception>
+    
     private void SetName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -190,12 +135,7 @@ public class Salon : BaseEntity
 
         Name = name;
     }
-        
-    /// <summary>
-    /// Validates and sets the description of the salon.
-    /// </summary>
-    /// <param name="description">The description to set.</param>
-    /// <exception cref="ArgumentException">Thrown when the description exceeds 1000 characters.</exception>
+    
     private void SetDescription(string? description)
     {
         if (!string.IsNullOrWhiteSpace(description))
@@ -205,12 +145,7 @@ public class Salon : BaseEntity
             
         Description = description;
     }
-        
-    /// <summary>
-    /// Validates and sets the phone number of the salon.
-    /// </summary>
-    /// <param name="phoneNumber">The phone number to set.</param>
-    /// <exception cref="ArgumentException">Thrown when the phone number is null, whitespace, or contains non-digit characters.</exception>
+    
     private void SetPhoneNumber(string phoneNumber)
     {
         if (string.IsNullOrWhiteSpace(phoneNumber))
@@ -223,12 +158,7 @@ public class Salon : BaseEntity
 
         PhoneNumber = phoneNumber;
     }
-        
-    /// <summary>
-    /// Validates and sets the email address of the salon.
-    /// </summary>
-    /// <param name="email">The email address to set.</param>
-    /// <exception cref="ArgumentException">Thrown when the email is not a valid email address.</exception>
+    
     private void SetEmail(string email)
     {
         try
@@ -242,12 +172,7 @@ public class Salon : BaseEntity
 
         Email = email;
     }
-        
-    /// <summary>
-    /// Validates and sets the UserId.
-    /// </summary>
-    /// <param name="userId">The unique identifier to set.</param>
-    /// <exception cref="ArgumentException">Thrown when the UserId is empty.</exception>
+    
     private void SetUserId(Guid userId)
     {
         UserId = (userId != Guid.Empty)

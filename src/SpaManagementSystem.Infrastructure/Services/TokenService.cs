@@ -111,7 +111,7 @@ public class TokenService : ITokenService
     
     private JwtSecurityToken CreateJwtToken(List<Claim> claims, SigningCredentials signingCredentials)
     {
-        var expire = DateTime.UtcNow.AddMinutes(int.Parse(_configuration.GetSection("JWT:ExpiryMinutes").Value!));
+        var expire = DateTime.UtcNow.AddMinutes(int.Parse(_configuration.GetSection("JWT:JwtExpirationTime").Value!));
         var issuer = _configuration.GetSection("JWT:Issuer").Value;
         var audience = _configuration.GetSection("JWT:Audience").Value;
 
@@ -139,7 +139,7 @@ public class TokenService : ITokenService
         if (string.IsNullOrEmpty(_configuration["JWT:Audience"]))
             throw new InvalidOperationException("JWT Audience is missing in configuration.");
 
-        if (!int.TryParse(_configuration["JWT:ExpiryMinutes"], out int expiryMinutes) || expiryMinutes < 0)
+        if (!int.TryParse(_configuration["JWT:JwtExpirationTime"], out int expiryMinutes) || expiryMinutes < 0)
             throw new InvalidOperationException("JWT ExpiryMinutes is not a valid positive integer.");
     }
 }

@@ -2,9 +2,6 @@
 
 namespace SpaManagementSystem.Application.Requests.Auth.Validators;
 
-/// <summary>
-/// Validator class for validating <see cref="SignInRequest"/> instances.
-/// </summary>
 public class SignInRequestValidator : AbstractValidator<SignInRequest>
 {
     public SignInRequestValidator()

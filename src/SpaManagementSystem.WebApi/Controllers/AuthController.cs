@@ -107,7 +107,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
             
             await refreshTokenService.SaveRefreshToken(refreshToken);
 
-            var response = new AuthResponseDto(accessToken.Token, accessToken.Expire, refreshToken.Token,
+            var response = new AuthResponseDto(accessToken.Token, accessToken.ExpirationTime, refreshToken.Token,
                 refreshToken.ExpirationTime);
 
             return Ok(response);
@@ -180,7 +180,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
 
         await refreshTokenService.SaveRefreshToken(newRefreshToken);
 
-        var response = new AuthResponseDto(newJwt.Token, newJwt.Expire, newRefreshToken.Token,
+        var response = new AuthResponseDto(newJwt.Token, newJwt.ExpirationTime, newRefreshToken.Token,
             newRefreshToken.ExpirationTime);
 
         return Ok(response);

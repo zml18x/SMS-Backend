@@ -15,21 +15,8 @@ using SpaManagementSystem.Application.Interfaces;
 
 namespace SpaManagementSystem.Infrastructure.Container;
 
-/// <summary>
-/// Provides a centralized class for configuring essential infrastructure layer services required by the application.
-/// This class includes configurations for dependency injection, database contexts, jwt configuration 
-/// and identity services, facilitating the management of data access and user authentication.
-/// </summary>
 public static class InfrastructureDependencies
 {
-    /// <summary>
-    /// Configures core services and dependencies for the entire application.
-    /// This method serves as the central setup function for registering various services such as database contexts,
-    /// identity management, and authentication mechanisms. It modifies and returns the IServiceCollection to allow for fluent configuration.
-    /// </summary>
-    /// <param name="services">The collection of service descriptors for registering application services.</param>
-    /// <param name="configuration">The application-wide settings and configurations used for
-    /// setting up specific services like database connections and JWT settings.</param>
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services

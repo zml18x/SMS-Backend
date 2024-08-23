@@ -14,30 +14,26 @@ namespace SpaManagementSystem.WebApi.Controllers;
 public class SalonController(ISalonService salonService) : BaseController
 {
     /// <summary>
-    /// Creates a new salon with the provided details.
+    /// Creates a new salon based on the provided details.
     /// </summary>
     /// <remarks>
-    /// This endpoint allows an authenticated admin to create a new salon by providing the necessary details in the request body.
-    /// The request should include details such as the salon's name, address, and other relevant information. Upon successful 
-    /// creation of the salon, a `201 Created` response is returned.
-    ///
-    /// Sample request:
-    /// 
-    ///     POST /Salon/Create
-    ///     {
-    ///         "name": "ExampleName",
-    ///         "phoneNumber": "321321123"
-    ///         "email": "example@mail.com"
-    ///     }
+    /// This endpoint allows an admin user to create a new salon by providing the necessary details in the request body.
+    /// The user must have the "Admin" role to access this endpoint.
     /// </remarks>
-    /// <param name="request">The CreateSalonRequest object containing the details for the new salon.</param>
-    /// <returns>A <see cref="IActionResult"/> indicating the result of the creation operation.</returns>
-    /// <response code="201">Indicates that the salon was created successfully.</response>
-    /// <response code="400">Indicates that the request is invalid due to bad request or validation errors.</response>
-    /// <response code="401">If the user is not authenticated (authorization failed).</response>
-    /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
+    /// <param name="request">The request object containing the salon details.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the salon creation.
+    /// </returns>
+    /// <response code="201">Salon was successfully created.</response>
+    /// <response code="400">Returned if the request contains invalid data or fails validation.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized to perform this action.</response>
     [Produces("application/json")]
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Roles = "Admin")]
     [HttpPost("Create")]
     public async Task<IActionResult> CreateAsync([FromBody] CreateSalonRequest request)
@@ -50,93 +46,87 @@ public class SalonController(ISalonService salonService) : BaseController
         return Created("api/Salon", null);
     }
         
+    
     /// <summary>
-    /// Retrieves a list of all salons associated with the current user.
+    /// Retrieves a list of all salons associated with the currently authenticated admin user.
     /// </summary>
     /// <remarks>
-    /// This endpoint allows an authenticated admin to retrieve a list of all salons that are associated with the current user.
-    /// The request does not require any parameters. The response will contain a list of salon objects in JSON format.
-    /// 
-    /// Sample request:
-    /// 
-    ///     GET /Salon/List
-    /// 
+    /// This endpoint returns a list of salons that are linked to the admin user who is making the request.
+    /// The user must have the "Admin" role to access this endpoint.
     /// </remarks>
-    /// <returns>A <see cref="IActionResult"/> containing a JSON result with the list of salons.</returns>
-    /// <response code="200">Returns a list of salons associated with the current user.</response>
-    /// <response code="401">If the user is not authenticated (authorization failed).</response>
-    /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
+    /// <returns>
+    /// Returns an HTTP response containing a list of salons.
+    /// </returns>
+    /// <response code="200">Successfully retrieved the list of salons.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized to perform this action.</response>
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<SalonDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Roles = "Admin")]
     [HttpGet("List")]
     public async Task<IActionResult> GetAllSalonsAsync()
     {
         var salons = await salonService.GetAllSalonsByUserIdAsync(UserId);
 
-        return new JsonResult(salons);
+        return Ok(salons);
     }
         
     /// <summary>
-    /// Retrieves details for a specific salon by its ID.
+    /// Retrieves the details of a specific salon by its ID.
     /// </summary>
-    /// <param name="salonId">The unique identifier of the salon.</param>
     /// <remarks>
-    /// This endpoint retrieves detailed information about a specific salon using its unique identifier (ID). 
-    /// If the salon with the specified ID is found, the details are returned in JSON format.
-    /// If no salon is found, a `404 Not Found` response is returned.
-    /// 
-    /// Sample request:
-    /// 
-    ///     GET /Salon/{salonId}
-    /// 
+    /// This endpoint returns the detailed information of a salon identified by the provided salon ID.
+    /// The user must have one of the following roles: "Admin", "Manager", or "Employee" to access this endpoint.
     /// </remarks>
-    /// <returns>A <see cref="IActionResult"/> containing the salon details if found, otherwise a NotFound result.</returns>
-    /// <response code="200">Returns the details of the salon if found.</response>
-    /// <response code="404">If the salon with the specified ID is not found.</response>
-    /// <response code="401">If the request is not authenticated.</response>
+    /// <param name="salonId">The unique identifier of the salon.</param>
+    /// <returns>
+    /// Returns an HTTP response containing the salon details.
+    /// </returns>
+    /// <response code="200">Successfully retrieved the salon details.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized to access the salon details.</response>
+    /// <response code="404">Returned if the salon with the specified ID is not found.</response>
     [Produces("application/json")]
     [ProducesResponseType(typeof(SalonDetailsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles="Admin, Manager, Employee")]
     [HttpGet("{salonId}")]
     public async Task<IActionResult> GetSalonAsync(Guid salonId)
     {
         var salon = await salonService.GetSalonDetailsByIdAsync(salonId);
 
-        return new JsonResult(salon);
+        return Ok(salon);
     }
-
-        
+    
     /// <summary>
-    /// Updates the details of a specific salon based on the provided JsonPatchDocument.
+    /// Partially updates the details of a specific salon using a JSON Patch document.
     /// </summary>
-    /// <param name="salonId">The unique identifier of the salon to update.</param>
-    /// <param name="patchDocument">The JsonPatchDocument object containing the details to update.</param>
-    /// <param name="requestValidator">An instance of <see cref="IValidator{UpdateSalonDetailsRequest}"/> used to validate the updated salon details.</param>
     /// <remarks>
-    /// This endpoint allows you to update specific details of a salon using a JSON patch document.
-    /// The patch document should contain the operations to apply to the salon details.
-    ///
-    /// Sample request:
-    /// 
-    ///     PATCH /Salon/{salonId}/Manage/UpdateDetails
-    ///     [
-    ///         { "op": "replace", "path": "/name", "value": "New Salon Name" },
-    ///         { "op": "replace", "path": "/phoneNumber", "value": "321321321" },
-    ///         { "op": "replace", "path": "/email", "value": "newExample@mail.com" },
-    ///         { "op": "replace", "path": "/description", "value": "Example description" }
-    ///     ]
+    /// This endpoint allows an admin or manager to update specific fields of a salon's details by applying a JSON Patch document.
+    /// The user must have one of the following roles: "Admin" or "Manager" to access this endpoint.
     /// </remarks>
-    /// <returns>A <see cref="IActionResult"/> indicating the result of the update operation.
-    /// Returns <see cref="NotFoundResult"/> if the salon is not found,
-    /// <see cref="BadRequestResult"/> if the request is invalid,
-    /// or <see cref="NoContentResult"/> if the update is successful.</returns>
-    /// <response code="204">If the update was successful and no content is returned.</response>
-    /// <response code="400">If the request is invalid or no changes were made to the salon.</response>
-    /// <response code="401">If the request is not authenticated.</response>
-    /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
-    /// <response code="404">If the salon with the specified ID is not found.</response>
+    /// <param name="salonId">The unique identifier of the salon to be updated.</param>
+    /// <param name="patchDocument">The JSON Patch document containing the changes to be applied to the salon details.</param>
+    /// <param name="requestValidator">The validator service for validating the updated salon details.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the update operation.
+    /// </returns>
+    /// <response code="204">Successfully updated the salon details.</response>
+    /// <response code="400">Returned if the request contains invalid data or if no changes were made.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized to update the salon details.</response>
+    /// <response code="404">Returned if the salon with the specified ID is not found.</response>
     [Produces("application/json-patch+json")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "Admin, Manager")]
     [HttpPatch("{salonId}/Manage/UpdateDetails")]
     public async Task<IActionResult> UpdateDetailsAsync(Guid salonId, [FromBody] JsonPatchDocument<UpdateSalonDetailsRequest> patchDocument,
@@ -169,27 +159,28 @@ public class SalonController(ISalonService salonService) : BaseController
     }
     
     /// <summary>
-    /// Adds opening hours for a specific salon.
+    /// Adds opening hours to a specific salon.
     /// </summary>
-    /// <param name="salonId">The unique identifier of the salon to add opening hours to.</param>
-    /// <param name="request">The <see cref="OpeningHoursRequest"/> object containing the opening hours details.</param>
     /// <remarks>
-    /// Sample request:
-    /// 
-    ///     POST /Salon/{salonId}/Manage/OpeningHours
-    ///     {
-    ///         "DayOfWeek": 0,
-    ///         "OpeningTime": "09:00:00",
-    ///         "ClosingTime": "18:00:00"
-    ///     }
-    /// 
+    ///  This endpoint allows an admin or manager to define the opening hours for a salon by providing the details in the request body.
+    /// The user must have one of the following roles: "Admin" or "Manager" to access this endpoint.
     /// </remarks>
-    /// <returns>A <see cref="IActionResult"/> indicating the result of the add operation.</returns>
-    /// <response code="201">Indicates that the opening hours were added successfully.</response>
-    /// <response code="400">Indicates that the request is invalid due to bad request or validation errors.</response>
-    /// <response code="401">If the request is not authenticated.</response>
-    /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
+    /// <param name="salonId">The unique identifier of the salon to which the opening hours are being added.</param>
+    /// <param name="request">The request object containing the opening hours details.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the operation.
+    /// </returns>
+    /// <response code="201">Successfully added the opening hours to the salon.</response>
+    /// <response code="400">Returned if the request contains invalid data.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized to add opening hours.</response>
+    /// <response code="404">Returned if the salon with the specified ID is not found.</response>
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "Admin, Manager")]
     [HttpPost("{salonId}/Manage/OpeningHours")]
     public async Task<IActionResult> AddOpeningHoursAsync(Guid salonId, [FromBody] OpeningHoursRequest request)
@@ -203,27 +194,28 @@ public class SalonController(ISalonService salonService) : BaseController
     }
     
     /// <summary>
-    /// Updates opening hours for a specific salon.
+    /// Updates the opening hours of a specific salon.
     /// </summary>
-    /// <param name="salonId">The unique identifier of the salon to update opening hours for.</param>
-    /// <param name="request">The <see cref="OpeningHoursRequest"/> object containing the opening hours details.</param>
     /// <remarks>
-    /// Sample request:
-    /// 
-    ///     PUT /Salon/{salonId}/Manage/OpeningHours
-    ///     {
-    ///         "DayOfWeek": 0,
-    ///         "OpeningTime": "09:00:00",
-    ///         "ClosingTime": "18:00:00"
-    ///     }
-    ///  
+    /// This endpoint allows an admin or manager to update the opening hours of a salon by providing the updated details in the request body.
+    /// The user must have one of the following roles: "Admin" or "Manager" to access this endpoint.
     /// </remarks>
-    /// <returns>A <see cref="IActionResult"/> indicating the result of the update operation.</returns>
-    /// <response code="204">Indicates that the opening hours were updated successfully.</response>
-    /// <response code="400">Indicates that the request is invalid due to bad request or validation errors.</response>
-    /// <response code="401">If the request is not authenticated.</response>
-    /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
+    /// <param name="salonId">The unique identifier of the salon whose opening hours are being updated.</param>
+    /// <param name="request">The request object containing the updated opening hours details.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the update operation.
+    /// </returns>
+    /// <response code="204">Successfully updated the opening hours of the salon.</response>
+    /// <response code="400">Returned if the request contains invalid data.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized to update opening hours.</response>
+    /// <response code="404">Returned if the salon with the specified ID is not found.</response>
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "Admin, Manager")]
     [HttpPut("{salonId}/Manage/OpeningHours")]
     public async Task<IActionResult> UpdateOpeningHoursAsync(Guid salonId, [FromBody] OpeningHoursRequest request)
@@ -237,22 +229,28 @@ public class SalonController(ISalonService salonService) : BaseController
     }
     
     /// <summary>
-    /// Deletes opening hours for a specific salon.
+    /// Removes the opening hours for a specific day of the week from a salon.
     /// </summary>
-    /// <param name="salonId">The unique identifier of the salon whose opening hours will be deleted.</param>
-    /// <param name="dayOfWeek">The day of the week whose opening hours will be deleted.</param>
     /// <remarks>
-    /// Sample request:
-    /// 
-    ///     DELETE /Salon/{salonId}/Manage/OpeningHours/{dayOfWeek}
-    /// 
+    /// This endpoint allows an admin or manager to remove the opening hours for a specific day of the week from a salon.
+    /// The user must have one of the following roles: "Admin" or "Manager" to access this endpoint.
     /// </remarks>
-    /// <returns>A <see cref="IActionResult"/> indicating the result of the delete operation.</returns>
-    /// <response code="204">Indicates that the opening hours were deleted successfully.</response>
-    /// <response code="400">Indicates that the request is invalid due to bad request or validation errors.</response>
-    /// <response code="401">If the request is not authenticated.</response>
-    /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
+    /// <param name="salonId">The unique identifier of the salon from which the opening hours are being removed.</param>
+    /// <param name="dayOfWeek">The day of the week for which the opening hours are to be removed.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the operation.
+    /// </returns>
+    /// <response code="204">Successfully removed the opening hours for the specified day of the week.</response>
+    /// <response code="400">Returned if the request contains invalid data.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized to remove opening hours.</response>
+    /// <response code="404">Returned if the salon with the specified ID is not found.</response>
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "Admin, Manager")]
     [HttpDelete("{salonId}/Manage/OpeningHours/{dayOfWeek}")]
     public async Task<IActionResult> RemoveOpeningHoursAsync(Guid salonId, DayOfWeek dayOfWeek)
@@ -266,30 +264,28 @@ public class SalonController(ISalonService salonService) : BaseController
     }
     
     /// <summary>
-    /// Updates the address for a specific salon.
+    /// Updates the address of a specific salon.
     /// </summary>
-    /// <param name="salonId">The unique identifier of the salon whose address will be updated.</param>
-    /// <param name="request">The <see cref="UpdateAddressRequest"/> object containing the address details.</param>
     /// <remarks>
-    /// Sample request:
-    /// 
-    ///     PUT /Salon/{salonId}/Manage/Address
-    ///     {
-    ///         "Country": "Poland",
-    ///         "Region": "Małopolskie",
-    ///         "City": "Warsaw",
-    ///         "PostalCode": "00-001",
-    ///         "Street": "Example street",
-    ///         "BuildingNumber": "1"
-    ///     }
-    ///  
+    /// This endpoint allows an admin or manager to update the address details of a salon by providing the new address information in the request body.
+    /// The user must have one of the following roles: "Admin" or "Manager" to access this endpoint.
     /// </remarks>
-    /// <returns>A <see cref="IActionResult"/> indicating the result of the update operation.</returns>
-    /// <response code="200">Indicates that the address was updated successfully.</response>
-    /// <response code="400">Indicates that the request is invalid due to bad request or validation errors.</response>
-    /// <response code="401">If the request is not authenticated.</response>
-    /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
+    /// <param name="salonId">The unique identifier of the salon whose address is being updated.</param>
+    /// <param name="request">The request object containing the updated address details.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the update operation.
+    /// </returns>
+    /// <response code="204">Successfully updated the salon's address.</response>
+    /// <response code="400">Returned if the request contains invalid data.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized to update the address.</response>
+    /// <response code="404">Returned if the salon with the specified ID is not found.</response>
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "Admin, Manager")]
     [HttpPut("{salonId}/Manage/Address")]
     public async Task<IActionResult> UpdateAddressAsync(Guid salonId, [FromBody] UpdateAddressRequest request)
@@ -299,29 +295,30 @@ public class SalonController(ISalonService salonService) : BaseController
 
         await salonService.UpdateAddressAsync(salonId, request);
                 
-        return Ok();
+        return NoContent();
     }
         
     /// <summary>
     /// Deletes a specific salon by its ID.
     /// </summary>
-    /// <param name="salonId">The unique identifier of the salon to delete.</param>
     /// <remarks>
-    /// This endpoint allows an admin to delete a specific salon using its unique identifier. 
-    /// If the salon is successfully deleted, no content will be returned.
-    ///
-    /// Sample request:
-    /// 
-    ///     DELETE /Salon/{salonId}/Manage/Delete
-    /// 
+    /// This endpoint allows an admin to delete a salon from the system. The user must have the "Admin" role to access this endpoint.
     /// </remarks>
-    /// <returns>A <see cref="IActionResult"/> indicating the result of the delete operation.
-    /// Returns <see cref="NoContentResult"/> if the deletion is successful.</returns>
-    /// <response code="204">If the salon was deleted successfully.</response>
-    /// <response code="401">If the request is not authenticated.</response>
-    /// <response code="403">Indicates that the request is forbidden due to insufficient permissions.</response>
-    /// <response code="404">If the salon with the specified ID is not found.</response>
+    /// <param name="salonId">The unique identifier of the salon to be deleted.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the deletion operation.
+    /// </returns>
+    /// <response code="204">Successfully deleted the salon.</response>
+    /// <response code="400">Returned if the request contains invalid data.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized to delete the salon.</response>
+    /// <response code="404">Returned if the salon with the specified ID is not found.</response>
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "Admin")]
     [HttpDelete("{salonId}")]
     public async Task<IActionResult> DeleteAsync(Guid salonId)

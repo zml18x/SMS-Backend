@@ -3,9 +3,6 @@ using SpaManagementSystem.Application.Common.Validation;
 
 namespace SpaManagementSystem.Application.Requests.Auth.Validators;
 
-/// <summary>
-/// Validator class for validating <see cref="ResetPasswordRequest"/> instances.
-/// </summary>
 public class ResetPasswordRequestValidator : AbstractValidator<ResetPasswordRequest>
 {
     public ResetPasswordRequestValidator()

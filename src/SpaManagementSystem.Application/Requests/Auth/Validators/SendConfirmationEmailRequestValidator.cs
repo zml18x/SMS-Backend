@@ -2,9 +2,6 @@
 
 namespace SpaManagementSystem.Application.Requests.Auth.Validators;
 
-/// <summary>
-/// Validator class for validating <see cref="SendConfirmationEmailRequest"/> instances.
-/// </summary>
 public class SendConfirmationEmailRequestValidator : AbstractValidator<SendConfirmationEmailRequest>
 {
     public SendConfirmationEmailRequestValidator()

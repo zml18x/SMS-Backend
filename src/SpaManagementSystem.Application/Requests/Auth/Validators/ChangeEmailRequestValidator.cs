@@ -2,9 +2,6 @@
 
 namespace SpaManagementSystem.Application.Requests.Auth.Validators;
 
-/// <summary>
-/// Validator class for validating <see cref="ChangeEmailRequest"/> instances.
-/// </summary>
 public class ChangeEmailRequestValidator : AbstractValidator<ChangeEmailRequest>
 {
     public ChangeEmailRequestValidator()

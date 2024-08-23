@@ -3,9 +3,6 @@ using SpaManagementSystem.Application.Common.Validation;
 
 namespace SpaManagementSystem.Application.Requests.Auth.Validators;
 
-/// <summary>
-/// Validator class for validating <see cref="UserRegisterRequest"/> instances.
-/// </summary>
 public class RegisterRequestValidator : AbstractValidator<UserRegisterRequest>
 {
     public RegisterRequestValidator()
