@@ -6,7 +6,7 @@ using SpaManagementSystem.Application.Dto;
 
 namespace SpaManagementSystem.WebApi.Controllers;
 
-[Route("api/User/Account")]
+[Route("api/user/account")]
 [ApiController]
 public class UserAccountController(SignInManager<User> signInManager) : BaseController
 {

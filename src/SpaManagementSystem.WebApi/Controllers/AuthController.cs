@@ -12,7 +12,7 @@ using SpaManagementSystem.Application.Requests.Auth;
 namespace SpaManagementSystem.WebApi.Controllers;
 
 [ApiController]
-[Route("api/Auth")]
+[Route("api/auth")]
 public class AuthController(SignInManager<User> signInManager, ITokenService tokenService, IEmailSender<User> emailSender,
     IRefreshTokenService refreshTokenService) : BaseController
 {
@@ -34,7 +34,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [HttpPost("Register")]
+    [HttpPost("register")]
     public async Task<IActionResult> RegisterAsync([FromBody] UserRegisterRequest request)
     {
         if (!ModelState.IsValid)
@@ -49,7 +49,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
             {
                 await signInManager.UserManager.AddToRoleAsync(user, RoleType.Admin.ToString());
 
-                return Created("api/Account", null);
+                return Created("api/user/account", null);
             }
             catch
             {
@@ -85,7 +85,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [HttpPost("SignIn")]
+    [HttpPost("signIn")]
     public async Task<IActionResult> SignInAsync([FromBody] SignInRequest request)
     {
         if (!ModelState.IsValid)
@@ -143,7 +143,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [HttpPost("Refresh")]
+    [HttpPost("refresh")]
     public async Task<IActionResult> RefreshAsync([FromBody] RefreshRequest request)
     {
         if (!ModelState.IsValid)
@@ -204,7 +204,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [HttpPost("ConfirmEmail")]
+    [HttpPost("confirm-email")]
     public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfirmEmailRequest request)
     {
         if (!ModelState.IsValid)
@@ -243,7 +243,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [HttpPost("SendConfirmationEmail")]
+    [HttpPost("send-confirmation-email")]
     public async Task<IActionResult> SendConfirmationEmailAsync([FromBody] SendConfirmationEmailRequest request)
     {
         if (!ModelState.IsValid)
@@ -295,7 +295,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Admin, Manager, Employee")]
-    [HttpPost("SendConfirmationChangeEmail")]
+    [HttpPost("send-confirmation-change-email")]
     public async Task<IActionResult> ChangeEmailAsync([FromBody] ChangeEmailRequest request)
     {
         if (!ModelState.IsValid)
@@ -339,7 +339,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Admin, Manager, Employee")]
-    [HttpPost("ConfirmChangedEmail")]
+    [HttpPost("confirm-changed-email")]
     public async Task<IActionResult> ConfirmChangedEmail([FromBody] ConfirmationChangeEmailRequest request)
     {
         if (!ModelState.IsValid)
@@ -389,7 +389,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Admin, Manager, Employee")]
-    [HttpPost("ChangePassword")]
+    [HttpPost("change-password")]
     public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequest request)
     {
         if (!ModelState.IsValid)
@@ -430,7 +430,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [HttpPost("SendResetPasswordToken")]
+    [HttpPost("send-reset-password-token")]
     public async Task<IActionResult> SendResetPasswordTokenAsync([FromBody] SendResetPasswordTokenRequest request)
     {
         if (!ModelState.IsValid)
@@ -470,7 +470,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [HttpPost("ResetPassword")]
+    [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordRequest request)
     {
         if (!ModelState.IsValid)

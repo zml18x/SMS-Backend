@@ -9,7 +9,7 @@ using SpaManagementSystem.Application.Requests.Common;
 
 namespace SpaManagementSystem.WebApi.Controllers;
 
-[Route("api/Salon")]
+[Route("api/salon")]
 [ApiController]
 public class SalonController(ISalonService salonService) : BaseController
 {
@@ -35,7 +35,7 @@ public class SalonController(ISalonService salonService) : BaseController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Roles = "Admin")]
-    [HttpPost("Create")]
+    [HttpPost("create")]
     public async Task<IActionResult> CreateAsync([FromBody] CreateSalonRequest request)
     {
         if (!ModelState.IsValid)
@@ -43,7 +43,7 @@ public class SalonController(ISalonService salonService) : BaseController
 
         await salonService.CreateAsync(UserId, request);
 
-        return Created("api/Salon", null);
+        return Created("api/salon", null);
     }
         
     
@@ -65,7 +65,7 @@ public class SalonController(ISalonService salonService) : BaseController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize(Roles = "Admin")]
-    [HttpGet("List")]
+    [HttpGet("list")]
     public async Task<IActionResult> GetAllSalonsAsync()
     {
         var salons = await salonService.GetAllSalonsByUserIdAsync(UserId);
@@ -128,7 +128,7 @@ public class SalonController(ISalonService salonService) : BaseController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "Admin, Manager")]
-    [HttpPatch("{salonId}/Manage/UpdateDetails")]
+    [HttpPatch("{salonId}/manage/update-details")]
     public async Task<IActionResult> UpdateDetailsAsync(Guid salonId, [FromBody] JsonPatchDocument<UpdateSalonDetailsRequest> patchDocument,
         [FromServices] IValidator<UpdateSalonDetailsRequest> requestValidator)
     {
@@ -182,7 +182,7 @@ public class SalonController(ISalonService salonService) : BaseController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "Admin, Manager")]
-    [HttpPost("{salonId}/Manage/OpeningHours")]
+    [HttpPost("{salonId}/manage/opening-hours")]
     public async Task<IActionResult> AddOpeningHoursAsync(Guid salonId, [FromBody] OpeningHoursRequest request)
     {
         if (!ModelState.IsValid)
@@ -217,7 +217,7 @@ public class SalonController(ISalonService salonService) : BaseController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "Admin, Manager")]
-    [HttpPut("{salonId}/Manage/OpeningHours")]
+    [HttpPut("{salonId}/manage/opening-hours")]
     public async Task<IActionResult> UpdateOpeningHoursAsync(Guid salonId, [FromBody] OpeningHoursRequest request)
     {
         if (!ModelState.IsValid)
@@ -252,7 +252,7 @@ public class SalonController(ISalonService salonService) : BaseController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "Admin, Manager")]
-    [HttpDelete("{salonId}/Manage/OpeningHours/{dayOfWeek}")]
+    [HttpDelete("{salonId}/manage/opening-hours/{dayOfWeek}")]
     public async Task<IActionResult> RemoveOpeningHoursAsync(Guid salonId, DayOfWeek dayOfWeek)
     {
         if (!ModelState.IsValid)
@@ -287,7 +287,7 @@ public class SalonController(ISalonService salonService) : BaseController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Roles = "Admin, Manager")]
-    [HttpPut("{salonId}/Manage/Address")]
+    [HttpPut("{salonId}/manage/address")]
     public async Task<IActionResult> UpdateAddressAsync(Guid salonId, [FromBody] UpdateAddressRequest request)
     {
         if (!ModelState.IsValid)
