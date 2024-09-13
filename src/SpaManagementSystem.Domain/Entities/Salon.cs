@@ -68,10 +68,13 @@ public class Salon : BaseEntity
             anyDataUpdated = true;
         }
 
+        if (anyDataUpdated)
+            UpdatedAt = DateTime.UtcNow;
+
         return anyDataUpdated;
     }
     
-    public void UpdateAddress(Address address)
+    public void SetAddress(Address address)
     {
         Address = address;
     }

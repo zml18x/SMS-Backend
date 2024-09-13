@@ -42,10 +42,7 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper) : IS
         var isUpdated = salon.UpdateSalon(request.Name, request.Email, request.PhoneNumber, request.Description);
             
         if (isUpdated)
-        {
-            salonRepository.Update(salon);
             await salonRepository.SaveChangesAsync();
-        }
 
         return isUpdated;
     }
@@ -55,8 +52,7 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper) : IS
         var salon = await salonRepository.GetByIdOrFailAsync(salonId);
 
         salon.AddOpeningHours(new OpeningHours(request.DayOfWeek, request.OpeningTime, request.ClosingTime));
-
-        salonRepository.Update(salon);
+        
         await salonRepository.SaveChangesAsync();
     }
     
@@ -65,7 +61,7 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper) : IS
         var salon = await salonRepository.GetByIdOrFailAsync(salonId);
 
         salon.UpdateOpeningHours(new OpeningHours(request.DayOfWeek, request.OpeningTime, request.ClosingTime));
-        salonRepository.Update(salon);
+
         await salonRepository.SaveChangesAsync();
     }
     
@@ -74,7 +70,7 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper) : IS
         var salon = await salonRepository.GetByIdOrFailAsync(salonId);
         
         salon.RemoveOpeningHours(dayOfWeek);
-        salonRepository.Update(salon);
+
         await salonRepository.SaveChangesAsync();
     }
     
@@ -85,9 +81,8 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper) : IS
         var address = new Address(request.Country, request.Region, request.City,
             request.PostalCode, request.Street, request.BuildingNumber);
 
-        salon.UpdateAddress(address);
-
-        salonRepository.Update(salon);
+        salon.SetAddress(address);
+        
         await salonRepository.SaveChangesAsync();
     }
     

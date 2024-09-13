@@ -37,7 +37,6 @@ public static class ApplicationDependencies
     
     private static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
-        services.AddScoped<IUserService, UserService>();
         services.AddScoped<ISalonService, SalonService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
