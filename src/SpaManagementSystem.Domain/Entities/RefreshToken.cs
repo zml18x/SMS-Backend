@@ -11,7 +11,7 @@ public class RefreshToken : BaseEntity
 
 
 
-    public RefreshToken(Guid id, Guid userId, string token, DateTime expirationTime)
+    public RefreshToken(Guid id, Guid userId, string token, DateTime expirationTime) : base(id)
     {
         Id = id;
         UserId = userId;

@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using SpaManagementSystem.Domain.Entities;
+using SpaManagementSystem.Domain.Enums;
 using SpaManagementSystem.Infrastructure.Identity.Entities;
-using SpaManagementSystem.Infrastructure.Identity.Enums;
 
 namespace SpaManagementSystem.Infrastructure.Data.Context;
 
@@ -12,6 +12,7 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Salon> Salons { get; set; }
+    public DbSet<Employee> Employees { get; set; }
     
     
     
@@ -27,14 +28,9 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
         
         modelBuilder.Entity<Salon>(entity =>
         {
-            entity.Property(x => x.Id).IsRequired();
-            entity.Property(x => x.Name).IsRequired();
-            entity.Property(x => x.PhoneNumber).IsRequired();
-            entity.Property(x => x.Email).IsRequired();
+            entity.HasKey(s => s.Id);
             
-            entity.HasKey(x => x.Id);
-            
-            entity.OwnsMany(x => x.OpeningHours, s =>
+            entity.OwnsMany(s => s.OpeningHours, s =>
             {
                 s.Property(oh => oh.DayOfWeek).IsRequired();
                 s.Property(oh => oh.OpeningTime).IsRequired();
@@ -43,7 +39,28 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
                 s.HasKey("SalonId", "DayOfWeek");
             });
 
-            entity.OwnsOne(x => x.Address);
+            entity.OwnsOne(s => s.Address);
+
+            entity.HasMany(s => s.Employees)
+                .WithOne(e => e.Salon)
+                .HasForeignKey(e => e.SalonId);
+            
+            entity.Property(s => s.Name).IsRequired();
+            entity.Property(s => s.PhoneNumber).IsRequired();
+            entity.Property(s => s.Email).IsRequired();
+        });
+
+        modelBuilder.Entity<Employee>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity.HasOne(e => e.Salon)
+                .WithMany(s => s.Employees)
+                .HasForeignKey(e => e.SalonId);
+            
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.Position).IsRequired();
+            entity.Property(e => e.Code).IsRequired();
         });
         
         // Customize table names for clarity and to follow specific naming conventions within the database.
@@ -56,7 +73,7 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
         modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("UserTokens");
 
         // Seed initial roles into the database from the RoleType enum.
-        foreach (var role in Enum.GetNames(typeof(RoleType)))
+        foreach (var role in Enum.GetNames(typeof(RoleTypes)))
         {
             modelBuilder.Entity<IdentityRole<Guid>>().ToTable("Roles").HasData(new IdentityRole<Guid>
             {

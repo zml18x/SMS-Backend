@@ -13,8 +13,10 @@ builder.Services
     .AddInfrastructure(builder.Configuration)
     .AddApplication();
 
-builder.Services.AddControllers()
-    .AddNewtonsoftJson();
+builder.Services.AddControllers(options =>
+{
+    options.SuppressAsyncSuffixInActionNames = false; // Fixes an issue with ActionName in CreatedAtAction
+}).AddNewtonsoftJson();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

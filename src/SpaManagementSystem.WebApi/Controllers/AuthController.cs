@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
-using SpaManagementSystem.Infrastructure.Identity.Enums;
+using PasswordGenerator;
+using SpaManagementSystem.Domain.Enums;
 using SpaManagementSystem.Infrastructure.Identity.Entities;
 using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Interfaces;
@@ -47,13 +48,13 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
         {
             try
             {
-                await signInManager.UserManager.AddToRoleAsync(user, RoleType.Admin.ToString());
+                await signInManager.UserManager.AddToRoleAsync(user, RoleTypes.Admin.ToString());
 
                 return Created("api/user/account", null);
             }
             catch
             {
-                await signInManager.UserManager.RemoveFromRoleAsync(user, RoleType.Admin.ToString());
+                await signInManager.UserManager.RemoveFromRoleAsync(user, RoleTypes.Admin.ToString());
                 await signInManager.UserManager.DeleteAsync(user);
 
                 throw;
@@ -61,6 +62,77 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
         }
 
         foreach (var error in result.Errors)
+            ModelState.AddModelError(error.Code, error.Description);
+
+        return BadRequest(ModelState);
+    }
+    
+    /// <summary>
+    /// Registers a new employee with the provided email and phone number.
+    /// A randomly generated password is assigned, and the user is added to the "Employee" role.
+    /// </summary>
+    /// <remarks>
+    /// This endpoint allows users with the "Admin" or "Manager" role to register a new employee in the system.
+    /// The employee will be created with a randomly generated password and assigned to the "Employee" role.
+    /// If the creation process fails, the operation will be rolled back by removing the user and revoking the role.
+    /// </remarks>
+    /// <param name="request">The request object containing the employee's email, phone number, and other required information.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the result of the registration.
+    /// </returns>
+    /// <response code="201">User was successfully registered and assigned to the "Employee" role.</response>
+    /// <response code="400">Returned if the registration failed due to validation errors or other issues.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized to register employees.</response>
+    /// <response code="500">Returned if an unexpected error occurs during the processing of the request.</response>
+    [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Roles = "Admin, Manager")]
+    [HttpPost("register-employee")]
+    public async Task<IActionResult> RegisterEmployeeAsync([FromBody] RegisterEmployeeRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var user = new User
+        {
+            UserName = request.Email,
+            Email = request.Email,
+            PhoneNumber = request.PhoneNumber,
+            EmailConfirmed = true
+        };
+
+        var userRandomPassword = new Password(15)
+            .IncludeLowercase().IncludeUppercase().IncludeSpecial().IncludeNumeric().Next();
+
+        var result = await signInManager.UserManager.CreateAsync(user, userRandomPassword);
+        if (result.Succeeded)
+        {
+            try
+            {
+                await signInManager.UserManager.AddToRoleAsync(user, RoleTypes.Employee.ToString());
+                
+                return CreatedAtAction(
+                    actionName: nameof(UserController.GetUserByIdAsync),
+                    controllerName: "User",
+                    routeValues: new { userId = user.Id },
+                    value: user
+                );
+            }
+            catch
+            {
+                await signInManager.UserManager.RemoveFromRoleAsync(user, RoleTypes.Employee.ToString());
+                await signInManager.UserManager.DeleteAsync(user);
+
+                throw;
+            }
+        }
+        
+        foreach(var error in result.Errors)
             ModelState.AddModelError(error.Code, error.Description);
 
         return BadRequest(ModelState);
@@ -286,12 +358,14 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     /// <response code="200">The confirmation email was sent successfully.</response>
     /// <response code="400">Returned if the request data is invalid.</response>
     /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized.</response>
     /// <response code="404">Returned if the user account could not be found.</response>
     /// <response code="500">Returned if the token generation fails.</response>
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Admin, Manager, Employee")]
@@ -330,12 +404,14 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     /// <response code="200">The email address was changed successfully.</response>
     /// <response code="400">Returned if the request data is invalid.</response>
     /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized.</response>
     /// <response code="404">Returned if the user account could not be found.</response>
     /// <response code="500">Returned if an unexpected error occurs during the processing of the request.</response>
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Admin, Manager, Employee")]
@@ -380,12 +456,14 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
     /// <response code="200">The password was changed successfully.</response>
     /// <response code="400">Returned if the request data is invalid.</response>
     /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized.</response>
     /// <response code="404">Returned if the user account could not be found.</response>
     /// <response code="500">Returned if an unexpected error occurs during the processing of the request.</response>
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Admin, Manager, Employee")]

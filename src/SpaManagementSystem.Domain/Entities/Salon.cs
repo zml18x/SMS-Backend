@@ -8,6 +8,7 @@ namespace SpaManagementSystem.Domain.Entities;
 public class Salon : BaseEntity
 {
     private ISet<OpeningHours> _openingHours = new HashSet<OpeningHours>();
+    private ISet<Employee> _employees = new HashSet<Employee>();
     public Guid UserId { get; protected set; }
     public string Name { get; protected set; } = String.Empty;
     public string Email { get; protected set; } = String.Empty;
@@ -15,6 +16,7 @@ public class Salon : BaseEntity
     public string? Description { get; protected set; }
     public Address? Address { get; protected set; }
     public IEnumerable<OpeningHours> OpeningHours => _openingHours;
+    public IEnumerable<Employee> Employees => _employees;
         
 
     
