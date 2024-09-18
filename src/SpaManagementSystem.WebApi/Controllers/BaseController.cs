@@ -6,7 +6,6 @@ namespace SpaManagementSystem.WebApi.Controllers;
 /// A base class for api controller in SpaManagementSystem.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
 public class BaseController : ControllerBase
 {
     /// <summary>
