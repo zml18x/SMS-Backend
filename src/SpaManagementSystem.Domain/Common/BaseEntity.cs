@@ -3,26 +3,13 @@
 public abstract class BaseEntity
 {
     public Guid Id { get; protected set; }
-    public DateTime CreatedAt { get; protected set; }
-    public DateTime UpdatedAt { get; protected set; }
-        
-        
+    public DateTime CreatedAt { get; protected set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; protected set; } = DateTime.UtcNow;
     
-    protected BaseEntity(){}
-    protected BaseEntity(Guid id)
+    
+    
+    public void UpdateTimestamp()
     {
-        SetId(id);
-        CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
-    }
-
-
-    
-    private void SetId(Guid id)
-    {
-        if (id == Guid.Empty)
-            throw new ArgumentException("Id cannot be empty", nameof(id));
-
-        Id = id;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using SpaManagementSystem.Domain.Entities;
+using SpaManagementSystem.Domain.Builders;
+using SpaManagementSystem.Domain.Specifications;
 using SpaManagementSystem.Domain.Interfaces;
 using SpaManagementSystem.Domain.ValueObjects;
 using SpaManagementSystem.Application.Dto;
@@ -10,7 +11,7 @@ using SpaManagementSystem.Application.Extensions.RepositoryExtensions;
 
 namespace SpaManagementSystem.Application.Services;
 
-public class SalonService(ISalonRepository salonRepository, IMapper mapper) : ISalonService
+public class SalonService(ISalonRepository salonRepository, IMapper mapper, SalonBuilder salonBuilder, AddressBuilder addressBuilder) : ISalonService
 {
     public async Task<SalonDetailsDto> GetSalonDetailsByIdAsync(Guid salonId)
     {
@@ -28,8 +29,13 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper) : IS
     
     public async Task CreateAsync(Guid userId, CreateSalonRequest createSalonRequest)
     {
-        var salon = new Salon(Guid.NewGuid(), userId, createSalonRequest.Name, createSalonRequest.Email,
-            createSalonRequest.PhoneNumber);
+        var salon = salonBuilder
+            .WithSalonId(Guid.NewGuid())
+            .WithUserId(userId)
+            .WithName(createSalonRequest.Name)
+            .WithEmail(createSalonRequest.Email)
+            .WithPhoneNumber(createSalonRequest.PhoneNumber)
+            .Build();
             
         await salonRepository.CreateAsync(salon);
         await salonRepository.SaveChangesAsync();
@@ -40,10 +46,16 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper) : IS
         var salon = await salonRepository.GetByIdOrFailAsync(salonId);
             
         var isUpdated = salon.UpdateSalon(request.Name, request.Email, request.PhoneNumber, request.Description);
-            
-        if (isUpdated)
-            await salonRepository.SaveChangesAsync();
 
+        if (isUpdated)
+        {
+            var validationResult = new SalonSpecification().IsSatisfiedBy(salon);
+            if (!validationResult.IsValid)
+                throw new InvalidOperationException($"Update failed: {string.Join(", ", validationResult.Errors)}");
+            
+            await salonRepository.SaveChangesAsync();
+        }
+        
         return isUpdated;
     }
     
@@ -78,8 +90,14 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper) : IS
     {
         var salon = await salonRepository.GetByIdOrFailAsync(salonId);
 
-        var address = new Address(request.Country, request.Region, request.City,
-            request.PostalCode, request.Street, request.BuildingNumber);
+        var address = addressBuilder
+            .WithCountry(request.Country)
+            .WithRegion(request.Region)
+            .WithCity(request.City)
+            .WithPostalCode(request.PostalCode)
+            .WithStreet(request.Street)
+            .WithBuildingNumber(request.BuildingNumber)
+            .Build();
 
         salon.SetAddress(address);
         

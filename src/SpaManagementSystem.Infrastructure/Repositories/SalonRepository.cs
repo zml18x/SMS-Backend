@@ -19,7 +19,10 @@ public class SalonRepository(SmsDbContext context) : Repository<Salon>(context),
     
         return salon;
     }
-    
+
+    public async Task<Salon?> GetWithEmployeesById(Guid salonId)
+        => await context.Salons.Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == salonId);
+
     public async Task<IEnumerable<Salon>> GetAllByUserIdAsync(Guid userId)
-        => await Task.FromResult(await _context.Salons.Where(x => x.UserId == userId).ToListAsync());
+        => await _context.Salons.Where(x => x.UserId == userId).ToListAsync();
 }

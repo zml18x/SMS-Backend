@@ -1,6 +1,4 @@
-﻿using System.Net.Mail;
-using System.Text.RegularExpressions;
-using SpaManagementSystem.Domain.Common;
+﻿using SpaManagementSystem.Domain.Common;
 using SpaManagementSystem.Domain.ValueObjects;
 
 namespace SpaManagementSystem.Domain.Entities;
@@ -21,14 +19,14 @@ public class Salon : BaseEntity
 
     
     public Salon(){}
-    public Salon(Guid id, Guid userId, string name, string email, string phoneNumber,
-        string? description = null) : base(id)
+    public Salon(Guid id, Guid userId, string name, string email, string phoneNumber, string? description)
     {
-        SetUserId(userId);
-        SetName(name);
-        SetEmail(email);
-        SetPhoneNumber(phoneNumber);
-        SetDescription(description);
+        Id = id;
+        UserId = userId;
+        Name = name;
+        Email = email;
+        PhoneNumber = phoneNumber;
+        Description = description;
     }
 
 
@@ -48,30 +46,30 @@ public class Salon : BaseEntity
             
         if (!string.IsNullOrWhiteSpace(name))
         {
-            SetName(name);
+            Name = name;
             anyDataUpdated = true;
         }
             
         if (!string.IsNullOrWhiteSpace(email))
         {
-            SetEmail(email);
+            Email = email;
             anyDataUpdated = true;
         }
             
         if (!string.IsNullOrWhiteSpace(phoneNumber))
         {
-            SetPhoneNumber(phoneNumber);
+            PhoneNumber = phoneNumber;
             anyDataUpdated = true;
         }
 
         if (Description != description)
         {
-            SetDescription(description);
+            Description = description;
             anyDataUpdated = true;
         }
-
+        
         if (anyDataUpdated)
-            UpdatedAt = DateTime.UtcNow;
+            UpdateTimestamp();
 
         return anyDataUpdated;
     }
@@ -79,6 +77,13 @@ public class Salon : BaseEntity
     public void SetAddress(Address address)
     {
         Address = address;
+        UpdateTimestamp();
+    }
+
+    public void AddEmployee(Employee employee)
+    {
+        _employees.Add(employee);
+        UpdateTimestamp();
     }
     
     /// <summary>
@@ -94,6 +99,7 @@ public class Salon : BaseEntity
             throw new InvalidOperationException($"Opening hours for {openingHours.DayOfWeek} already exist.");
 
         _openingHours.Add(openingHours);
+        UpdateTimestamp();
     }
     
     /// <summary>
@@ -111,6 +117,7 @@ public class Salon : BaseEntity
 
         _openingHours.Remove(existingOpeningHours);
         _openingHours.Add(openingHours);
+        UpdateTimestamp();
     }
     
     /// <summary>
@@ -128,60 +135,6 @@ public class Salon : BaseEntity
             throw new InvalidOperationException($"No opening hours found for {dayOfWeek}.");
 
         _openingHours.Remove(openingHours);
-    }
-    
-    private void SetName(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("The name of the salon cannot be empty or whitespace.", nameof(name));
-
-        if (name.Length > 30)
-            throw new ArgumentException("The name of the salon cannot be longer than 30 characters.", nameof(name));
-
-        Name = name;
-    }
-    
-    private void SetDescription(string? description)
-    {
-        if (!string.IsNullOrWhiteSpace(description))
-            if (description.Length > 1000)
-                throw new ArgumentException("The description of the salon cannot be longer than 1000 characters",
-                    nameof(description));
-            
-        Description = description;
-    }
-    
-    private void SetPhoneNumber(string phoneNumber)
-    {
-        if (string.IsNullOrWhiteSpace(phoneNumber))
-            throw new ArgumentException("The phone number cannot be empty.", nameof(phoneNumber));
-            
-        var regex = new Regex("^[0-9]+$");
-
-        if (!regex.IsMatch(phoneNumber))
-            throw new ArgumentException("The phone number can only consist of digits.");
-
-        PhoneNumber = phoneNumber;
-    }
-    
-    private void SetEmail(string email)
-    {
-        try
-        {
-            var mailAddress = new MailAddress(email);
-        }
-        catch(Exception e)
-        {
-            throw new ArgumentException(e.Message, nameof(email));
-        }
-
-        Email = email;
-    }
-    
-    private void SetUserId(Guid userId)
-    {
-        UserId = (userId != Guid.Empty)
-            ? userId
-            : throw new ArgumentException("The user id cannot be empty", nameof(userId));
+        UpdateTimestamp();
     }
 }

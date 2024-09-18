@@ -5,5 +5,6 @@ namespace SpaManagementSystem.Domain.Interfaces;
 public interface ISalonRepository : IRepository<Salon>
 {
     public Task<Salon> GetByUserIdAsync(Guid userId);
+    public Task<Salon?> GetWithEmployeesById(Guid salonId);
     public Task<IEnumerable<Salon>> GetAllByUserIdAsync(Guid userId);
 }

@@ -1,6 +1,7 @@
 ﻿using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Requests.Salon;
 using SpaManagementSystem.Application.Requests.Common;
+using SpaManagementSystem.Application.Requests.Employee;
 
 namespace SpaManagementSystem.Application.Interfaces;
 

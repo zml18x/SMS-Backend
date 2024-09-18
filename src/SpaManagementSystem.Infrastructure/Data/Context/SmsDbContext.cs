@@ -35,6 +35,7 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
                 s.Property(oh => oh.DayOfWeek).IsRequired();
                 s.Property(oh => oh.OpeningTime).IsRequired();
                 s.Property(oh => oh.ClosingTime).IsRequired();
+                
                 s.WithOwner().HasForeignKey("SalonId");
                 s.HasKey("SalonId", "DayOfWeek");
             });
@@ -57,6 +58,20 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
             entity.HasOne(e => e.Salon)
                 .WithMany(s => s.Employees)
                 .HasForeignKey(e => e.SalonId);
+
+            entity.OwnsOne(e => e.Profile, p =>
+            {
+                p.ToTable("EmployeeProfiles");
+                
+                p.Property(ep => ep.FirstName).IsRequired();
+                p.Property(ep => ep.LastName).IsRequired();
+                p.Property(ep => ep.Gender).IsRequired();
+                p.Property(ep => ep.DateOfBirth).IsRequired();
+                p.Property(ep => ep.PhoneNumber).IsRequired();
+                p.Property(ep => ep.Email).IsRequired();
+
+                p.WithOwner().HasForeignKey("EmployeeId");
+            });
             
             entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.Position).IsRequired();

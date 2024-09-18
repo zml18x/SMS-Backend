@@ -2,6 +2,10 @@
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.DependencyInjection;
+using SpaManagementSystem.Domain.Builders;
+using SpaManagementSystem.Domain.Entities;
+using SpaManagementSystem.Domain.ValueObjects;
+using SpaManagementSystem.Domain.Specifications;
 using SpaManagementSystem.Application.Mappers;
 using SpaManagementSystem.Application.Services;
 using SpaManagementSystem.Application.Interfaces;
@@ -37,9 +41,17 @@ public static class ApplicationDependencies
     
     private static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
-        services.AddScoped<ISalonService, SalonService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-
+        services.AddScoped<ISalonService, SalonService>();
+        services.AddScoped<IEmployeeService, EmployeeService>();
+        services.AddScoped<ISpecification<Salon>, SalonSpecification>();
+        services.AddScoped<ISpecification<Address>, AddressSpecification>();
+        services.AddScoped<ISpecification<Employee>, EmployeeSpecification>();
+        services.AddScoped<ISpecification<EmployeeProfile>, EmployeeProfileSpecification>();
+        services.AddScoped<SalonBuilder>();
+        services.AddScoped<AddressBuilder>();
+        services.AddScoped<EmployeeBuilder>();
+        
         return services;
     }
     
