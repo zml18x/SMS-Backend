@@ -7,7 +7,7 @@ using SpaManagementSystem.Application.Dto;
 
 namespace SpaManagementSystem.WebApi.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/user")]
 [ApiController]
 public class UserController(UserManager<User> userManager) : BaseController
 {
