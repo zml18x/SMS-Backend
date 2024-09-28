@@ -12,4 +12,6 @@ public interface IEmployeeService
     public Task<EmployeeDetailsDto> GetEmployeeDetailsByIdAsync(Guid employeeId);
     public Task<EmployeeDto> GetEmployeeByCodeAsync(string employeeCode);
     public Task<EmployeeDetailsDto> GetEmployeeDetailsByCodeAsync(string employeeCode);
+    public Task UpdateEmployee(Guid employeeId, UpdateEmployeeRequest request);
+    public bool HasChanges(EmployeeDto existingEmployee, UpdateEmployeeRequest request);
 }

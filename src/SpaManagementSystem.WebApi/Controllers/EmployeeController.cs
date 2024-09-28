@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
+using SpaManagementSystem.Infrastructure.Identity.Entities;
 using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Employee;
 using SpaManagementSystem.Application.Requests.Employee.Validators;
-using SpaManagementSystem.Infrastructure.Identity.Entities;
 
 namespace SpaManagementSystem.WebApi.Controllers;
 
@@ -240,5 +242,78 @@ public class EmployeeController(IEmployeeService employeeService, UserManager<Us
         var employee = await employeeService.GetEmployeeDetailsByCodeAsync(employeeCode);
 
         return Ok(employee);
+    }
+    
+    [Authorize("Manager, Employee")]
+    [HttpPatch("update")]
+    public async Task<IActionResult> UpdateEmployeeAsync()
+    {
+        throw new NotImplementedException();
+    }
+    
+    /// <summary>
+    /// Updates the details of the specified employee using a JSON Patch document.
+    /// </summary>
+    /// <remarks>
+    /// This endpoint allows users with the "Admin" or "Manager" role to update employee information
+    /// based on the unique employee identifier. It applies changes specified in the JSON Patch document.
+    /// </remarks>
+    /// <param name="employeeId">The unique identifier of the employee to be updated.</param>
+    /// <param name="patchDocument">The JSON Patch document containing the updates to be applied.</param>
+    /// <param name="requestValidator">An instance of the validator for the update request.</param>
+    /// <returns>
+    /// Returns an HTTP response indicating the outcome of the update operation.
+    /// </returns>
+    /// <response code="200">Indicates that the update was successful and no changes were made.</response>
+    /// <response code="204">Indicates that the update was successful and the employee details were modified.</response>
+    /// <response code="400">Returned if the request model state is invalid or if validation errors occur.</response>
+    /// <response code="401">Returned if the user is not authenticated.</response>
+    /// <response code="403">Returned if the user is not authorized to update employee details.</response>
+    /// <response code="404">Returned if the specified employee could not be found.</response>
+    /// <response code="500">Returned if an unexpected error occurs during the processing of the request.</response>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Roles = "Admin, Manager")]
+    [HttpPatch("update/{employeeId:guid}")]
+    public async Task<IActionResult> UpdateEmployeeAsync(Guid employeeId, [FromBody] JsonPatchDocument<UpdateEmployeeRequest> patchDocument,
+        [FromServices] IValidator<UpdateEmployeeRequest> requestValidator)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var existingEmployee = await employeeService.GetEmployeeByIdAsync(employeeId);
+
+        var request = new UpdateEmployeeRequest(existingEmployee.Position, existingEmployee.EmploymentStatus,
+            existingEmployee.Code, existingEmployee.Color, existingEmployee.HireDate, existingEmployee.Notes);
+        
+        patchDocument.ApplyTo(request, ModelState);
+
+        if (!employeeService.HasChanges(existingEmployee, request))
+            return Ok("No changes were made to the employee.");
+
+        var requestValidationResult = await requestValidator.ValidateAsync(request);
+        if (!requestValidationResult.IsValid)
+        {
+            foreach (var error in requestValidationResult.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+            return BadRequest(ModelState);
+        }
+        
+        await employeeService.UpdateEmployee(employeeId, request);
+
+        return NoContent();
+    }
+    
+    [Authorize(Roles = "Admin, Manager")]
+    [HttpPatch("details/update/{employeeId:guid}")]
+    public async Task<IActionResult> UpdateEmployeeDetailsAsync(Guid employeeId)
+    {
+        throw new NotImplementedException();
     }
 }

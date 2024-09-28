@@ -40,4 +40,51 @@ public class Employee : BaseEntity
     {
         Profile = employeeProfile;
     }
+
+    public bool UpdateEmployee(string position, EmploymentStatus employmentStatus, string code, string color,
+        DateOnly hireDate, string? notes)
+    {
+        var anyDataUpdated = false;
+            
+        if (!string.IsNullOrWhiteSpace(position))
+        {
+            Position = position;
+            anyDataUpdated = true;
+        }
+            
+        if (EmploymentStatus != employmentStatus)
+        {
+            EmploymentStatus = employmentStatus;
+            anyDataUpdated = true;
+        }
+            
+        if (!string.IsNullOrWhiteSpace(code))
+        {
+            Code = code;
+            anyDataUpdated = true;
+        }
+        
+        if (!string.IsNullOrWhiteSpace(color))
+        {
+            Color = color;
+            anyDataUpdated = true;
+        }
+
+        if (HireDate != hireDate)
+        {
+            HireDate = hireDate;
+            anyDataUpdated = true;
+        }
+
+        if (Notes != notes)
+        {
+            Notes = notes;
+            anyDataUpdated = true;
+        }
+        
+        if (anyDataUpdated)
+            UpdateTimestamp();
+
+        return anyDataUpdated;
+    }
 }

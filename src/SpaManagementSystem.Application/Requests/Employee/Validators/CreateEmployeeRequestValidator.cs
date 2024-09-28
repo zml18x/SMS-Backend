@@ -16,45 +16,35 @@ public class CreateEmployeeRequestValidator : AbstractValidator<CreateEmployeeRe
             .Must(g => g != Guid.Empty).WithMessage("UserId must be a valid non-empty GUID.");
 
         RuleFor(x => x.Position)
-            .NotEmpty().WithMessage("Position is required.")
-            .MaximumLength(100).WithMessage("Position cannot be longer than 100 characters.");
+            .MatchEmployeePosition();
 
         RuleFor(x => x.EmploymentStatus)
-            .IsInEnum().WithMessage("Invalid employment status.");
+            .MatchEmploymentStatus();
 
         RuleFor(x => x.Code)
             .MatchEmployeeCode();
 
         RuleFor(x => x.Color)
-            .NotEmpty().WithMessage("Color is required.")
-            .Matches("^#([A-Fa-f0-9]{6})$").WithMessage("Color must be in HEX format.");
+            .MatchHexColor();
 
         RuleFor(x => x.HireDate)
-            .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.Today))
-            .WithMessage("Hire date cannot be in the future.")
-            .GreaterThan(DateOnly.FromDateTime(DateTime.Today.AddYears(-50)))
-            .WithMessage("Hire date cannot be more than 50 years in the past.");
+            .MatchHireDate();
 
         RuleFor(x => x.FirstName)
-            .NotEmpty().WithMessage("First name is required.")
-            .MinimumLength(2).WithMessage("First name must be at least 2 characters long.")
-            .MaximumLength(50).WithMessage("First name cannot be longer than 50 characters");
+            .MatchFirstName();
 
         RuleFor(x => x.LastName)
-            .NotEmpty().WithMessage("Last name is required.")
-            .MinimumLength(2).WithMessage("Last name must be at least 2 characters long.")
-            .MaximumLength(50).WithMessage("Last name cannot be longer than 50 characters");
+            .MatchLastName();
 
         RuleFor(x => x.Gender)
-            .IsInEnum().WithMessage("Invalid gender type.");
+            .MatchGender();
 
         RuleFor(x => x.DateOfBirth)
             .LessThan(DateOnly.FromDateTime(DateTime.Today)).WithMessage("Date of birth must be in the past.")
             .Must(BeAtLeast16YearsOld).WithMessage("Employee must be at least 16 years old.");
 
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email is required.")
-            .EmailAddress().WithMessage("Invalid email format.");
+            .MatchEmail();
 
         RuleFor(x => x.PhoneNumber)
             .MatchPhoneNumber();
