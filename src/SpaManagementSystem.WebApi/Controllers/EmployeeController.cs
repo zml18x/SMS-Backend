@@ -1,15 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Employee;
 using SpaManagementSystem.Application.Requests.Employee.Validators;
+using SpaManagementSystem.Infrastructure.Identity.Entities;
 
 namespace SpaManagementSystem.WebApi.Controllers;
 
 [ApiController]
 [Route("api/employee")]
-public class EmployeeController(IEmployeeService employeeService) : BaseController
+public class EmployeeController(IEmployeeService employeeService, UserManager<User> userManager) : BaseController
 {
     /// <summary>
     /// Creates a new employee with the provided details.
@@ -39,6 +41,10 @@ public class EmployeeController(IEmployeeService employeeService) : BaseControll
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+
+        var user = await userManager.FindByIdAsync(request.UserId.ToString());
+        if (user == null)
+            return BadRequest($"User with ID '{request.UserId}' does not exist.");
         
         await employeeService.AddEmployeeAsync(request);
 

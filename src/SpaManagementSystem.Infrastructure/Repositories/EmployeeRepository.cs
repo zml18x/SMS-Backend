@@ -25,10 +25,10 @@ public class EmployeeRepository(SmsDbContext context) : Repository<Employee>(con
             .FirstOrDefaultAsync(x => x.Id == employeeId);
 
     public async Task<Employee?> GetByCodeAsync(string employeeCode)
-        => await _context.Employees.FirstOrDefaultAsync(x => x.Code == employeeCode);
+        => await _context.Employees.FirstOrDefaultAsync(x => x.Code.ToUpper() == employeeCode.ToUpper());
     
     public async Task<Employee?> GetWithProfileByCodeAsync(string employeeCode)
         => await _context.Employees
             .Include(x => x.Profile)
-            .FirstOrDefaultAsync(x => x.Code == employeeCode);
+            .FirstOrDefaultAsync(x => x.Code.ToUpper() == employeeCode.ToUpper());
 }

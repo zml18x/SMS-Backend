@@ -2,7 +2,6 @@
 using SpaManagementSystem.Domain.Builders;
 using SpaManagementSystem.Domain.Interfaces;
 using SpaManagementSystem.Application.Dto;
-using SpaManagementSystem.Application.Exceptions;
 using SpaManagementSystem.Application.Extensions.RepositoryExtensions;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Employee;
@@ -14,13 +13,14 @@ public class EmployeeService(IEmployeeRepository employeeRepository, ISalonRepos
 {
     public async Task AddEmployeeAsync(CreateEmployeeRequest request)
     {
-        var salon = await salonRepository.GetWithEmployeesById(request.SalonId);
-        if (salon == null)
-            throw new NotFoundException($"Salon with ID {request.SalonId} was not found.");
+        var salon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetWithEmployeesById(request.SalonId));
         
         if (salon.Employees.Any(x => x.UserId == request.UserId))
             throw new InvalidOperationException($"Employee with UserId {request.UserId} is already assigned to the salon.");
 
+        if (salon.Employees.Any(x => x.Code.Equals(request.Code, StringComparison.CurrentCultureIgnoreCase)))
+            throw new InvalidOperationException($"Employee with code {request.Code} already exist.");
+        
         var employee = employeeBuilder
             .WithSalonId(request.SalonId)
             .WithUserId(request.UserId)

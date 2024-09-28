@@ -87,7 +87,7 @@ public class EmployeeBuilder(ISpecification<Employee> employeeSpecification,
     
     public EmployeeBuilder WithCode(string code)
     {
-        _code = code;
+        _code = code.ToUpper();
         return this;
     }
     
@@ -136,7 +136,7 @@ public class EmployeeBuilder(ISpecification<Employee> employeeSpecification,
     
     public EmployeeBuilder WithEmail(string email)
     {
-        _email = email;
+        _email = email.ToLower();
         return this;
     }
 
