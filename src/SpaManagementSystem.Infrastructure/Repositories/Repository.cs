@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SpaManagementSystem.Domain.Interfaces;
 using SpaManagementSystem.Infrastructure.Data.Context;
-using SpaManagementSystem.Application.Exceptions;
 
 namespace SpaManagementSystem.Infrastructure.Repositories;
 
@@ -11,11 +10,9 @@ public class Repository<TEntity>(SmsDbContext context) : IRepository<TEntity>
     public async Task<IEnumerable<TEntity>> GetAllAsync()
         => await context.Set<TEntity>().ToListAsync();
     
-    public async Task<TEntity> GetByIdAsync(Guid entityId)
+    public async Task<TEntity?> GetByIdAsync(Guid entityId)
     {
         var entity = await context.Set<TEntity>().FindAsync(entityId);
-        if(entity == null)
-            throw new NotFoundException($"{typeof(TEntity).Name} with ID {entityId} was not found.");
     
         return entity;
     }

@@ -18,4 +18,17 @@ public class EmployeeRepository(SmsDbContext context) : Repository<Employee>(con
         => await _context.Employees
             .Include(x => x.Profile)
             .FirstOrDefaultAsync(x => x.UserId == userId);
+
+    public async Task<Employee?> GetWithProfileByIdAsync(Guid employeeId)
+        => await _context.Employees
+            .Include(x => x.Profile)
+            .FirstOrDefaultAsync(x => x.Id == employeeId);
+
+    public async Task<Employee?> GetByCodeAsync(string employeeCode)
+        => await _context.Employees.FirstOrDefaultAsync(x => x.Code == employeeCode);
+    
+    public async Task<Employee?> GetWithProfileByCodeAsync(string employeeCode)
+        => await _context.Employees
+            .Include(x => x.Profile)
+            .FirstOrDefaultAsync(x => x.Code == employeeCode);
 }

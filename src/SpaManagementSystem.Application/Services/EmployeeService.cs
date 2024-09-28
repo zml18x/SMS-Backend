@@ -3,6 +3,7 @@ using SpaManagementSystem.Domain.Builders;
 using SpaManagementSystem.Domain.Interfaces;
 using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Exceptions;
+using SpaManagementSystem.Application.Extensions.RepositoryExtensions;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Employee;
 
@@ -46,29 +47,50 @@ public class EmployeeService(IEmployeeRepository employeeRepository, ISalonRepos
         await salonRepository.SaveChangesAsync();
     }
 
-    public async Task<EmployeeDto> GetEmployeeByUserId(Guid userId)
+    public async Task<EmployeeDto> GetEmployeeByUserIdAsync(Guid userId)
     {
-        var employee = await employeeRepository.GetByUserIdAsync(userId);
-        if (employee == null)
-            throw new NotFoundException($"Employee with user ID '{userId}' was not found.");
-
+        var employee = await employeeRepository
+            .GetOrThrowAsync(() => employeeRepository.GetByUserIdAsync(userId));
+        
         return mapper.Map<EmployeeDto>(employee);
     }
 
-    public async Task<EmployeeDto> GetEmployeeById(Guid employeeId)
+    public async Task<EmployeeDto> GetEmployeeByIdAsync(Guid employeeId)
     {
-        var employee = await employeeRepository.GetByIdAsync(employeeId);
-        if (employee == null)
-            throw new NotFoundException($"Employee with ID '{employeeId}' was not found.");
+        var employee = await employeeRepository
+            .GetOrThrowAsync(() => employeeRepository.GetByIdAsync(employeeId));
 
         return mapper.Map<EmployeeDto>(employee);
     }
-
-    public async Task<EmployeeDetailsDto> GetEmployeeDetailsByUserId(Guid userId)
+    
+    public async Task<EmployeeDetailsDto> GetEmployeeDetailsByIdAsync(Guid employeeId)
     {
-        var employee = await employeeRepository.GetWithProfileByUserIdAsync(userId);
-        if (employee == null)
-            throw new NotFoundException($"Employee with user ID '{userId}' was not found.");
+        var employee = await employeeRepository
+            .GetOrThrowAsync(() => employeeRepository.GetWithProfileByIdAsync(employeeId));
+
+        return mapper.Map<EmployeeDetailsDto>(employee);
+    }
+    
+    public async Task<EmployeeDetailsDto> GetEmployeeDetailsByUserIdAsync(Guid userId)
+    {
+        var employee = await employeeRepository
+            .GetOrThrowAsync(() => employeeRepository.GetWithProfileByUserIdAsync(userId));
+        
+        return mapper.Map<EmployeeDetailsDto>(employee);
+    }
+
+    public async Task<EmployeeDto> GetEmployeeByCodeAsync(string employeeCode)
+    {
+        var employee = await employeeRepository
+            .GetOrThrowAsync(() => employeeRepository.GetByCodeAsync(employeeCode));
+
+        return mapper.Map<EmployeeDto>(employee);
+    }
+    
+    public async Task<EmployeeDetailsDto> GetEmployeeDetailsByCodeAsync(string employeeCode)
+    {
+        var employee = await employeeRepository
+            .GetOrThrowAsync(() => employeeRepository.GetWithProfileByCodeAsync(employeeCode));
 
         return mapper.Map<EmployeeDetailsDto>(employee);
     }

@@ -23,9 +23,7 @@ public class CreateEmployeeRequestValidator : AbstractValidator<CreateEmployeeRe
             .IsInEnum().WithMessage("Invalid employment status.");
 
         RuleFor(x => x.Code)
-            .NotEmpty().WithMessage("Code is required.")
-            .MaximumLength(8).WithMessage("Code cannot be longer than 8 characters.")
-            .Matches("^[A-Za-z0-9]+$").WithMessage("Code can only contain alphanumeric characters.");
+            .MatchEmployeeCode();
 
         RuleFor(x => x.Color)
             .NotEmpty().WithMessage("Color is required.")
