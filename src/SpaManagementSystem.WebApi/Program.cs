@@ -1,9 +1,11 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using SpaManagementSystem.Infrastructure.Data;
 using SpaManagementSystem.Infrastructure.Container;
 using SpaManagementSystem.Application.Container;
 using SpaManagementSystem.WebApi.Middlewares;
+using SpaManagementSystem.WebApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,9 +16,33 @@ builder.Services
     .AddApplication();
 
 builder.Services.AddControllers(options =>
-{
-    options.SuppressAsyncSuffixInActionNames = false; // Fixes an issue with ActionName in CreatedAtAction
-}).AddNewtonsoftJson();
+    {
+        // Fixes an issue with ActionName in CreatedAtAction
+        options.SuppressAsyncSuffixInActionNames = false;
+    })
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        // Customizing the response for invalid model state
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(ms => ms.Value!.Errors.Count > 0)
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                );
+
+            var response = new
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Success = false,
+                Message = "One or more validation errors occurred.",
+                Errors = errors
+            };
+            return new BadRequestObjectResult(response);
+        };
+    })
+    .AddNewtonsoftJson();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

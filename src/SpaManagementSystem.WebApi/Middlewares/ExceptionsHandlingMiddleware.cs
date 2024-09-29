@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Security.Authentication;
 using SpaManagementSystem.Application.Exceptions;
 using SpaManagementSystem.Infrastructure.Exceptions;
+using SpaManagementSystem.WebApi.Models;
 
 namespace SpaManagementSystem.WebApi.Middlewares;
 
@@ -35,7 +36,12 @@ public class ExceptionsHandlingMiddleware(RequestDelegate next)
             _ => code
         };
 
-        var result = JsonSerializer.Serialize(new { Error = ex.Message, Code = code });
+        var result = JsonSerializer.Serialize(new ApiResponse<object>
+        {
+            Success = false,
+            Status = (int)code,
+            Message = ex.Message
+        });
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)code;
