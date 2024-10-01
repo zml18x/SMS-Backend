@@ -32,7 +32,7 @@ ToDo
    cd SMS-Backend
    ```
 
-3. Start the application using Docker, which will run PostgreSQL and pgAdmin:
+3. Run the containers using Docker, which will start PostgreSQL and pgAdmin:
 
    ```bash
    cd docker-compose up
