@@ -9,6 +9,7 @@ using SpaManagementSystem.Infrastructure.Identity.Entities;
 using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Auth;
+using SpaManagementSystem.WebApi.Models;
 using SpaManagementSystem.WebApi.Extensions;
 
 namespace SpaManagementSystem.WebApi.Controllers;
@@ -18,10 +19,6 @@ namespace SpaManagementSystem.WebApi.Controllers;
 public class AuthController(SignInManager<User> signInManager, ITokenService tokenService, IEmailSender<User> emailSender,
     IRefreshTokenService refreshTokenService) : BaseController
 {
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("register")]
     public async Task<IActionResult> RegisterAsync([FromBody] UserRegisterRequest request)
     {
@@ -55,18 +52,11 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
             }
         }
 
-        foreach (var error in result.Errors)
-            ModelState.AddModelError(error.Code, error.Description);
-
-        return BadRequest(ModelState);
+        var errors = result.Errors.ToDictionary(error => error.Code, error => new[] { error.Description });
+        
+        return BadRequest(new ValidationErrorResponse { Errors = errors });
     }
     
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Admin, Manager")]
     [HttpPost("register-employee")]
     public async Task<IActionResult> RegisterEmployeeAsync([FromBody] RegisterEmployeeRequest request)
@@ -105,18 +95,11 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
             }
         }
         
-        foreach(var error in result.Errors)
-            ModelState.AddModelError(error.Code, error.Description);
-
-        return BadRequest(ModelState);
+        var errors = result.Errors.ToDictionary(error => error.Code, error => new[] { error.Description });
+        
+        return BadRequest(new ValidationErrorResponse { Errors = errors });
     }
     
-    [Consumes("application/json")]
-    [Produces("application/json")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("sign-in")]
     public async Task<IActionResult> SignInAsync([FromBody] SignInRequest request)
     {
@@ -152,13 +135,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
 
         return this.UnauthorizedResponse("Invalid Credentials");
     }
-
-    [Consumes("application/json")]
-    [Produces("application/json")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshAsync([FromBody] RefreshRequest request)
     {
@@ -199,10 +176,6 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
         return this.OkResponse(authResponse, "The refresh token operation was successful.");
     }
     
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("confirm-email")]
     public async Task<IActionResult> ConfirmEmailAsync([FromBody] ConfirmEmailRequest request)
     {
@@ -220,10 +193,6 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
         return this.BadRequestResponse(confirmationFailedMsg);
     }
     
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("send-confirmation-email")]
     public async Task<IActionResult> SendConfirmationEmailAsync([FromBody] SendConfirmationEmailRequest request)
     {
@@ -241,14 +210,7 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
         return this.OkResponse("An email with a confirmation token has been sent to the address provided.");
     }
     
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Authorize(Roles = "Admin, Manager, Employee")]
+    [Authorize]
     [HttpPost("send-confirmation-change-email")]
     public async Task<IActionResult> ChangeEmailAsync([FromBody] ChangeEmailRequest request)
     {
@@ -263,17 +225,10 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
 
         await emailSender.SendConfirmationLinkAsync(user, user.Email!, token);
 
-        return this.OkResponse("Email has been confirmed");
+        return this.OkResponse("A confirmation token for the email change has been sent.");
     }
     
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Authorize(Roles = "Admin, Manager, Employee")]
+    [Authorize]
     [HttpPost("confirm-changed-email")]
     public async Task<IActionResult> ConfirmChangedEmail([FromBody] ConfirmationChangeEmailRequest request)
     {
@@ -292,20 +247,12 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
             return this.OkResponse("Email address has been successfully changed. Confirm new address");
         }
 
-        foreach (var error in result.Errors)
-            ModelState.AddModelError(error.Code, error.Description);
-
-        return BadRequest(ModelState);
+        var errors = result.Errors.ToDictionary(error => error.Code, error => new[] { error.Description });
+        
+        return BadRequest(new ValidationErrorResponse { Errors = errors });
     }
     
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Authorize(Roles = "Admin, Manager, Employee")]
+    [Authorize]
     [HttpPost("change-password")]
     public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequest request)
     {
@@ -319,16 +266,11 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
         if (result.Succeeded)
             return this.OkResponse("Password changed successfully.");
 
-        foreach (var error in result.Errors)
-            ModelState.AddModelError(error.Code, error.Description);
-
-        return BadRequest(ModelState);
+        var errors = result.Errors.ToDictionary(error => error.Code, error => new[] { error.Description });
+        
+        return BadRequest(new ValidationErrorResponse { Errors = errors });
     }
     
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("send-reset-password-token")]
     public async Task<IActionResult> SendResetPasswordTokenAsync([FromBody] SendResetPasswordTokenRequest request)
     {
@@ -346,10 +288,6 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
         return this.OkResponse("If an account with that email exists, a password reset token has been sent.");
     }
     
-    [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordRequest request)
     {
@@ -361,9 +299,8 @@ public class AuthController(SignInManager<User> signInManager, ITokenService tok
         if (result.Succeeded)
             return this.OkResponse("Password has been reset successfully.");
 
-        foreach (var error in result.Errors)
-            ModelState.AddModelError(error.Code, error.Description);
-
-        return BadRequest(ModelState);
+        var errors = result.Errors.ToDictionary(error => error.Code, error => new[] { error.Description });
+        
+        return BadRequest(new ValidationErrorResponse { Errors = errors });
     }
 }

@@ -27,19 +27,9 @@ builder.Services.AddControllers(options =>
         {
             var errors = context.ModelState
                 .Where(ms => ms.Value!.Errors.Count > 0)
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
-                );
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray());
 
-            var response = new
-            {
-                Status = StatusCodes.Status400BadRequest,
-                Success = false,
-                Message = "One or more validation errors occurred.",
-                Errors = errors
-            };
-            return new BadRequestObjectResult(response);
+            return new BadRequestObjectResult(new ValidationErrorResponse { Errors = errors });
         };
     })
     .AddNewtonsoftJson();
