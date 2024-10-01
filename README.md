@@ -12,7 +12,7 @@ ToDo
 
 The API documentation is available at the following link:
 
-[API Documentation]([https://link_to_api_documentation](https://documenter.getpostman.com/view/28707892/2sAXxJiExN))
+[API Documentation](https://documenter.getpostman.com/view/28707892/2sAXxJiExN)
 
 ## Technologies
 
