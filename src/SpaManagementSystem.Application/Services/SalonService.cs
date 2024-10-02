@@ -8,6 +8,7 @@ using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Salon;
 using SpaManagementSystem.Application.Requests.Common;
 using SpaManagementSystem.Application.Extensions.RepositoryExtensions;
+using SpaManagementSystem.Application.Requests.Employee;
 
 namespace SpaManagementSystem.Application.Services;
 
@@ -15,7 +16,7 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper, Salo
 {
     public async Task<SalonDetailsDto> GetSalonDetailsByIdAsync(Guid salonId)
     {
-        var salon = await salonRepository.GetByIdOrFailAsync(salonId);
+        var salon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetByIdAsync(salonId));
 
         return mapper.Map<SalonDetailsDto>(salon);
     }
@@ -27,7 +28,7 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper, Salo
         return mapper.Map<IEnumerable<SalonDto>>(salons);
     }
     
-    public async Task CreateAsync(Guid userId, CreateSalonRequest createSalonRequest)
+    public async Task<SalonDetailsDto> CreateAsync(Guid userId, CreateSalonRequest createSalonRequest)
     {
         var salon = salonBuilder
             .WithSalonId(Guid.NewGuid())
@@ -39,11 +40,13 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper, Salo
             
         await salonRepository.CreateAsync(salon);
         await salonRepository.SaveChangesAsync();
+
+        return mapper.Map<SalonDetailsDto>(salon);
     }
     
-    public async Task<bool> UpdateSalonAsync(Guid salonId, UpdateSalonDetailsRequest request)
+    public async Task UpdateSalonAsync(Guid salonId, UpdateSalonDetailsRequest request)
     {
-        var salon = await salonRepository.GetByIdOrFailAsync(salonId);
+        var salon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetByIdAsync(salonId));
             
         var isUpdated = salon.UpdateSalon(request.Name, request.Email, request.PhoneNumber, request.Description);
 
@@ -55,13 +58,11 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper, Salo
             
             await salonRepository.SaveChangesAsync();
         }
-        
-        return isUpdated;
     }
     
     public async Task AddOpeningHoursAsync(Guid salonId, OpeningHoursRequest request)
     {
-        var salon = await salonRepository.GetByIdOrFailAsync(salonId);
+        var salon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetByIdAsync(salonId));
 
         salon.AddOpeningHours(new OpeningHours(request.DayOfWeek, request.OpeningTime, request.ClosingTime));
         
@@ -70,7 +71,7 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper, Salo
     
     public async Task UpdateOpeningHoursAsync(Guid salonId, OpeningHoursRequest request)
     {
-        var salon = await salonRepository.GetByIdOrFailAsync(salonId);
+        var salon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetByIdAsync(salonId));
 
         salon.UpdateOpeningHours(new OpeningHours(request.DayOfWeek, request.OpeningTime, request.ClosingTime));
 
@@ -79,7 +80,7 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper, Salo
     
     public async Task RemoveOpeningHoursAsync(Guid salonId, DayOfWeek dayOfWeek)
     {
-        var salon = await salonRepository.GetByIdOrFailAsync(salonId);
+        var salon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetByIdAsync(salonId));
         
         salon.RemoveOpeningHours(dayOfWeek);
 
@@ -88,7 +89,7 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper, Salo
     
     public async Task UpdateAddressAsync(Guid salonId, UpdateAddressRequest request)
     {
-        var salon = await salonRepository.GetByIdOrFailAsync(salonId);
+        var salon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetByIdAsync(salonId));
 
         var address = addressBuilder
             .WithCountry(request.Country)
@@ -106,9 +107,20 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper, Salo
     
     public async Task DeleteAsync(Guid salonId)
     {
-        var salon = await salonRepository.GetByIdOrFailAsync(salonId);
+        var salon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetByIdAsync(salonId));
 
         salonRepository.Delete(salon);
         await salonRepository.SaveChangesAsync();
     }
+
+    public bool HasChanges(EmployeeDto existingEmployee, UpdateEmployeeRequest request)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool HasChanges(SalonDetailsDto existingSalon, UpdateSalonDetailsRequest request)
+        => existingSalon.Name != request.Name ||
+           existingSalon.Email != request.Email ||
+           existingSalon.PhoneNumber != request.PhoneNumber ||
+           existingSalon.Description != request.Description;
 }

@@ -5,7 +5,7 @@ namespace SpaManagementSystem.Application.Interfaces;
 
 public interface IEmployeeService
 {
-    public Task AddEmployeeAsync(CreateEmployeeRequest request);
+    public Task<EmployeeDetailsDto> AddEmployeeAsync(CreateEmployeeRequest request);
     public Task<EmployeeDto> GetEmployeeByUserIdAsync(Guid userId);
     public Task<EmployeeDto> GetEmployeeByIdAsync(Guid employeeId);
     public Task<EmployeeDetailsDto> GetEmployeeDetailsByUserIdAsync(Guid userId);

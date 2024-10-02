@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using SpaManagementSystem.Domain.Builders;
 using SpaManagementSystem.Domain.Interfaces;
+using SpaManagementSystem.Domain.Specifications;
 using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Extensions.RepositoryExtensions;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Employee;
-using SpaManagementSystem.Domain.Entities;
-using SpaManagementSystem.Domain.Specifications;
 
 namespace SpaManagementSystem.Application.Services;
 
@@ -16,7 +15,7 @@ public class EmployeeService(
     IMapper mapper,
     EmployeeBuilder employeeBuilder) : IEmployeeService
 {
-    public async Task AddEmployeeAsync(CreateEmployeeRequest request)
+    public async Task<EmployeeDetailsDto> AddEmployeeAsync(CreateEmployeeRequest request)
     {
         var salon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetWithEmployeesById(request.SalonId));
 
@@ -49,8 +48,10 @@ public class EmployeeService(
         employee.AddEmployeeProfile(employeeProfile);
 
         salon.AddEmployee(employee);
-
+    
         await salonRepository.SaveChangesAsync();
+
+        return mapper.Map<EmployeeDetailsDto>(employee);
     }
 
     public async Task<EmployeeDto> GetEmployeeByUserIdAsync(Guid userId)
