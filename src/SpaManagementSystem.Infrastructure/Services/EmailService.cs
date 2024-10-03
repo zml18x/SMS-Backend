@@ -2,6 +2,7 @@
 using SendGrid.Helpers.Mail;
 using Microsoft.Extensions.Configuration;
 using SpaManagementSystem.Application.Interfaces;
+using SpaManagementSystem.Infrastructure.Exceptions;
 
 namespace SpaManagementSystem.Infrastructure.Services;
 
@@ -28,7 +29,14 @@ public class EmailService(IConfiguration configuration) : IEmailService
         };
 
         msg.AddTo(new EmailAddress($"{email}"));
+        
+        var response = await client.SendEmailAsync(msg).ConfigureAwait(false);
 
-        await client.SendEmailAsync(msg).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorMessage = await response.Body.ReadAsStringAsync();
+            
+            throw new EmailSendException($"Message: {errorMessage}", response.StatusCode);
+        }
     }
 }

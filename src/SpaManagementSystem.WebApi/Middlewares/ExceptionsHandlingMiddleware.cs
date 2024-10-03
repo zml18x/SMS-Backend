@@ -33,6 +33,7 @@ public class ExceptionsHandlingMiddleware(RequestDelegate next)
             InvalidOperationException => HttpStatusCode.Conflict,
             InvalidCredentialException => HttpStatusCode.BadRequest,
             MissingConfigurationException => HttpStatusCode.BadRequest,
+            EmailSendException e => e.StatusCode,
             _ => code
         };
 

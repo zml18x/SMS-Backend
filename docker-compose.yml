@@ -1,26 +1,40 @@
-version: '3'
+name: SMS
 
 networks:
-  backend:
+  SMS:
     driver: bridge
    
 services:
   database:
-    build: docker/database
+    container_name: SMS_DATABASE
+    image: postgres:latest
     environment:
       - POSTGRES_USER=SA
-      - POSTGRES_PASSWORD=mAslo#2!X
+      - POSTGRES_PASSWORD=maslo#2!XX
+      - POSTGRES_DB=SMS_DB
     ports:
-     - "2137:5432"
+     - "5432:5432"
     networks:
-     - "backend"
+     - SMS
 
   pgadmin:
+    container_name: SMS_PGADMIN
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "8080:80"
+      - "5050:80"
     networks:
-      - backend  
+      - SMS
+      
+  spamanagementsystem.webapi:
+    container_name: SMS_WEBAPI
+    image: spamanagementsystem.webapi
+    build:
+      context: .
+      dockerfile: src/SpaManagementSystem.WebApi/Dockerfile
+    ports:
+      - "7099:8081"
+    networks:
+      - SMS
