@@ -32,30 +32,15 @@ ToDo
    cd SMS-Backend
    ```
 
-3. Run the containers using Docker, which will start PostgreSQL and pgAdmin:
+3. Generate HTTPS certificates:
 
    ```bash
-   cd docker-compose up
+   dotnet dev-certs https --export-path ./certs/aspnetapp.pfx --password your_password
    ```
+   Note: Ensure that the password used here matches the one in the Dockerfile for the API.
 
-4. Navigate to the start project source directory:
+4. Start the Docker containers (this will run WebAPI, PostgreSQL and pgAdmin):
 
    ```bash
-   cd src/SpaManagementSystem.WebApi
+   docker-compose up
    ```
-
-5. Set user secrets for SendGrid API:
-
-   ```bash
-   dotnet user-secrets set SENDGRID_API_KEY your_apikey
-   dotnet user-secrets set SENDGRID_SENDER_EMAIL your_email_sender
-   ```
-  
-7. Run the project:
-
-   ```bash
-   cd dotnet run
-   ```
-
-   
-   
