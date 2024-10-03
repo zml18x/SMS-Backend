@@ -1,12 +1,12 @@
-name: SMS
+name: sms
 
 networks:
-  SMS:
+  sms:
     driver: bridge
    
 services:
   database:
-    container_name: SMS_DATABASE
+    container_name: sms_database
     image: postgres:latest
     environment:
       - POSTGRES_USER=SA
@@ -15,10 +15,10 @@ services:
     ports:
      - "5432:5432"
     networks:
-     - SMS
+     - sms
 
   pgadmin:
-    container_name: SMS_PGADMIN
+    container_name: sms_pgadmin
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
@@ -26,10 +26,10 @@ services:
     ports:
       - "5050:80"
     networks:
-      - SMS
+      - sms
       
   spamanagementsystem.webapi:
-    container_name: SMS_WEBAPI
+    container_name: sms_webapi
     image: spamanagementsystem.webapi
     build:
       context: .
@@ -37,4 +37,4 @@ services:
     ports:
       - "7099:8081"
     networks:
-      - SMS
+      - sms
