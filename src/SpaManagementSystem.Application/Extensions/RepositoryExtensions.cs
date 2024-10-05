@@ -1,7 +1,7 @@
 ﻿using SpaManagementSystem.Domain.Interfaces;
 using SpaManagementSystem.Application.Exceptions;
 
-namespace SpaManagementSystem.Application.Extensions.RepositoryExtensions;
+namespace SpaManagementSystem.Application.Extensions;
 
 public static class RepositoryExtensions
 {

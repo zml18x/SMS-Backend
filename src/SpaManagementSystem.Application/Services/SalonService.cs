@@ -4,10 +4,10 @@ using SpaManagementSystem.Domain.Specifications;
 using SpaManagementSystem.Domain.Interfaces;
 using SpaManagementSystem.Domain.ValueObjects;
 using SpaManagementSystem.Application.Dto;
+using SpaManagementSystem.Application.Extensions;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Salon;
 using SpaManagementSystem.Application.Requests.Common;
-using SpaManagementSystem.Application.Extensions.RepositoryExtensions;
 using SpaManagementSystem.Application.Requests.Employee;
 
 namespace SpaManagementSystem.Application.Services;

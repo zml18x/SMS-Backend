@@ -40,30 +40,12 @@ public class CreateEmployeeRequestValidator : AbstractValidator<CreateEmployeeRe
             .MatchGender();
 
         RuleFor(x => x.DateOfBirth)
-            .LessThan(DateOnly.FromDateTime(DateTime.Today)).WithMessage("Date of birth must be in the past.")
-            .Must(BeAtLeast16YearsOld).WithMessage("Employee must be at least 16 years old.");
+            .MatchEmployeeDateOfBirth();
 
         RuleFor(x => x.Email)
             .MatchEmail();
 
         RuleFor(x => x.PhoneNumber)
             .MatchPhoneNumber();
-    }
-    
-    private bool BeAtLeast16YearsOld(DateOnly dateOfBirth)
-    {
-        var currentDate = DateOnly.FromDateTime(DateTime.Today);
-        if (dateOfBirth >= currentDate)
-            return false;
-
-        var age = currentDate.Year - dateOfBirth.Year;
-
-        return age switch
-        {
-            > 16 => true,
-            < 16 => false,
-            _ => currentDate.Month > dateOfBirth.Month ||
-                 (currentDate.Month == dateOfBirth.Month && currentDate.Day >= dateOfBirth.Day)
-        };
     }
 }

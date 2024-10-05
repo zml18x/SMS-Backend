@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +8,7 @@ using SpaManagementSystem.Infrastructure.Identity.Entities;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Employee;
 using SpaManagementSystem.Application.Requests.Employee.Validators;
+using SpaManagementSystem.Application.Services;
 using SpaManagementSystem.WebApi.Extensions;
 using SpaManagementSystem.WebApi.Models;
 
@@ -14,7 +16,8 @@ namespace SpaManagementSystem.WebApi.Controllers;
 
 [ApiController]
 [Route("api/employee")]
-public class EmployeeController(IEmployeeService employeeService, UserManager<User> userManager) : BaseController
+public class EmployeeController(IEmployeeService employeeService, UserManager<User> userManager,
+    IMapper mapper) : BaseController
 {
     [Authorize(Roles = "Admin, Manager")]
     [HttpPost("create")]
@@ -111,37 +114,23 @@ public class EmployeeController(IEmployeeService employeeService, UserManager<Us
     
     [Authorize(Roles = "Admin, Manager")]
     [HttpPatch("update/{employeeId:guid}")]
-    public async Task<IActionResult> UpdateEmployeeAsync(Guid employeeId, [FromBody] JsonPatchDocument<UpdateEmployeeRequest> patchDocument,
-        [FromServices] IValidator<UpdateEmployeeRequest> requestValidator)
+    public async Task<IActionResult> UpdateEmployeeAsync(Guid employeeId, [FromBody] JsonPatchDocument<UpdateEmployeeRequest> patchDocument)
     {
-        var existingEmployee = await employeeService.GetEmployeeByIdAsync(employeeId);
-
-        var request = new UpdateEmployeeRequest(existingEmployee.Position, existingEmployee.EmploymentStatus,
-            existingEmployee.Code, existingEmployee.Color, existingEmployee.HireDate, existingEmployee.Notes);
+        var result = await employeeService.UpdateEmployeeAsync(employeeId, patchDocument);
         
-        patchDocument.ApplyTo(request, ModelState);
-
-        if (!employeeService.HasChanges(existingEmployee, request))
-            return NoContent();
-
-        var requestValidationResult = await requestValidator.ValidateAsync(request);
-        if (!requestValidationResult.IsValid)
-        {
-            var errors = requestValidationResult.Errors
-                .ToDictionary(error => error.PropertyName, error => new[] { error.ErrorMessage });
-        
-            return BadRequest(new ValidationErrorResponse { Errors = errors });
-        }
-        
-        await employeeService.UpdateEmployee(employeeId, request);
-
-        return NoContent();
+        return result.IsSuccess 
+            ? NoContent() 
+            : BadRequest(new ValidationErrorResponse { Errors = result.Errors });
     }
     
     [Authorize(Roles = "Admin, Manager")]
     [HttpPatch("details/update/{employeeId:guid}")]
-    public async Task<IActionResult> UpdateEmployeeDetailsAsync(Guid employeeId)
+    public async Task<IActionResult> UpdateEmployeeProfileAsync(Guid employeeId, [FromBody] JsonPatchDocument<UpdateEmployeeProfileRequest> patchDocument)
     {
-        throw new NotImplementedException();
+        var result = await employeeService.UpdateEmployeeProfileAsync(employeeId, patchDocument);
+
+        return result.IsSuccess 
+            ? NoContent() 
+            : BadRequest(new ValidationErrorResponse { Errors = result.Errors });
     }
 }

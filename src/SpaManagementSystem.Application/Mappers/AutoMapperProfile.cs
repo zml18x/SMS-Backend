@@ -2,6 +2,7 @@
 using SpaManagementSystem.Domain.Entities;
 using SpaManagementSystem.Domain.ValueObjects;
 using SpaManagementSystem.Application.Dto;
+using SpaManagementSystem.Application.Requests.Employee;
 
 namespace SpaManagementSystem.Application.Mappers;
 
@@ -17,5 +18,7 @@ public class AutoMapperProfile : Profile
         CreateMap<EmployeeProfile, EmployeeProfileDto>();
         CreateMap<Employee, EmployeeDetailsDto>().ConstructUsing((e, x) =>
             new EmployeeDetailsDto(x.Mapper.Map<EmployeeDto>(e), x.Mapper.Map<EmployeeProfileDto>(e.Profile)));
+        CreateMap<Employee, UpdateEmployeeRequest>();
+        CreateMap<EmployeeProfile, UpdateEmployeeProfileRequest>();
     }
 }

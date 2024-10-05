@@ -1,4 +1,6 @@
-﻿using SpaManagementSystem.Application.Dto;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using SpaManagementSystem.Application.Common;
+using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Requests.Employee;
 
 namespace SpaManagementSystem.Application.Interfaces;
@@ -12,6 +14,6 @@ public interface IEmployeeService
     public Task<EmployeeDetailsDto> GetEmployeeDetailsByIdAsync(Guid employeeId);
     public Task<EmployeeDto> GetEmployeeByCodeAsync(string employeeCode);
     public Task<EmployeeDetailsDto> GetEmployeeDetailsByCodeAsync(string employeeCode);
-    public Task UpdateEmployee(Guid employeeId, UpdateEmployeeRequest request);
-    public bool HasChanges(EmployeeDto existingEmployee, UpdateEmployeeRequest request);
+    public Task<OperationResult> UpdateEmployeeAsync(Guid employeeId, JsonPatchDocument<UpdateEmployeeRequest> patchDocument);
+    public Task<OperationResult> UpdateEmployeeProfileAsync(Guid employeeId, JsonPatchDocument<UpdateEmployeeProfileRequest> patchDocument);
 }

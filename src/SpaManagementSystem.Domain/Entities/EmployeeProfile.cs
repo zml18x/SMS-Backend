@@ -25,4 +25,50 @@ public class EmployeeProfile
         Email = email;
         PhoneNumber = phoneNumber;
     }
+    
+    
+    
+    public bool UpdateEmployeeProfile(string firstName, string lastName, GenderType gender, DateOnly dateOfBirth,
+        string email, string phoneNumber)
+    {
+        var anyDataUpdated = false;
+            
+        if (!string.IsNullOrWhiteSpace(firstName))
+        {
+            FirstName = firstName;
+            anyDataUpdated = true;
+        }
+        
+        if (!string.IsNullOrWhiteSpace(lastName))
+        {
+            LastName = lastName;
+            anyDataUpdated = true;
+        }
+            
+        if (Gender != gender)
+        {
+            Gender = gender;
+            anyDataUpdated = true;
+        }
+        
+        if (DateOfBirth != dateOfBirth)
+        {
+            DateOfBirth = dateOfBirth;
+            anyDataUpdated = true;
+        }
+            
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            Email = email;
+            anyDataUpdated = true;
+        }
+        
+        if (!string.IsNullOrWhiteSpace(phoneNumber))
+        {
+            PhoneNumber = phoneNumber;
+            anyDataUpdated = true;
+        }
+
+        return anyDataUpdated;
+    }
 }

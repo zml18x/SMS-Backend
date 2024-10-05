@@ -1,19 +1,19 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
+using SpaManagementSystem.Application.Common;
 using SpaManagementSystem.Domain.Builders;
 using SpaManagementSystem.Domain.Interfaces;
 using SpaManagementSystem.Domain.Specifications;
 using SpaManagementSystem.Application.Dto;
-using SpaManagementSystem.Application.Extensions.RepositoryExtensions;
+using SpaManagementSystem.Application.Extensions;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Employee;
+using SpaManagementSystem.Application.Requests.Employee.Validators;
 
 namespace SpaManagementSystem.Application.Services;
 
-public class EmployeeService(
-    IEmployeeRepository employeeRepository,
-    ISalonRepository salonRepository,
-    IMapper mapper,
-    EmployeeBuilder employeeBuilder) : IEmployeeService
+public class EmployeeService(IEmployeeRepository employeeRepository, ISalonRepository salonRepository,
+    IMapper mapper, EmployeeBuilder employeeBuilder) : IEmployeeService
 {
     public async Task<EmployeeDetailsDto> AddEmployeeAsync(CreateEmployeeRequest request)
     {
@@ -48,7 +48,7 @@ public class EmployeeService(
         employee.AddEmployeeProfile(employeeProfile);
 
         salon.AddEmployee(employee);
-    
+
         await salonRepository.SaveChangesAsync();
 
         return mapper.Map<EmployeeDetailsDto>(employee);
@@ -102,28 +102,79 @@ public class EmployeeService(
         return mapper.Map<EmployeeDetailsDto>(employee);
     }
 
-    public async Task UpdateEmployee(Guid employeeId, UpdateEmployeeRequest request)
+    public async Task<OperationResult> UpdateEmployeeAsync(Guid employeeId, JsonPatchDocument<UpdateEmployeeRequest> patchDocument)
     {
-        var employee = await employeeRepository.GetOrThrowAsync(() => employeeRepository.GetByIdAsync(employeeId));
+        var existingEmployee = await employeeRepository
+            .GetOrThrowAsync(() => employeeRepository.GetWithProfileByIdAsync(employeeId));
 
-        var isUpdated = employee.UpdateEmployee(request.Position, request.EmploymentStatus, request.Code, request.Color,
-            request.HireDate, request.Notes);
+        var request = mapper.Map<UpdateEmployeeRequest>(existingEmployee);
+        
+        patchDocument.ApplyTo(request);
 
-        if (isUpdated)
+        var requestValidationResult = await new UpdateEmployeeRequestValidator().ValidateAsync(request);
+        if (!requestValidationResult.IsValid)
         {
-            var validationResult = new EmployeeSpecification().IsSatisfiedBy(employee);
-            if (!validationResult.IsValid)
-                throw new InvalidOperationException($"Update failed: {string.Join(", ", validationResult.Errors)}");
-            
-            await salonRepository.SaveChangesAsync();
+            var errors = requestValidationResult.Errors
+                .ToDictionary(error => error.PropertyName, error => new[] { error.ErrorMessage });
+
+            return OperationResult.ValidationFailed(errors);
         }
+        
+        if (!existingEmployee.HasChanges(request))
+            return OperationResult.NoChanges();
+
+        var isUpdated = existingEmployee.UpdateEmployee(request.Position, request.EmploymentStatus, request.Code,
+            request.Color, request.HireDate, request.Notes);
+        
+        if (!isUpdated) 
+            return OperationResult.NoChanges();
+        
+        var validationResult = new EmployeeSpecification().IsSatisfiedBy(existingEmployee);
+        if (!validationResult.IsValid)
+            throw new InvalidOperationException($"Update failed: {string.Join(", ", validationResult.Errors)}");
+        
+        await salonRepository.SaveChangesAsync();
+
+        return OperationResult.Success();
     }
 
-    public bool HasChanges(EmployeeDto existingEmployee, UpdateEmployeeRequest request)
-        => existingEmployee.Position != request.Position ||
-           existingEmployee.EmploymentStatus != request.EmploymentStatus ||
-           existingEmployee.Code != request.Code ||
-           existingEmployee.Color != request.Color ||
-           existingEmployee.HireDate != request.HireDate ||
-           existingEmployee.Notes != request.Notes;
+    public async Task<OperationResult> UpdateEmployeeProfileAsync(Guid employeeId, JsonPatchDocument<UpdateEmployeeProfileRequest> patchDocument)
+    {
+        var existingEmployee = await employeeRepository
+            .GetOrThrowAsync(() => employeeRepository.GetWithProfileByIdAsync(employeeId));
+        
+        var existingProfile = existingEmployee.Profile;
+        
+        var request = mapper.Map<UpdateEmployeeProfileRequest>(existingProfile);
+        
+        patchDocument.ApplyTo(request);
+
+        var requestValidationResult = await new UpdateEmployeeProfileRequestValidator().ValidateAsync(request);
+        if (!requestValidationResult.IsValid)
+        {
+            var errors = requestValidationResult.Errors
+                .ToDictionary(error => error.PropertyName, error => new[] { error.ErrorMessage });
+
+            return OperationResult.ValidationFailed(errors);
+        }
+
+        if (!existingProfile.HasChanges(request))
+            return OperationResult.NoChanges();
+
+        var isUpdated = existingEmployee.Profile.UpdateEmployeeProfile(request.FirstName, request.LastName, request.Gender,
+            request.DateOfBirth, request.Email, request.PhoneNumber);
+        
+        if (!isUpdated) 
+            return OperationResult.NoChanges();
+        
+        var validationResult = new EmployeeProfileSpecification().IsSatisfiedBy(existingEmployee.Profile);
+        if (!validationResult.IsValid)
+            throw new InvalidOperationException($"Update failed: {string.Join(", ", validationResult.Errors)}");
+            
+        existingEmployee.UpdateTimestamp();
+            
+        await salonRepository.SaveChangesAsync();
+
+        return OperationResult.Success();
+    }
 }
