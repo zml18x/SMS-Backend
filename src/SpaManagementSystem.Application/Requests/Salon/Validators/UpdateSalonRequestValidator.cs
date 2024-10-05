@@ -3,9 +3,9 @@ using SpaManagementSystem.Application.Common.Validation;
 
 namespace SpaManagementSystem.Application.Requests.Salon.Validators;
 
-public class UpdateSalonDetailsRequestValidator : AbstractValidator<UpdateSalonDetailsRequest>
+public class UpdateSalonRequestValidator : AbstractValidator<UpdateSalonRequest>
 {
-    public UpdateSalonDetailsRequestValidator()
+    public UpdateSalonRequestValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Salon name cannot be empty.")
@@ -15,10 +15,9 @@ public class UpdateSalonDetailsRequestValidator : AbstractValidator<UpdateSalonD
         
         RuleFor(x => x.PhoneNumber)
             .MatchPhoneNumber();
-        
+
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email is required.")
-            .EmailAddress().WithMessage("Invalid email address.");
+            .MatchEmail();
         
         When(x => x.Description != null, () =>
         {

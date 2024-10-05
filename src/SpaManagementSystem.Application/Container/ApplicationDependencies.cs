@@ -60,9 +60,9 @@ public static class ApplicationDependencies
         services.AddFluentValidationAutoValidation()
             .AddFluentValidationClientsideAdapters()
             .AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
-        
-        services.AddScoped<IValidator<JsonPatchDocument<UpdateSalonDetailsRequest>>,
-            JsonPatchDocumentValidator<UpdateSalonDetailsRequest>>();
+
+        services.AddScoped<IValidator<JsonPatchDocument<UpdateSalonRequest>>,
+            JsonPatchDocumentValidator<UpdateSalonRequest>>();
 
         return services;
     }

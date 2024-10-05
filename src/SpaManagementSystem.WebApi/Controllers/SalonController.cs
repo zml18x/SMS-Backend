@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Authorization;
 using SpaManagementSystem.Application.Interfaces;
@@ -48,35 +47,13 @@ public class SalonController(ISalonService salonService) : BaseController
     
     [Authorize(Roles = "Admin, Manager")]
     [HttpPatch("{salonId}/manage/update-details")]
-    public async Task<IActionResult> UpdateDetailsAsync(Guid salonId, [FromBody] JsonPatchDocument<UpdateSalonDetailsRequest> patchDocument,
-        [FromServices] IValidator<UpdateSalonDetailsRequest> requestValidator)
+    public async Task<IActionResult> UpdateDetailsAsync(Guid salonId, [FromBody] JsonPatchDocument<UpdateSalonRequest> patchDocument)
     {
-        var existingSalon = await salonService.GetSalonDetailsByIdAsync(salonId);
-
-        var request = new UpdateSalonDetailsRequest(existingSalon.Name, existingSalon.Email,
-            existingSalon.PhoneNumber, existingSalon.Description);
-
-        patchDocument.ApplyTo(request, ModelState);
-
-        if (!salonService.HasChanges(existingSalon, request))
-            return NoContent();
-
-        var requestValidationResult = await requestValidator.ValidateAsync(request);
-        if (!requestValidationResult.IsValid)
-        {
-            var errors = requestValidationResult.Errors
-                .GroupBy(error => error.PropertyName)
-                .ToDictionary(
-                    group => group.Key, 
-                    group => group.Select(error => error.ErrorMessage).ToArray()
-                );
+        var result = await salonService.UpdateSalonAsync(salonId, patchDocument);
         
-            return BadRequest(new ValidationErrorResponse { Errors = errors });
-        }
-
-        await salonService.UpdateSalonAsync(salonId, request);
-
-        return NoContent();
+        return result.IsSuccess 
+            ? NoContent() 
+            : BadRequest(new ValidationErrorResponse { Errors = result.Errors });
     }
     
     [Authorize(Roles = "Admin, Manager")]

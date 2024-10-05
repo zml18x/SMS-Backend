@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
+using SpaManagementSystem.Application.Common;
 using SpaManagementSystem.Domain.Builders;
 using SpaManagementSystem.Domain.Specifications;
 using SpaManagementSystem.Domain.Interfaces;
@@ -8,7 +10,7 @@ using SpaManagementSystem.Application.Extensions;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Salon;
 using SpaManagementSystem.Application.Requests.Common;
-using SpaManagementSystem.Application.Requests.Employee;
+using SpaManagementSystem.Application.Requests.Salon.Validators;
 
 namespace SpaManagementSystem.Application.Services;
 
@@ -44,20 +46,41 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper, Salo
         return mapper.Map<SalonDetailsDto>(salon);
     }
     
-    public async Task UpdateSalonAsync(Guid salonId, UpdateSalonDetailsRequest request)
+    public async Task<OperationResult> UpdateSalonAsync(Guid salonId, JsonPatchDocument<UpdateSalonRequest> patchDocument)
     {
-        var salon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetByIdAsync(salonId));
-            
-        var isUpdated = salon.UpdateSalon(request.Name, request.Email, request.PhoneNumber, request.Description);
+        var existingSalon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetByIdAsync(salonId));
 
-        if (isUpdated)
+        var request = mapper.Map<UpdateSalonRequest>(existingSalon);
+        
+        patchDocument.ApplyTo(request);
+
+        var requestValidationResult = await new UpdateSalonRequestValidator().ValidateAsync(request);
+        if (!requestValidationResult.IsValid)
         {
-            var validationResult = new SalonSpecification().IsSatisfiedBy(salon);
-            if (!validationResult.IsValid)
-                throw new InvalidOperationException($"Update failed: {string.Join(", ", validationResult.Errors)}");
-            
-            await salonRepository.SaveChangesAsync();
+            var errors = requestValidationResult.Errors
+                .GroupBy(error => error.PropertyName)
+                .ToDictionary(
+                    group => group.Key, 
+                    group => group.Select(error => error.ErrorMessage).ToArray()
+                );
+
+            return OperationResult.ValidationFailed(errors);
         }
+        
+        if(!existingSalon.HasChanges(request))
+            return OperationResult.NoChanges();
+
+        var isUpdated = existingSalon.UpdateSalon(request.Name, request.Email, request.PhoneNumber, request.Description);
+        if (!isUpdated)
+            return OperationResult.NoChanges();
+        
+        var validationResult = new SalonSpecification().IsSatisfiedBy(existingSalon);
+        if (!validationResult.IsValid)
+            throw new InvalidOperationException($"Update failed: {string.Join(", ", validationResult.Errors)}");
+        
+        await salonRepository.SaveChangesAsync();
+
+        return OperationResult.Success();
     }
     
     public async Task AddOpeningHoursAsync(Guid salonId, OpeningHoursRequest request)
@@ -112,15 +135,4 @@ public class SalonService(ISalonRepository salonRepository, IMapper mapper, Salo
         salonRepository.Delete(salon);
         await salonRepository.SaveChangesAsync();
     }
-
-    public bool HasChanges(EmployeeDto existingEmployee, UpdateEmployeeRequest request)
-    {
-        throw new NotImplementedException();
-    }
-
-    public bool HasChanges(SalonDetailsDto existingSalon, UpdateSalonDetailsRequest request)
-        => existingSalon.Name != request.Name ||
-           existingSalon.Email != request.Email ||
-           existingSalon.PhoneNumber != request.PhoneNumber ||
-           existingSalon.Description != request.Description;
 }

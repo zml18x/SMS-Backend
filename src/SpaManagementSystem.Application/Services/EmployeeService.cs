@@ -115,7 +115,11 @@ public class EmployeeService(IEmployeeRepository employeeRepository, ISalonRepos
         if (!requestValidationResult.IsValid)
         {
             var errors = requestValidationResult.Errors
-                .ToDictionary(error => error.PropertyName, error => new[] { error.ErrorMessage });
+                .GroupBy(error => error.PropertyName)
+                .ToDictionary(
+                    group => group.Key, 
+                    group => group.Select(error => error.ErrorMessage).ToArray()
+                );
 
             return OperationResult.ValidationFailed(errors);
         }
@@ -133,7 +137,7 @@ public class EmployeeService(IEmployeeRepository employeeRepository, ISalonRepos
         if (!validationResult.IsValid)
             throw new InvalidOperationException($"Update failed: {string.Join(", ", validationResult.Errors)}");
         
-        await salonRepository.SaveChangesAsync();
+        await employeeRepository.SaveChangesAsync();
 
         return OperationResult.Success();
     }
@@ -153,7 +157,11 @@ public class EmployeeService(IEmployeeRepository employeeRepository, ISalonRepos
         if (!requestValidationResult.IsValid)
         {
             var errors = requestValidationResult.Errors
-                .ToDictionary(error => error.PropertyName, error => new[] { error.ErrorMessage });
+                .GroupBy(error => error.PropertyName)
+                .ToDictionary(
+                    group => group.Key, 
+                    group => group.Select(error => error.ErrorMessage).ToArray()
+                );
 
             return OperationResult.ValidationFailed(errors);
         }
@@ -173,7 +181,7 @@ public class EmployeeService(IEmployeeRepository employeeRepository, ISalonRepos
             
         existingEmployee.UpdateTimestamp();
             
-        await salonRepository.SaveChangesAsync();
+        await employeeRepository.SaveChangesAsync();
 
         return OperationResult.Success();
     }
