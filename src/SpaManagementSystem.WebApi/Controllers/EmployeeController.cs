@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
@@ -8,16 +6,14 @@ using SpaManagementSystem.Infrastructure.Identity.Entities;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Employee;
 using SpaManagementSystem.Application.Requests.Employee.Validators;
-using SpaManagementSystem.Application.Services;
-using SpaManagementSystem.WebApi.Extensions;
 using SpaManagementSystem.WebApi.Models;
+using SpaManagementSystem.WebApi.Extensions;
 
 namespace SpaManagementSystem.WebApi.Controllers;
 
 [ApiController]
 [Route("api/employee")]
-public class EmployeeController(IEmployeeService employeeService, UserManager<User> userManager,
-    IMapper mapper) : BaseController
+public class EmployeeController(IEmployeeService employeeService, UserManager<User> userManager) : BaseController
 {
     [Authorize(Roles = "Admin, Manager")]
     [HttpPost("create")]
@@ -105,11 +101,26 @@ public class EmployeeController(IEmployeeService employeeService, UserManager<Us
         return this.OkResponse(employee, "Successfully retrieved employee.");
     }
     
-    [Authorize("Manager, Employee")]
+    [Authorize(Roles ="Manager, Employee")]
     [HttpPatch("update")]
-    public async Task<IActionResult> UpdateEmployeeAsync()
+    public async Task<IActionResult> UpdateEmployeeAsync([FromBody] JsonPatchDocument<UpdateEmployeeSelfRequest> patchDocument)
     {
-        throw new NotImplementedException();
+        var result = await employeeService.UpdateEmployeeAsync(UserId, patchDocument);
+        
+        return result.IsSuccess 
+            ? NoContent() 
+            : BadRequest(new ValidationErrorResponse { Errors = result.Errors });
+    }
+    
+    [Authorize(Roles = "Manager, Employee")]
+    [HttpPatch("details/update")]
+    public async Task<IActionResult> UpdateEmployeeProfileAsync([FromBody] JsonPatchDocument<UpdateEmployeeProfileSelfRequest> patchDocument)
+    {
+        var result = await employeeService.UpdateEmployeeProfileAsync(UserId, patchDocument);
+        
+        return result.IsSuccess 
+            ? NoContent() 
+            : BadRequest(new ValidationErrorResponse { Errors = result.Errors });
     }
     
     [Authorize(Roles = "Admin, Manager")]

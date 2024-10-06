@@ -41,6 +41,28 @@ public class Employee : BaseEntity
         Profile = employeeProfile;
     }
 
+    public bool UpdateEmployee(string color, string? notes)
+    {
+        var anyDataUpdated = false;
+        
+        if (!string.IsNullOrWhiteSpace(color))
+        {
+            Color = color;
+            anyDataUpdated = true;
+        }
+        
+        if (Notes != notes)
+        {
+            Notes = notes;
+            anyDataUpdated = true;
+        }
+        
+        if (anyDataUpdated)
+            UpdateTimestamp();
+
+        return anyDataUpdated;
+    }
+    
     public bool UpdateEmployee(string position, EmploymentStatus employmentStatus, string code, string color,
         DateOnly hireDate, string? notes)
     {

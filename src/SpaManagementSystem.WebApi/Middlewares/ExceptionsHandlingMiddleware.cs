@@ -1,8 +1,9 @@
 ﻿using System.Net;
 using System.Text.Json;
 using System.Security.Authentication;
-using SpaManagementSystem.Application.Exceptions;
+using SpaManagementSystem.Domain.Exceptions;
 using SpaManagementSystem.Infrastructure.Exceptions;
+using SpaManagementSystem.Application.Exceptions;
 using SpaManagementSystem.WebApi.Models;
 
 namespace SpaManagementSystem.WebApi.Middlewares;
@@ -33,6 +34,7 @@ public class ExceptionsHandlingMiddleware(RequestDelegate next)
             InvalidOperationException => HttpStatusCode.Conflict,
             InvalidCredentialException => HttpStatusCode.BadRequest,
             MissingConfigurationException => HttpStatusCode.BadRequest,
+            DomainValidationException => HttpStatusCode.BadRequest,
             EmailSendException e => e.StatusCode,
             _ => code
         };

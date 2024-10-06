@@ -16,4 +16,6 @@ public interface IEmployeeService
     public Task<EmployeeDetailsDto> GetEmployeeDetailsByCodeAsync(string employeeCode);
     public Task<OperationResult> UpdateEmployeeAsync(Guid employeeId, JsonPatchDocument<UpdateEmployeeRequest> patchDocument);
     public Task<OperationResult> UpdateEmployeeProfileAsync(Guid employeeId, JsonPatchDocument<UpdateEmployeeProfileRequest> patchDocument);
+    public Task<OperationResult> UpdateEmployeeAsync(Guid userId, JsonPatchDocument<UpdateEmployeeSelfRequest> patchDocument);
+    public Task<OperationResult> UpdateEmployeeProfileAsync(Guid userId, JsonPatchDocument<UpdateEmployeeProfileSelfRequest> patchDocument);
 }

@@ -25,8 +25,26 @@ public class EmployeeProfile
         Email = email;
         PhoneNumber = phoneNumber;
     }
-    
-    
+
+
+    public bool UpdateEmployeeProfile(string email, string phoneNumber)
+    {
+        var anyDataUpdated = false;
+        
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            Email = email;
+            anyDataUpdated = true;
+        }
+        
+        if (!string.IsNullOrWhiteSpace(phoneNumber))
+        {
+            PhoneNumber = phoneNumber;
+            anyDataUpdated = true;
+        }
+
+        return anyDataUpdated;
+    }
     
     public bool UpdateEmployeeProfile(string firstName, string lastName, GenderType gender, DateOnly dateOfBirth,
         string email, string phoneNumber)

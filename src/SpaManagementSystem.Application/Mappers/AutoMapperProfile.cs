@@ -19,8 +19,11 @@ public class AutoMapperProfile : Profile
         CreateMap<EmployeeProfile, EmployeeProfileDto>();
         CreateMap<Employee, EmployeeDetailsDto>().ConstructUsing((e, x) =>
             new EmployeeDetailsDto(x.Mapper.Map<EmployeeDto>(e), x.Mapper.Map<EmployeeProfileDto>(e.Profile)));
+        
         CreateMap<Salon, UpdateSalonRequest>();
         CreateMap<Employee, UpdateEmployeeRequest>();
+        CreateMap<Employee, UpdateEmployeeSelfRequest>();
         CreateMap<EmployeeProfile, UpdateEmployeeProfileRequest>();
+        CreateMap<EmployeeProfile, UpdateEmployeeProfileSelfRequest>();
     }
 }

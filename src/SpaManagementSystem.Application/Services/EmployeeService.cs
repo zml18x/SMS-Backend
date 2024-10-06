@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
-using SpaManagementSystem.Application.Common;
 using SpaManagementSystem.Domain.Builders;
 using SpaManagementSystem.Domain.Interfaces;
 using SpaManagementSystem.Domain.Specifications;
 using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Extensions;
 using SpaManagementSystem.Application.Interfaces;
+using SpaManagementSystem.Application.Common;
+using SpaManagementSystem.Application.Common.Helpers;
 using SpaManagementSystem.Application.Requests.Employee;
 using SpaManagementSystem.Application.Requests.Employee.Validators;
 
@@ -109,37 +110,35 @@ public class EmployeeService(IEmployeeRepository employeeRepository, ISalonRepos
 
         var request = mapper.Map<UpdateEmployeeRequest>(existingEmployee);
         
-        patchDocument.ApplyTo(request);
+        return await new PatchUpdateHelper().ApplyPatchAndUpdateAsync(
+            patchDocument,
+            existingEmployee,
+            request,
+            new UpdateEmployeeRequestValidator(),
+            (e, r) => e.UpdateEmployee(r.Position, r.EmploymentStatus, r.Code, r.Color, r.HireDate, r.Notes),
+            e => new EmployeeSpecification().IsSatisfiedBy(e),
+            (e, r) => e.HasChanges(r),
+            employeeRepository
+        );
+    }
 
-        var requestValidationResult = await new UpdateEmployeeRequestValidator().ValidateAsync(request);
-        if (!requestValidationResult.IsValid)
-        {
-            var errors = requestValidationResult.Errors
-                .GroupBy(error => error.PropertyName)
-                .ToDictionary(
-                    group => group.Key, 
-                    group => group.Select(error => error.ErrorMessage).ToArray()
-                );
+    public async Task<OperationResult> UpdateEmployeeAsync(Guid userId, JsonPatchDocument<UpdateEmployeeSelfRequest> patchDocument)
+    {
+        var existingEmployee = await employeeRepository
+            .GetOrThrowAsync(() => employeeRepository.GetByUserIdAsync(userId));
+        
+        var request = mapper.Map<UpdateEmployeeSelfRequest>(existingEmployee);
 
-            return OperationResult.ValidationFailed(errors);
-        }
-        
-        if (!existingEmployee.HasChanges(request))
-            return OperationResult.NoChanges();
-
-        var isUpdated = existingEmployee.UpdateEmployee(request.Position, request.EmploymentStatus, request.Code,
-            request.Color, request.HireDate, request.Notes);
-        
-        if (!isUpdated) 
-            return OperationResult.NoChanges();
-        
-        var validationResult = new EmployeeSpecification().IsSatisfiedBy(existingEmployee);
-        if (!validationResult.IsValid)
-            throw new InvalidOperationException($"Update failed: {string.Join(", ", validationResult.Errors)}");
-        
-        await employeeRepository.SaveChangesAsync();
-
-        return OperationResult.Success();
+        return await new PatchUpdateHelper().ApplyPatchAndUpdateAsync(
+            patchDocument,
+            existingEmployee,
+            request,
+            new UpdateEmployeeSelfRequestValidator(),
+            (e, r) => e.UpdateEmployee(r.Color, r.Notes),
+            e => new EmployeeSpecification().IsSatisfiedBy(e),
+            (e, r) => e.HasChanges(r),
+            employeeRepository
+        );
     }
 
     public async Task<OperationResult> UpdateEmployeeProfileAsync(Guid employeeId, JsonPatchDocument<UpdateEmployeeProfileRequest> patchDocument)
@@ -151,38 +150,36 @@ public class EmployeeService(IEmployeeRepository employeeRepository, ISalonRepos
         
         var request = mapper.Map<UpdateEmployeeProfileRequest>(existingProfile);
         
-        patchDocument.ApplyTo(request);
-
-        var requestValidationResult = await new UpdateEmployeeProfileRequestValidator().ValidateAsync(request);
-        if (!requestValidationResult.IsValid)
-        {
-            var errors = requestValidationResult.Errors
-                .GroupBy(error => error.PropertyName)
-                .ToDictionary(
-                    group => group.Key, 
-                    group => group.Select(error => error.ErrorMessage).ToArray()
-                );
-
-            return OperationResult.ValidationFailed(errors);
-        }
-
-        if (!existingProfile.HasChanges(request))
-            return OperationResult.NoChanges();
-
-        var isUpdated = existingEmployee.Profile.UpdateEmployeeProfile(request.FirstName, request.LastName, request.Gender,
-            request.DateOfBirth, request.Email, request.PhoneNumber);
+        return await new PatchUpdateHelper().ApplyPatchAndUpdateAsync(
+            patchDocument,
+            existingEmployee,
+            request,
+            new UpdateEmployeeProfileRequestValidator(),
+            (e, r) => e.Profile.UpdateEmployeeProfile(r.FirstName, r.LastName, r.Gender, r.DateOfBirth, r.Email, r.PhoneNumber),
+            e => new EmployeeProfileSpecification().IsSatisfiedBy(e.Profile),
+            (e, r) => e.Profile.HasChanges(r),
+            employeeRepository
+        );
+    }
+    
+    public async Task<OperationResult> UpdateEmployeeProfileAsync(Guid userId, JsonPatchDocument<UpdateEmployeeProfileSelfRequest> patchDocument)
+    {
+        var existingEmployee = await employeeRepository
+            .GetOrThrowAsync(() => employeeRepository.GetWithProfileByUserIdAsync(userId));
         
-        if (!isUpdated) 
-            return OperationResult.NoChanges();
+        var existingProfile = existingEmployee.Profile;
         
-        var validationResult = new EmployeeProfileSpecification().IsSatisfiedBy(existingEmployee.Profile);
-        if (!validationResult.IsValid)
-            throw new InvalidOperationException($"Update failed: {string.Join(", ", validationResult.Errors)}");
-            
-        existingEmployee.UpdateTimestamp();
-            
-        await employeeRepository.SaveChangesAsync();
-
-        return OperationResult.Success();
+        var request = mapper.Map<UpdateEmployeeProfileSelfRequest>(existingProfile);
+        
+        return await new PatchUpdateHelper().ApplyPatchAndUpdateAsync(
+            patchDocument,
+            existingEmployee,
+            request,
+            new UpdateEmployeeProfileSelfRequestValidator(),
+            (e, r) => e.Profile.UpdateEmployeeProfile(r.Email, r.PhoneNumber),
+            e => new EmployeeProfileSpecification().IsSatisfiedBy(e.Profile),
+            (e, r) => e.Profile.HasChanges(r),
+            employeeRepository
+        );
     }
 }

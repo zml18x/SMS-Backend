@@ -5,6 +5,12 @@ namespace SpaManagementSystem.Application.Extensions;
 
 public static class EmployeeExtensions
 {
+    public static bool HasChanges(this Employee existingEmployee, UpdateEmployeeSelfRequest request)
+    {
+        return existingEmployee.Color != request.Color ||
+               existingEmployee.Notes != request.Notes;
+    }
+    
     public static bool HasChanges(this Employee existingEmployee, UpdateEmployeeRequest request)
     {
         return existingEmployee.Position != request.Position ||
@@ -14,7 +20,13 @@ public static class EmployeeExtensions
                existingEmployee.HireDate != request.HireDate ||
                existingEmployee.Notes != request.Notes;
     }
-
+    
+    public static bool HasChanges(this EmployeeProfile existingEmployeeProfile, UpdateEmployeeProfileSelfRequest request)
+    {
+        return existingEmployeeProfile.Email != request.Email ||
+               existingEmployeeProfile.PhoneNumber != request.PhoneNumber;
+    }
+    
     public static bool HasChanges(this EmployeeProfile existingEmployeeProfile, UpdateEmployeeProfileRequest request)
     {
         return existingEmployeeProfile.FirstName != request.FirstName ||
