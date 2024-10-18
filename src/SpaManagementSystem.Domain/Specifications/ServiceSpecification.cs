@@ -8,59 +8,18 @@ public class ServiceSpecification : ISpecification<Service>
     
     public ValidationResult IsSatisfiedBy(Service entity)
     {
-        ValidateSalonId(entity.SalonId);
-        ValidateCreatedByEmployeeId(entity.CreatedByEmployeeId);
-        ValidateName(entity.Name);
-        ValidateCode(entity.Code);
-        ValidateDescription(entity.Description);
-        ValidatePrice(entity.Price);
-        ValidateTaxRate(entity.TaxRate);
+        SpecificationHelper.ValidateGuid(entity.SalonId, _result, "SalonId is required (Cannot be Guid.Empty).");
+        SpecificationHelper.ValidateGuid(entity.CreatedByEmployeeId, _result, "EmployeeId is required (Cannot be Guid.Empty).");
+        SpecificationHelper.ValidateString(entity.Name, _result, "Service name is required.");
+        SpecificationHelper.ValidateString(entity.Code, _result, "Service code is required.");
+        SpecificationHelper.ValidateOptionalStringLength(entity.Description, 1000,
+            _result, "Service description cannot be longer than 1000 characters.");
+        SpecificationHelper.ValidatePrice(entity.Price, _result, "Price cannot be negative.");
+        SpecificationHelper.ValidateTaxRate(entity.TaxRate, _result, "Tax rate must be between 0 and 1.");
         ValidateDuration(entity.Duration);
-        ValidateImgUrl(entity.ImgUrl);
+        SpecificationHelper.ValidateOptionalUrl(entity.ImgUrl, _result, "Image URL is not valid.");
         
         return _result;
-    }
-    
-    private void ValidateSalonId(Guid salonId)
-    {
-        if (salonId == Guid.Empty)
-            _result.AddError("SalonId is required (Cannot be Guid.Empty).");
-    }
-    
-    private void ValidateCreatedByEmployeeId(Guid createdByEmployeeId)
-    {
-        if (createdByEmployeeId == Guid.Empty)
-            _result.AddError("EmployeeId is required (Cannot be Guid.Empty).");
-    }
-    
-    private void ValidateName(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            _result.AddError("Name is required.");
-    }
-    
-    private void ValidateCode(string code)
-    {
-        if (string.IsNullOrWhiteSpace(code))
-            _result.AddError("Code is required.");
-    }
-    
-    private void ValidateDescription(string? description)
-    {
-        if (!string.IsNullOrWhiteSpace(description) && description.Length > 1000)
-            _result.AddError("Description cannot be longer than 1000 characters.");
-    }
-    
-    private void ValidatePrice(decimal price)
-    {
-        if (price < 0)
-            _result.AddError("Price cannot be negative.");
-    }
-
-    private void ValidateTaxRate(decimal saleTaxRate)
-    {
-        if (saleTaxRate < 0 || saleTaxRate > 1)
-            _result.AddError("Tax rate must be between 0 and 1.");
     }
     
     private void ValidateDuration(TimeSpan duration)
@@ -70,11 +29,5 @@ public class ServiceSpecification : ISpecification<Service>
         
         if (duration.TotalHours > 8)
             _result.AddError("Duration cannot exceed 8 hours.");
-    }
-    
-    private void ValidateImgUrl(string? imgUrl)
-    {
-        if (!string.IsNullOrWhiteSpace(imgUrl) && !Uri.IsWellFormedUriString(imgUrl, UriKind.Absolute))
-            _result.AddError("Image URL is not valid.");
     }
 }

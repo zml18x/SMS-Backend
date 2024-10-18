@@ -1,4 +1,5 @@
 ﻿using SpaManagementSystem.Domain.Entities;
+using SpaManagementSystem.Domain.Exceptions;
 using SpaManagementSystem.Domain.Specifications;
 
 namespace SpaManagementSystem.Domain.Builders;
@@ -28,7 +29,7 @@ public class ServiceBuilder(ISpecification<Service> specification) : IBuilder<Se
         var validationResult = specification.IsSatisfiedBy(service);
 
         if (!validationResult.IsValid)
-            throw new InvalidOperationException($"Service creation failed: {string.Join(", ", validationResult.Errors)}");
+            throw new DomainValidationException($"Service creation failed: {string.Join(", ", validationResult.Errors)}");
 
         return service;
     }

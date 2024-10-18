@@ -1,4 +1,5 @@
 ﻿using SpaManagementSystem.Domain.Entities;
+using SpaManagementSystem.Domain.Exceptions;
 using SpaManagementSystem.Domain.Specifications;
 
 namespace SpaManagementSystem.Domain.Builders;
@@ -25,7 +26,7 @@ public class ResourceBuilder(ISpecification<Resource> specification) : IBuilder<
         var validationResult = specification.IsSatisfiedBy(resource);
 
         if (!validationResult.IsValid)
-            throw new InvalidOperationException($"Resource creation failed: {string.Join(", ", validationResult.Errors)}");
+            throw new DomainValidationException($"Resource creation failed: {string.Join(", ", validationResult.Errors)}");
 
         return resource;
     }

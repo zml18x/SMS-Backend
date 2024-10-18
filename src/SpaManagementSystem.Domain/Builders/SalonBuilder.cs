@@ -1,4 +1,5 @@
 ﻿using SpaManagementSystem.Domain.Entities;
+using SpaManagementSystem.Domain.Exceptions;
 using SpaManagementSystem.Domain.Specifications;
 
 namespace SpaManagementSystem.Domain.Builders;
@@ -22,7 +23,7 @@ public class SalonBuilder(ISpecification<Salon> specification) : IBuilder<Salon>
         var validationResult = specification.IsSatisfiedBy(salon);
 
         if (!validationResult.IsValid)
-            throw new InvalidOperationException($"Salon creation failed: {string.Join(", ", validationResult.Errors)}");
+            throw new DomainValidationException($"Salon creation failed: {string.Join(", ", validationResult.Errors)}");
 
         return salon;
     }

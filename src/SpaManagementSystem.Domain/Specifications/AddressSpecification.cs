@@ -4,53 +4,17 @@ namespace SpaManagementSystem.Domain.Specifications;
 
 public class AddressSpecification : ISpecification<Address>
 {
+    private readonly ValidationResult _result = new(true);
+    
     public ValidationResult IsSatisfiedBy(Address entity)
     {
-        var result = new ValidationResult(true);
+        SpecificationHelper.ValidateString(entity.Country, _result, "Country is required.");
+        SpecificationHelper.ValidateString(entity.Region, _result, "Region is required.");
+        SpecificationHelper.ValidateString(entity.City, _result, "City is required.");
+        SpecificationHelper.ValidateString(entity.PostalCode, _result, "PostalCode is required.");
+        SpecificationHelper.ValidateString(entity.Street, _result, "Street is required.");
+        SpecificationHelper.ValidateString(entity.BuildingNumber, _result, "BuildingNumber is required.");
         
-        ValidateCountry(entity.Country, result);
-        ValidateRegion(entity.Region,result);
-        ValidateCity(entity.City,result);
-        ValidatePostalCode(entity.PostalCode,result);
-        ValidateStreet(entity.Street, result);
-        ValidateBuildingNumber(entity.BuildingNumber, result);
-        
-        return result;
-    }
-
-    private void ValidateCountry(string country, ValidationResult result)
-    {
-        if(string.IsNullOrWhiteSpace(country))
-            result.AddError("Country is required");
-    }
-    
-    private void ValidateRegion(string region, ValidationResult result)
-    {
-        if(string.IsNullOrWhiteSpace(region))
-            result.AddError("Region is required");
-    }
-    
-    private void ValidateCity(string city, ValidationResult result)
-    {
-        if(string.IsNullOrWhiteSpace(city))
-            result.AddError("City is required");
-    }
-    
-    private void ValidatePostalCode(string postalCode, ValidationResult result)
-    {
-        if(string.IsNullOrWhiteSpace(postalCode))
-            result.AddError("Postal code is required");
-    }
-    
-    private void ValidateStreet(string street, ValidationResult result)
-    {
-        if(string.IsNullOrWhiteSpace(street))
-            result.AddError("Street is required");
-    }
-    
-    private void ValidateBuildingNumber(string buildingNumber, ValidationResult result)
-    {
-        if(string.IsNullOrWhiteSpace(buildingNumber))
-            result.AddError("Building number is required");
+        return _result;
     }
 }

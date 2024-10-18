@@ -1,4 +1,5 @@
 ﻿using SpaManagementSystem.Domain.Entities;
+using SpaManagementSystem.Domain.Exceptions;
 using SpaManagementSystem.Domain.Specifications;
 
 namespace SpaManagementSystem.Domain.Builders;
@@ -32,7 +33,7 @@ public class ProductBuilder(ISpecification<Product> specification) : IBuilder<Pr
         var validationResult = specification.IsSatisfiedBy(product);
         
         if (!validationResult.IsValid)
-            throw new InvalidOperationException($"Product creation failed: {string.Join(", ", validationResult.Errors)}");
+            throw new DomainValidationException($"Product creation failed: {string.Join(", ", validationResult.Errors)}");
 
         return product;
     }

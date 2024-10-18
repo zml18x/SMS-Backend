@@ -1,4 +1,5 @@
-﻿using SpaManagementSystem.Domain.Specifications;
+﻿using SpaManagementSystem.Domain.Exceptions;
+using SpaManagementSystem.Domain.Specifications;
 using SpaManagementSystem.Domain.ValueObjects;
 
 namespace SpaManagementSystem.Domain.Builders;
@@ -22,7 +23,7 @@ public class AddressBuilder(ISpecification<Address> specification) : IBuilder<Ad
 
         var validationResult = specification.IsSatisfiedBy(address);
         if (!validationResult.IsValid)
-            throw new InvalidOperationException($"Address creation failed: {string.Join(", ", validationResult.Errors)}");
+            throw new DomainValidationException($"Address creation failed: {string.Join(", ", validationResult.Errors)}");
 
         return address;
     }

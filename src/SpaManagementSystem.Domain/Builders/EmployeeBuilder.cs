@@ -1,5 +1,6 @@
 ﻿using SpaManagementSystem.Domain.Entities;
 using SpaManagementSystem.Domain.Enums;
+using SpaManagementSystem.Domain.Exceptions;
 using SpaManagementSystem.Domain.Specifications;
 
 namespace SpaManagementSystem.Domain.Builders;
@@ -39,7 +40,7 @@ public class EmployeeBuilder(ISpecification<Employee> employeeSpecification,
         
         var validationResult = employeeSpecification.IsSatisfiedBy(employee);
         if (!validationResult.IsValid)
-            throw new InvalidOperationException($"Employee creation failed: {string.Join(", ", validationResult.Errors)}");
+            throw new DomainValidationException($"Employee creation failed: {string.Join(", ", validationResult.Errors)}");
         
         return employee;
     }
@@ -50,7 +51,7 @@ public class EmployeeBuilder(ISpecification<Employee> employeeSpecification,
 
         var validationResult = employeeProfileSpecification.IsSatisfiedBy(employeeProfile);
         if (!validationResult.IsValid)
-            throw new InvalidOperationException($"Employee profile creation failed: {string.Join(", ", validationResult.Errors)}");
+            throw new DomainValidationException($"Employee profile creation failed: {string.Join(", ", validationResult.Errors)}");
         
         return employeeProfile;
     }
