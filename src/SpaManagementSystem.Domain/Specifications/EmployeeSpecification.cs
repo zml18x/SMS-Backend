@@ -23,7 +23,7 @@ public class EmployeeSpecification : ISpecification<Employee>
     private void ValidateSalonId(Guid salonId, ValidationResult result)
     {
         if (salonId == Guid.Empty)
-            result.AddError("UserId is required (Cannot be Guid.Empty).");
+            result.AddError("SalonId is required (Cannot be Guid.Empty).");
     }
     
     private void ValidateUserId(Guid userId, ValidationResult result)
