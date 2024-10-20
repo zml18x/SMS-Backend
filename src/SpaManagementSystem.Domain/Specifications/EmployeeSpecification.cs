@@ -1,5 +1,5 @@
-﻿using SpaManagementSystem.Domain.Entities;
-using SpaManagementSystem.Domain.Enums;
+﻿using SpaManagementSystem.Domain.Enums;
+using SpaManagementSystem.Domain.Entities;
 
 namespace SpaManagementSystem.Domain.Specifications;
 
@@ -10,13 +10,13 @@ public class EmployeeSpecification : ISpecification<Employee>
     public ValidationResult IsSatisfiedBy(Employee entity)
     {
         SpecificationHelper.ValidateGuid(entity.SalonId, _result, "SalonId is required (Cannot be Guid.Empty).");
-        SpecificationHelper.ValidateGuid(entity.SalonId, _result, "UserId is required (Cannot be Guid.Empty).");
+        SpecificationHelper.ValidateGuid(entity.UserId, _result, "UserId is required (Cannot be Guid.Empty).");
         SpecificationHelper.ValidateString(entity.Position, _result, "Position is required.");
         ValidateStatus(entity.EmploymentStatus);
         SpecificationHelper.ValidateString(entity.Code, _result, "Code is required.");
         ValidateHireDate(entity.HireDate);
         SpecificationHelper.ValidateOptionalStringLength(entity.Notes, 500,
-            _result, $"Notes cannot be longer than 500 characters.");
+            _result, "Notes cannot be longer than 500 characters.");
 
         return _result;
     }
