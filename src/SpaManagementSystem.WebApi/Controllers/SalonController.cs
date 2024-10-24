@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Salon;
 using SpaManagementSystem.Application.Requests.Common;
-using SpaManagementSystem.WebApi.Extensions;
 using SpaManagementSystem.WebApi.Models;
+using SpaManagementSystem.WebApi.Extensions;
 
 namespace SpaManagementSystem.WebApi.Controllers;
 

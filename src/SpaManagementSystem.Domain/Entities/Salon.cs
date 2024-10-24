@@ -9,7 +9,6 @@ public class Salon : BaseEntity
     private ISet<Employee> _employees = new HashSet<Employee>();
     private ISet<Product> _products = new HashSet<Product>();
     private ISet<Service> _services = new HashSet<Service>();
-    private ISet<Resource> _resources = new HashSet<Resource>();
     public Guid UserId { get; protected set; }
     public string Name { get; protected set; } = String.Empty;
     public string Email { get; protected set; } = String.Empty;
@@ -20,7 +19,6 @@ public class Salon : BaseEntity
     public IEnumerable<Employee> Employees => _employees;
     public IEnumerable<Product> Products => _products;
     public IEnumerable<Service> Services => _services;
-    public IEnumerable<Resource> Resources => _resources;
         
 
     
@@ -80,7 +78,6 @@ public class Salon : BaseEntity
     public void AddEmployee(Employee employee)
     {
         _employees.Add(employee);
-        UpdateTimestamp();
     }
     
     public void AddOpeningHours(OpeningHours openingHours)

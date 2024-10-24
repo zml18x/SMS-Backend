@@ -13,6 +13,8 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Salon> Salons { get; set; }
     public DbSet<Employee> Employees { get; set; }
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Service> Services { get; set; }
     
     
     
@@ -45,6 +47,14 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
             entity.HasMany(s => s.Employees)
                 .WithOne(e => e.Salon)
                 .HasForeignKey(e => e.SalonId);
+
+            entity.HasMany(s => s.Products)
+                .WithOne(p => p.Salon)
+                .HasForeignKey(p => p.SalonId);
+            
+            entity.HasMany(s => s.Services)
+                .WithOne(s => s.Salon)
+                .HasForeignKey(s => s.SalonId);
             
             entity.Property(s => s.Name).IsRequired();
             entity.Property(s => s.PhoneNumber).IsRequired();
@@ -76,6 +86,47 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
             entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.Position).IsRequired();
             entity.Property(e => e.Code).IsRequired();
+        });
+
+        modelBuilder.Entity<Product>(entity =>
+        {
+            entity.HasKey(p => p.Id);
+
+            entity.HasOne(p => p.Salon)
+                .WithMany(s => s.Products)
+                .HasForeignKey(p => p.SalonId);
+
+            entity.Property(p => p.SalonId).IsRequired();
+            entity.Property(p => p.CreatedByEmployeeId).IsRequired();
+            entity.Property(p => p.UpdatedByEmployeeId).IsRequired();
+            entity.Property(p => p.Name).IsRequired();
+            entity.Property(p => p.Code).IsRequired();
+            entity.Property(p => p.PurchasePrice).IsRequired();
+            entity.Property(p => p.PurchaseTaxRate).IsRequired();
+            entity.Property(p => p.SalePrice).IsRequired();
+            entity.Property(p => p.SaleTaxRate).IsRequired();
+            entity.Property(p => p.StockQuantity).IsRequired();
+            entity.Property(p => p.MinimumStockLevel).IsRequired();
+            entity.Property(p => p.IsActive).IsRequired();
+        });
+        
+        modelBuilder.Entity<Service>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+
+            entity.HasOne(s => s.Salon)
+                .WithMany(s => s.Services)
+                .HasForeignKey(s => s.SalonId);
+            
+            entity.Property(s => s.SalonId).IsRequired();
+            entity.Property(s => s.CreatedByEmployeeId).IsRequired();
+            entity.Property(s => s.UpdatedByEmployeeId).IsRequired();
+            entity.Property(s => s.Name).IsRequired();
+            entity.Property(s => s.Code).IsRequired();
+            entity.Property(s => s.Price).IsRequired();
+            entity.Property(s => s.TaxRate).IsRequired();
+            entity.Property(s => s.Duration).IsRequired();
+            entity.Property(s => s.IsActive).IsRequired();
         });
         
         // Customize table names for clarity and to follow specific naming conventions within the database.
