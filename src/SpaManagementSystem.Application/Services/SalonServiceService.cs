@@ -43,6 +43,7 @@ public class SalonServiceService(ISalonRepository salonRepository, IServiceRepos
     
     public async Task<IEnumerable<ServiceDto>> GetServicesAsync(Guid salonId, string? code = null, string? name = null, bool? active = null)
     {
+        await salonRepository.GetOrThrowAsync(() => salonRepository.GetByIdAsync(salonId));
         var services = await serviceRepository.GetServicesAsync(salonId, code, name, active);
         
         return mapper.Map<IEnumerable<ServiceDto>>(services);

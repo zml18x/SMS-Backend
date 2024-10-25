@@ -12,6 +12,7 @@ using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Salon;
 using SpaManagementSystem.Application.Requests.Auth.Validators;
 using SpaManagementSystem.Application.Requests.Common.Validators;
+using SpaManagementSystem.Application.Requests.Service;
 
 namespace SpaManagementSystem.Application.Container;
 
@@ -54,6 +55,9 @@ public static class ApplicationDependencies
 
         services.AddScoped<IValidator<JsonPatchDocument<UpdateSalonRequest>>,
             JsonPatchDocumentValidator<UpdateSalonRequest>>();
+        
+        services.AddScoped<IValidator<JsonPatchDocument<UpdateServiceRequest>>,
+            JsonPatchDocumentValidator<UpdateServiceRequest>>();
 
         return services;
     }

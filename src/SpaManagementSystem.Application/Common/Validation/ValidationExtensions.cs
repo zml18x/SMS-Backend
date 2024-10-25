@@ -26,6 +26,7 @@ public static class ValidationExtensions
     
     public static IRuleBuilderOptions<T, string> MatchName<T>(this IRuleBuilder<T, string> rule)
         => rule
+            .NotEmpty().WithMessage("Name is required.")
             .Matches(@"^[A-Za-zÀ-ÿ'.-]+(?:\s[A-Za-zÀ-ÿ'.-]+)*$")
             .WithMessage("The name can only consist of letters, spaces, apostrophes, hyphens, and periods");
 

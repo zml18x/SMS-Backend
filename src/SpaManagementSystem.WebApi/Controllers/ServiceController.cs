@@ -21,12 +21,12 @@ public class ServiceController(ISalonServiceService serviceService) : BaseContro
         return CreatedAtAction(
             actionName: nameof(GetByIdAsync),
             controllerName: "Service",
-            routeValues: new { service = service.Id },
+            routeValues: new { serviceId = service.Id },
             value: service
         );
     }
     
-    [HttpGet("{serviceId:guid}")]
+    [HttpGet("{serviceId}")]
     [Authorize(Roles = "Admin, Manager, Employee")]
     public async Task<IActionResult> GetByIdAsync(Guid serviceId)
     {
