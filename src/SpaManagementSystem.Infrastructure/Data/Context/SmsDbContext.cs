@@ -65,6 +65,11 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
         {
             entity.HasKey(e => e.Id);
             
+            entity.HasOne<User>()
+                .WithOne()
+                .HasForeignKey<Employee>(e => e.UserId)
+                .IsRequired();
+            
             entity.HasOne(e => e.Salon)
                 .WithMany(s => s.Employees)
                 .HasForeignKey(e => e.SalonId);
@@ -119,8 +124,6 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
                 .HasForeignKey(s => s.SalonId);
             
             entity.Property(s => s.SalonId).IsRequired();
-            entity.Property(s => s.CreatedByEmployeeId).IsRequired();
-            entity.Property(s => s.UpdatedByEmployeeId).IsRequired();
             entity.Property(s => s.Name).IsRequired();
             entity.Property(s => s.Code).IsRequired();
             entity.Property(s => s.Price).IsRequired();

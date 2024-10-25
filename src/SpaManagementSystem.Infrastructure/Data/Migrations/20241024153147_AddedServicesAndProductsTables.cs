@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SpaManagementSystem.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedProductsAndServicesTables : Migration
+    public partial class AddedServicesAndProductsTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -81,8 +81,6 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
                     Duration = table.Column<TimeSpan>(type: "interval", nullable: false),
                     ImgUrl = table.Column<string>(type: "text", nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedByEmployeeId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UpdatedByEmployeeId = table.Column<Guid>(type: "uuid", nullable: false),
                     SalonId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -105,10 +103,17 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("935c82ed-8da3-46e5-88a9-f1e53b241ee7"), "d6913d4e-7690-4f75-b502-b20b7e086411", "Employee", "EMPLOYEE" },
-                    { new Guid("eeeb6ea4-9cce-4a5e-b5fd-297c032fbb9f"), "c48c5a7d-cc38-44d1-a034-18e7baa1691e", "Manager", "MANAGER" },
-                    { new Guid("f98effa5-d881-47c1-abe4-1014b9d2df50"), "b65f6b15-4196-4177-a2a5-7d372b17f813", "Admin", "ADMIN" }
+                    { new Guid("3da593c4-61db-4e9c-a15d-c16422bb0694"), "eee6e429-8b2f-4967-afc1-d12d1ad42572", "Admin", "ADMIN" },
+                    { new Guid("8ce5601f-a4bd-4239-ae4b-5bf9a6d7cacd"), "20c5d0a2-8304-4bf0-802c-0933a57f42a1", "Manager", "MANAGER" },
+                    { new Guid("f25fb3a4-2521-4b8b-9933-d23a613b51ec"), "4f56b52c-54dc-4fa3-9da1-5498b511d0dc", "Employee", "EMPLOYEE" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_UserId",
+                schema: "SMS",
+                table: "Employees",
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_SalonId",
@@ -121,11 +126,26 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
                 schema: "SMS",
                 table: "Services",
                 column: "SalonId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Employees_Users_UserId",
+                schema: "SMS",
+                table: "Employees",
+                column: "UserId",
+                principalSchema: "SMS",
+                principalTable: "Users",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Employees_Users_UserId",
+                schema: "SMS",
+                table: "Employees");
+
             migrationBuilder.DropTable(
                 name: "Products",
                 schema: "SMS");
@@ -134,23 +154,28 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
                 name: "Services",
                 schema: "SMS");
 
-            migrationBuilder.DeleteData(
+            migrationBuilder.DropIndex(
+                name: "IX_Employees_UserId",
                 schema: "SMS",
-                table: "Roles",
-                keyColumn: "Id",
-                keyValue: new Guid("935c82ed-8da3-46e5-88a9-f1e53b241ee7"));
+                table: "Employees");
 
             migrationBuilder.DeleteData(
                 schema: "SMS",
                 table: "Roles",
                 keyColumn: "Id",
-                keyValue: new Guid("eeeb6ea4-9cce-4a5e-b5fd-297c032fbb9f"));
+                keyValue: new Guid("3da593c4-61db-4e9c-a15d-c16422bb0694"));
 
             migrationBuilder.DeleteData(
                 schema: "SMS",
                 table: "Roles",
                 keyColumn: "Id",
-                keyValue: new Guid("f98effa5-d881-47c1-abe4-1014b9d2df50"));
+                keyValue: new Guid("8ce5601f-a4bd-4239-ae4b-5bf9a6d7cacd"));
+
+            migrationBuilder.DeleteData(
+                schema: "SMS",
+                table: "Roles",
+                keyColumn: "Id",
+                keyValue: new Guid("f25fb3a4-2521-4b8b-9933-d23a613b51ec"));
 
             migrationBuilder.InsertData(
                 schema: "SMS",

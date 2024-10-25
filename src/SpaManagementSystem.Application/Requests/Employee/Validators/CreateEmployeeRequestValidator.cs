@@ -22,7 +22,7 @@ public class CreateEmployeeRequestValidator : AbstractValidator<CreateEmployeeRe
             .MatchEmploymentStatus();
 
         RuleFor(x => x.Code)
-            .MatchEmployeeCode();
+            .MatchCode();
 
         RuleFor(x => x.Color)
             .MatchHexColor();

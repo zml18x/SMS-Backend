@@ -63,6 +63,7 @@ public static class InfrastructureDependencies
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IServiceRepository, ServiceRepository>();
         services.AddSingleton<IEmailSender<User>, EmailSender>();
         services.AddSingleton<IEmailService, EmailService>();
             

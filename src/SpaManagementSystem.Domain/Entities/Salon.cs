@@ -110,4 +110,9 @@ public class Salon : BaseEntity
         _openingHours.Remove(openingHours);
         UpdateTimestamp();
     }
+
+    public void AddService(Service service)
+    {
+        _services.Add(service);
+    }
 }

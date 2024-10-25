@@ -9,7 +9,6 @@ public class ServiceSpecification : ISpecification<Service>
     public ValidationResult IsSatisfiedBy(Service entity)
     {
         SpecificationHelper.ValidateGuid(entity.SalonId, _result, "SalonId is required (Cannot be Guid.Empty).");
-        SpecificationHelper.ValidateGuid(entity.CreatedByEmployeeId, _result, "EmployeeId is required (Cannot be Guid.Empty).");
         SpecificationHelper.ValidateString(entity.Name, _result, "Service name is required.");
         SpecificationHelper.ValidateString(entity.Code, _result, "Service code is required.");
         SpecificationHelper.ValidateOptionalStringLength(entity.Description, 1000,

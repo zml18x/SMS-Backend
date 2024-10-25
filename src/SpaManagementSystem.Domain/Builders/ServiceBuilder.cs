@@ -9,7 +9,6 @@ public class ServiceBuilder(ISpecification<Service> specification) : IBuilder<Se
 #nullable disable
     private Guid _id = Guid.Empty;
     private Guid _salonId;
-    private Guid _createdByEmployeeId;
     private string _name;
     private string _code;
     private decimal _price;
@@ -23,8 +22,7 @@ public class ServiceBuilder(ISpecification<Service> specification) : IBuilder<Se
     
     public Service Build()
     {
-        var service = new Service(_id, _salonId, _createdByEmployeeId, _name, _code, _description, _price, _taxRate,
-            _duration, _imgUrl);
+        var service = new Service(_id, _salonId, _name, _code, _description, _price, _taxRate, _duration, _imgUrl);
         
         var validationResult = specification.IsSatisfiedBy(service);
 
@@ -43,12 +41,6 @@ public class ServiceBuilder(ISpecification<Service> specification) : IBuilder<Se
     public ServiceBuilder WithSalonId(Guid salonId)
     {
         _salonId = salonId;
-        return this;
-    }
-         
-    public ServiceBuilder WithEmployeeId(Guid createdByEmployeeId)
-    {
-        _createdByEmployeeId = createdByEmployeeId;
         return this;
     }
      
@@ -88,7 +80,7 @@ public class ServiceBuilder(ISpecification<Service> specification) : IBuilder<Se
         return this;
     }
 
-    public ServiceBuilder WithImgUrl(string imgUrl)
+    public ServiceBuilder WithImgUrl(string? imgUrl)
     {
         _imgUrl = imgUrl;
         return this;

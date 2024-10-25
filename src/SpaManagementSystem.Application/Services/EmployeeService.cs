@@ -18,7 +18,7 @@ public class EmployeeService(IEmployeeRepository employeeRepository, ISalonRepos
 {
     public async Task<EmployeeDetailsDto> AddEmployeeAsync(CreateEmployeeRequest request)
     {
-        var salon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetWithEmployeesById(request.SalonId));
+        var salon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetWithEmployeesByIdAsync(request.SalonId));
 
         if (salon.Employees.Any(x => x.UserId == request.UserId))
             throw new InvalidOperationException(
@@ -140,7 +140,7 @@ public class EmployeeService(IEmployeeRepository employeeRepository, ISalonRepos
             employeeRepository
         );
     }
-
+    
     public async Task<OperationResult> UpdateEmployeeProfileAsync(Guid employeeId, JsonPatchDocument<UpdateEmployeeProfileRequest> patchDocument)
     {
         var existingEmployee = await employeeRepository

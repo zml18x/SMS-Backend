@@ -14,7 +14,7 @@ public class UpdateEmployeeRequestValidator : AbstractValidator<UpdateEmployeeRe
             .MatchEmploymentStatus();
 
         RuleFor(x => x.Code)
-            .MatchEmployeeCode();
+            .MatchCode();
 
         RuleFor(x => x.Color)
             .MatchHexColor();

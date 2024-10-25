@@ -8,6 +8,6 @@ public class EmployeeCodeValidator : AbstractValidator<string>
     public EmployeeCodeValidator()
     {
         RuleFor(code => code)
-            .MatchEmployeeCode();
+            .MatchCode();
     }
 }

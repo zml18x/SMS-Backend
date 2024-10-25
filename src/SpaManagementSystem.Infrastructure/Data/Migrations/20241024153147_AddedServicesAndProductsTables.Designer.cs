@@ -12,8 +12,8 @@ using SpaManagementSystem.Infrastructure.Data.Context;
 namespace SpaManagementSystem.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(SmsDbContext))]
-    [Migration("20241024112715_AddedProductsAndServicesTables")]
-    partial class AddedProductsAndServicesTables
+    [Migration("20241024153147_AddedServicesAndProductsTables")]
+    partial class AddedServicesAndProductsTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,22 +55,22 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("f98effa5-d881-47c1-abe4-1014b9d2df50"),
-                            ConcurrencyStamp = "b65f6b15-4196-4177-a2a5-7d372b17f813",
+                            Id = new Guid("3da593c4-61db-4e9c-a15d-c16422bb0694"),
+                            ConcurrencyStamp = "eee6e429-8b2f-4967-afc1-d12d1ad42572",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("eeeb6ea4-9cce-4a5e-b5fd-297c032fbb9f"),
-                            ConcurrencyStamp = "c48c5a7d-cc38-44d1-a034-18e7baa1691e",
+                            Id = new Guid("8ce5601f-a4bd-4239-ae4b-5bf9a6d7cacd"),
+                            ConcurrencyStamp = "20c5d0a2-8304-4bf0-802c-0933a57f42a1",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = new Guid("935c82ed-8da3-46e5-88a9-f1e53b241ee7"),
-                            ConcurrencyStamp = "d6913d4e-7690-4f75-b502-b20b7e086411",
+                            Id = new Guid("f25fb3a4-2521-4b8b-9933-d23a613b51ec"),
+                            ConcurrencyStamp = "4f56b52c-54dc-4fa3-9da1-5498b511d0dc",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         });
@@ -222,6 +222,9 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
 
                     b.HasIndex("SalonId");
 
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
                     b.ToTable("Employees", "SMS");
                 });
 
@@ -367,9 +370,6 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("CreatedByEmployeeId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -397,9 +397,6 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UpdatedByEmployeeId")
-                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -529,6 +526,12 @@ namespace SpaManagementSystem.Infrastructure.Data.Migrations
                     b.HasOne("SpaManagementSystem.Domain.Entities.Salon", "Salon")
                         .WithMany("Employees")
                         .HasForeignKey("SalonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SpaManagementSystem.Infrastructure.Identity.Entities.User", null)
+                        .WithOne()
+                        .HasForeignKey("SpaManagementSystem.Domain.Entities.Employee", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

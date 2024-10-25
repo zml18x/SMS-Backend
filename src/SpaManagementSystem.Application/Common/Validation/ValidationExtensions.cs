@@ -50,11 +50,11 @@ public static class ValidationExtensions
             .LessThan(DateOnly.FromDateTime(DateTime.Today)).WithMessage("Date of birth must be in the past.")
             .Must(BeAtLeast16YearsOld).WithMessage("Employee must be at least 16 years old.");
     
-    public static IRuleBuilderOptions<T, string> MatchEmployeeCode<T>(this IRuleBuilder<T, string> rule)
+    public static IRuleBuilderOptions<T, string> MatchCode<T>(this IRuleBuilder<T, string> rule)
         => rule
             .NotEmpty().WithMessage("Code is required.")
             .MaximumLength(8).WithMessage("Code cannot be longer than 8 characters.")
-            .Matches("^[A-Za-z0-9]+$").WithMessage("Code can only contain alphanumeric characters.");
+            .Matches("^[a-zA-Z0-9ąćęłńóśżźĄĆĘŁŃÓŚŻŹ]*$").WithMessage("Code can only contain alphanumeric characters.");
 
     public static IRuleBuilderOptions<T, string> MatchEmployeePosition<T>(this IRuleBuilder<T, string> rule)
         => rule
@@ -80,6 +80,32 @@ public static class ValidationExtensions
     public static IRuleBuilderOptions<T, string> MatchEmployeeNotes<T>(this IRuleBuilder<T, string> rule)
         => rule
             .MaximumLength(1000).WithMessage("Notes cannot be longer than 1000 characters");
+
+    public static IRuleBuilderOptions<T, TimeSpan> ValidateServiceDuration<T>(this IRuleBuilder<T, TimeSpan> rule)
+        => rule
+            .Must(duration => duration.TotalMinutes > 0)
+            .WithMessage("Duration must be greater than 0 minutes.")
+            .Must(duration => duration.TotalHours <= 8)
+            .WithMessage("Duration cannot exceed 8 hours.");
+
+    public static IRuleBuilderOptions<T, decimal> ValidatePrice<T>(this IRuleBuilder<T, decimal> rule)
+        => rule
+            .GreaterThanOrEqualTo(0).WithMessage("Price must be greater or equal zero.")
+            .PrecisionScale(10, 2, true)
+            .WithMessage("Price must have up to 2 decimal places and a maximum of 10 digits in total.");
+
+    public static IRuleBuilderOptions<T, decimal> ValidateTaxRate<T>(this IRuleBuilder<T, decimal> rule)
+        => rule
+            .InclusiveBetween(0, 1).WithMessage("Tax rate must be between 0 and 1.")
+            .PrecisionScale(4, 3, true)
+            .WithMessage("Tax rate must have a maximum of 4 digits, with 3 decimal places.");
+
+    public static IRuleBuilderOptions<T, string> ValidateUrl<T>(this IRuleBuilder<T, string?> ruleBuilder)
+        => ruleBuilder
+            .NotEmpty().WithMessage("URL is required.")
+            .Matches(@"^(http|https):\/\/[^\s/$.?#].[^\s]*$").WithMessage("URL is invalid.");
+
+    
     private static bool BeAtLeast16YearsOld(DateOnly dateOfBirth)
     {
         var currentDate = DateOnly.FromDateTime(DateTime.Today);

@@ -15,20 +15,8 @@ using SpaManagementSystem.Application.Requests.Common.Validators;
 
 namespace SpaManagementSystem.Application.Container;
 
-/// <summary>
-/// Provides a centralized class for configuring essential application layer services required by the application.
-/// This class is intended for setting up services specific to the application layer, such as application logic services,
-/// validation, or business process handling components.
-/// </summary>
 public static class ApplicationDependencies
 {
-    /// <summary>
-    /// Configures core services and dependencies for the application layer.
-    /// This method is the entry point for adding application-specific services such as domain services,
-    /// application services, and validation mechanisms to the IServiceCollection.
-    /// </summary>
-    /// <param name="services">The collection of service descriptors for registering application layer services.</param>
-    /// <returns>The IServiceCollection with registered services, supporting fluent configuration.</returns>
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services
@@ -44,13 +32,16 @@ public static class ApplicationDependencies
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<ISalonService, SalonService>();
         services.AddScoped<IEmployeeService, EmployeeService>();
+        services.AddScoped<ISalonServiceService, SalonServiceService>();
         services.AddScoped<ISpecification<Salon>, SalonSpecification>();
         services.AddScoped<ISpecification<Address>, AddressSpecification>();
         services.AddScoped<ISpecification<Employee>, EmployeeSpecification>();
         services.AddScoped<ISpecification<EmployeeProfile>, EmployeeProfileSpecification>();
+        services.AddScoped<ISpecification<Service>, ServiceSpecification>();
         services.AddScoped<SalonBuilder>();
         services.AddScoped<AddressBuilder>();
         services.AddScoped<EmployeeBuilder>();
+        services.AddScoped<ServiceBuilder>();
         
         return services;
     }
