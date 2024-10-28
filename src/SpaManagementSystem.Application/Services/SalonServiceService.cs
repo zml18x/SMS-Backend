@@ -1,15 +1,16 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
-using SpaManagementSystem.Application.Common;
-using SpaManagementSystem.Application.Common.Helpers;
 using SpaManagementSystem.Domain.Builders;
 using SpaManagementSystem.Domain.Interfaces;
+using SpaManagementSystem.Domain.Specifications;
 using SpaManagementSystem.Application.Dto;
 using SpaManagementSystem.Application.Extensions;
 using SpaManagementSystem.Application.Interfaces;
+using SpaManagementSystem.Application.Common;
+using SpaManagementSystem.Application.Common.Helpers;
 using SpaManagementSystem.Application.Requests.Service;
 using SpaManagementSystem.Application.Requests.Service.Validators;
-using SpaManagementSystem.Domain.Specifications;
+
 
 namespace SpaManagementSystem.Application.Services;
 
@@ -18,8 +19,8 @@ public class SalonServiceService(ISalonRepository salonRepository, IServiceRepos
 {
     public async Task<ServiceDto> CreateServiceAsync(CreateServiceRequest request)
     {
-        var isUniqueCode = await serviceRepository.IsExistsAsync(request.SalonId, request.Code);
-        if (isUniqueCode)
+        var isCodeTaken = await serviceRepository.IsExistsAsync(request.SalonId, request.Code);
+        if (isCodeTaken)
             throw new InvalidOperationException($"Service with code {request.Code} already exist.");
         
         var salon = await salonRepository.GetOrThrowAsync(() => salonRepository.GetByIdAsync(request.SalonId));
@@ -59,9 +60,9 @@ public class SalonServiceService(ISalonRepository salonRepository, IServiceRepos
     public async Task<OperationResult> UpdateServiceAsync(Guid serviceId, JsonPatchDocument<UpdateServiceRequest> patchDocument)
     {
         var existingService = await serviceRepository.GetOrThrowAsync(() => serviceRepository.GetByIdAsync(serviceId));
-
+        
         var request = mapper.Map<UpdateServiceRequest>(existingService);
-
+        
         return await new PatchUpdateHelper().ApplyPatchAndUpdateAsync(
             patchDocument,
             existingService,

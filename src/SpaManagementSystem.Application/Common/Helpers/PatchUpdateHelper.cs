@@ -19,6 +19,18 @@ public class PatchUpdateHelper
         Func<TEntity, TRequest, bool> hasChangesFunc,
         IRepository<TEntity> repository) where TRequest : class where TEntity : BaseEntity
     {
+        var salonIdProperty = typeof(TEntity).GetProperty("SalonId");
+        var codeProperty = typeof(TEntity).GetProperty("Code");
+        
+        if (salonIdProperty != null && codeProperty != null)
+        {
+            var salonId = (Guid)salonIdProperty.GetValue(entity)!;
+            var code = (string)codeProperty.GetValue(entity)!;
+
+            await ValidateCodeUniquenessAsync(patchDocument, (IUniqueCodeRepository)repository, typeof(TEntity).Name,
+                salonId, code);
+        }
+        
         patchDocument.ApplyTo(request);
         
         var requestValidationResult = await validator.ValidateAsync(request);
@@ -48,5 +60,20 @@ public class PatchUpdateHelper
         await repository.SaveChangesAsync();
 
         return OperationResult.Success();
+    }
+    
+    private async Task ValidateCodeUniquenessAsync<TRequest>(
+        JsonPatchDocument<TRequest> patchDocument,
+        IUniqueCodeRepository repository,
+        string entityName,
+        Guid salonId,
+        string code) where TRequest : class
+    {
+        var codeOperation = patchDocument.Operations
+            .FirstOrDefault(op => op.path.TrimStart('/').Equals("code", StringComparison.OrdinalIgnoreCase));
+
+        if (codeOperation?.value is string value && !string.IsNullOrWhiteSpace(value) && code != value)
+            if (await repository.IsExistsAsync(salonId, value))
+                throw new InvalidOperationException($"{entityName} with code '{value}' already exists.");
     }
 }

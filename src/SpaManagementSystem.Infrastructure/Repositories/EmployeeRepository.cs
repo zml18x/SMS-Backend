@@ -5,7 +5,7 @@ using SpaManagementSystem.Infrastructure.Data.Context;
 
 namespace SpaManagementSystem.Infrastructure.Repositories;
 
-public class EmployeeRepository(SmsDbContext context) : Repository<Employee>(context), IEmployeeRepository
+public class EmployeeRepository(SmsDbContext context) : Repository<Employee>(context), IEmployeeRepository, IUniqueCodeRepository
 {
     private readonly SmsDbContext _context = context;
 
@@ -31,4 +31,7 @@ public class EmployeeRepository(SmsDbContext context) : Repository<Employee>(con
         => await _context.Employees
             .Include(x => x.Profile)
             .FirstOrDefaultAsync(x => x.Code.ToUpper() == employeeCode.ToUpper());
+
+    public async Task<bool> IsExistsAsync(Guid salonId, string code)
+        => await _context.Employees.AnyAsync(x => x.SalonId == salonId && x.Code.ToUpper() == code.ToUpper());
 }

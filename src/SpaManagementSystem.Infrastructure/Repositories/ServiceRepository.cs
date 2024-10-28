@@ -5,7 +5,7 @@ using SpaManagementSystem.Infrastructure.Data.Context;
 
 namespace SpaManagementSystem.Infrastructure.Repositories;
 
-public class ServiceRepository(SmsDbContext context) : Repository<Service>(context), IServiceRepository
+public class ServiceRepository(SmsDbContext context) : Repository<Service>(context), IServiceRepository, IUniqueCodeRepository
 {
     private readonly SmsDbContext _context = context;
     
