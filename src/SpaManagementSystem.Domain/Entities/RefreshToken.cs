@@ -10,7 +10,8 @@ public class RefreshToken : BaseEntity
     public bool IsExpired => DateTime.UtcNow >= ExpirationTime;
 
 
-
+    
+    protected RefreshToken(){}
     public RefreshToken(Guid id, Guid userId, string token, DateTime expirationTime)
     {
         Id = id;

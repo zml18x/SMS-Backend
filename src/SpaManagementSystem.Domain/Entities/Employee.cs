@@ -1,4 +1,5 @@
 ﻿using SpaManagementSystem.Domain.Common;
+using SpaManagementSystem.Domain.Common.Helpers;
 using SpaManagementSystem.Domain.Enums;
 
 namespace SpaManagementSystem.Domain.Entities;
@@ -18,7 +19,7 @@ public class Employee : BaseEntity
     
     
     
-    public Employee(){}
+    protected Employee(){}
 
     public Employee(Guid id, Guid salonId, Guid userId, string position, EmploymentStatus employmentStatus, string code,
         DateOnly hireDate, string color, string? notes)
@@ -43,20 +44,14 @@ public class Employee : BaseEntity
 
     public bool UpdateEmployee(string color, string? notes)
     {
-        var anyDataUpdated = false;
-        
-        if (!string.IsNullOrWhiteSpace(color))
+        var propertyChanges = new Dictionary<Action, bool>
         {
-            Color = color;
-            anyDataUpdated = true;
-        }
-        
-        if (Notes != notes)
-        {
-            Notes = notes;
-            anyDataUpdated = true;
-        }
-        
+            { () => Color = color, Color != color },
+            { () => Notes = notes, Notes != notes },
+        };
+
+        var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);
+
         if (anyDataUpdated)
             UpdateTimestamp();
 
@@ -66,44 +61,18 @@ public class Employee : BaseEntity
     public bool UpdateEmployee(string position, EmploymentStatus employmentStatus, string code, string color,
         DateOnly hireDate, string? notes)
     {
-        var anyDataUpdated = false;
-            
-        if (!string.IsNullOrWhiteSpace(position))
+        var propertyChanges = new Dictionary<Action, bool>
         {
-            Position = position;
-            anyDataUpdated = true;
-        }
-            
-        if (EmploymentStatus != employmentStatus)
-        {
-            EmploymentStatus = employmentStatus;
-            anyDataUpdated = true;
-        }
-            
-        if (!string.IsNullOrWhiteSpace(code))
-        {
-            Code = code;
-            anyDataUpdated = true;
-        }
-        
-        if (!string.IsNullOrWhiteSpace(color))
-        {
-            Color = color;
-            anyDataUpdated = true;
-        }
+            { () => Position = position, Position != position },
+            { () => EmploymentStatus = employmentStatus, EmploymentStatus != employmentStatus },
+            { () => Code = code, Code != code },
+            { () => Color = color, Color != color },
+            { () => HireDate = hireDate, HireDate != hireDate },
+            { () => Notes = notes, Notes != notes },
+        };
 
-        if (HireDate != hireDate)
-        {
-            HireDate = hireDate;
-            anyDataUpdated = true;
-        }
+        var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);
 
-        if (Notes != notes)
-        {
-            Notes = notes;
-            anyDataUpdated = true;
-        }
-        
         if (anyDataUpdated)
             UpdateTimestamp();
 

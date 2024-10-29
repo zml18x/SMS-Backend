@@ -1,4 +1,5 @@
 ﻿using SpaManagementSystem.Domain.Common;
+using SpaManagementSystem.Domain.Common.Helpers;
 
 namespace SpaManagementSystem.Domain.Entities;
 
@@ -41,56 +42,20 @@ public class Service : BaseEntity
     public bool UpdateService(string name, string code, string? description, decimal price, decimal taxRate, 
         TimeSpan duration, string? imgUrl, bool isActive)
     {
-        var anyDataUpdated = false;
-        
-        if (!string.IsNullOrWhiteSpace(name))
+        var propertyChanges = new Dictionary<Action, bool>
         {
-            Name = name;
-            anyDataUpdated = true;
-        }
-        
-        if (!string.IsNullOrWhiteSpace(code))
-        {
-            Code = code;
-            anyDataUpdated = true;
-        }
-        
-        if (Description != description)
-        {
-            Description = description;
-            anyDataUpdated = true;
-        }
+            { () => Name = name, Name != name },
+            { () => Code = code, Code != code },
+            { () => Description = description, Description != description },
+            { () => Price = price, Price != price },
+            { () => TaxRate = taxRate, TaxRate != taxRate },
+            { () => Duration = duration, Duration != duration },
+            { () => ImgUrl = imgUrl, ImgUrl != imgUrl },
+            { () => IsActive = isActive, IsActive != isActive }
+        };
 
-        if (Price != price)
-        {
-            Price = price;
-            anyDataUpdated = true;
-        }
-        
-        if (TaxRate != taxRate)
-        {
-            TaxRate = taxRate;
-            anyDataUpdated = true;
-        }
+        var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);
 
-        if (Duration != duration)
-        {
-            Duration = duration;
-            anyDataUpdated = true;
-        }
-        
-        if (ImgUrl != imgUrl)
-        {
-            ImgUrl = imgUrl;
-            anyDataUpdated = true;
-        }
-
-        if (IsActive != isActive)
-        {
-            IsActive = isActive;
-            anyDataUpdated = true;
-        }
-        
         if (anyDataUpdated)
             UpdateTimestamp();
 

@@ -1,4 +1,5 @@
 ﻿using SpaManagementSystem.Domain.Common;
+using SpaManagementSystem.Domain.Common.Helpers;
 using SpaManagementSystem.Domain.ValueObjects;
 
 namespace SpaManagementSystem.Domain.Entities;
@@ -22,7 +23,7 @@ public class Salon : BaseEntity
         
 
     
-    public Salon(){}
+    protected Salon(){}
     public Salon(Guid id, Guid userId, string name, string email, string phoneNumber, string? description)
     {
         Id = id;
@@ -37,32 +38,16 @@ public class Salon : BaseEntity
     
     public bool UpdateSalon(string name, string email, string phoneNumber, string? description)
     {
-        var anyDataUpdated = false;
-            
-        if (!string.IsNullOrWhiteSpace(name))
+        var propertyChanges = new Dictionary<Action, bool>
         {
-            Name = name;
-            anyDataUpdated = true;
-        }
-            
-        if (!string.IsNullOrWhiteSpace(email))
-        {
-            Email = email;
-            anyDataUpdated = true;
-        }
-            
-        if (!string.IsNullOrWhiteSpace(phoneNumber))
-        {
-            PhoneNumber = phoneNumber;
-            anyDataUpdated = true;
-        }
+            { () => Name = name, Name != name },
+            { () => Email = email, Email != email },
+            { () => PhoneNumber = phoneNumber, PhoneNumber != phoneNumber },
+            { () => Description = description, Description != description }
+        };
 
-        if (Description != description)
-        {
-            Description = description;
-            anyDataUpdated = true;
-        }
-        
+        var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);
+
         if (anyDataUpdated)
             UpdateTimestamp();
 
@@ -73,11 +58,6 @@ public class Salon : BaseEntity
     {
         Address = address;
         UpdateTimestamp();
-    }
-
-    public void AddEmployee(Employee employee)
-    {
-        _employees.Add(employee);
     }
     
     public void AddOpeningHours(OpeningHours openingHours)
@@ -110,7 +90,12 @@ public class Salon : BaseEntity
         _openingHours.Remove(openingHours);
         UpdateTimestamp();
     }
-
+    
+    public void AddEmployee(Employee employee)
+    {
+        _employees.Add(employee);
+    }
+    
     public void AddService(Service service)
     {
         _services.Add(service);

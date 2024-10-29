@@ -3,8 +3,8 @@ using Microsoft.OpenApi.Models;
 using SpaManagementSystem.Infrastructure.Data;
 using SpaManagementSystem.Infrastructure.Container;
 using SpaManagementSystem.Application.Container;
-using SpaManagementSystem.WebApi.Middlewares;
 using SpaManagementSystem.WebApi.Models;
+using SpaManagementSystem.WebApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,8 +65,7 @@ builder.Services.AddSwaggerGen(options =>
                     Type=ReferenceType.SecurityScheme,
                     Id="Bearer"
                 }
-            },
-            new string[]{}
+            }, new string[]{}
         }
     });
 });

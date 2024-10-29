@@ -1,4 +1,5 @@
-﻿using SpaManagementSystem.Domain.Enums;
+﻿using SpaManagementSystem.Domain.Common.Helpers;
+using SpaManagementSystem.Domain.Enums;
 
 namespace SpaManagementSystem.Domain.Entities;
 
@@ -13,7 +14,7 @@ public class EmployeeProfile
     
     
     
-    public EmployeeProfile(){}
+    protected EmployeeProfile(){}
 
     public EmployeeProfile(string firstName, string lastName, GenderType gender, DateOnly dateOfBirth, string email,
         string phoneNumber)
@@ -29,19 +30,13 @@ public class EmployeeProfile
 
     public bool UpdateEmployeeProfile(string email, string phoneNumber)
     {
-        var anyDataUpdated = false;
-        
-        if (!string.IsNullOrWhiteSpace(email))
+        var propertyChanges = new Dictionary<Action, bool>
         {
-            Email = email;
-            anyDataUpdated = true;
-        }
-        
-        if (!string.IsNullOrWhiteSpace(phoneNumber))
-        {
-            PhoneNumber = phoneNumber;
-            anyDataUpdated = true;
-        }
+            { () => Email = email, Email != email },
+            { () => PhoneNumber = phoneNumber, PhoneNumber != phoneNumber },
+        };
+
+        var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);
 
         return anyDataUpdated;
     }
@@ -49,43 +44,17 @@ public class EmployeeProfile
     public bool UpdateEmployeeProfile(string firstName, string lastName, GenderType gender, DateOnly dateOfBirth,
         string email, string phoneNumber)
     {
-        var anyDataUpdated = false;
-            
-        if (!string.IsNullOrWhiteSpace(firstName))
+        var propertyChanges = new Dictionary<Action, bool>
         {
-            FirstName = firstName;
-            anyDataUpdated = true;
-        }
-        
-        if (!string.IsNullOrWhiteSpace(lastName))
-        {
-            LastName = lastName;
-            anyDataUpdated = true;
-        }
-            
-        if (Gender != gender)
-        {
-            Gender = gender;
-            anyDataUpdated = true;
-        }
-        
-        if (DateOfBirth != dateOfBirth)
-        {
-            DateOfBirth = dateOfBirth;
-            anyDataUpdated = true;
-        }
-            
-        if (!string.IsNullOrWhiteSpace(email))
-        {
-            Email = email;
-            anyDataUpdated = true;
-        }
-        
-        if (!string.IsNullOrWhiteSpace(phoneNumber))
-        {
-            PhoneNumber = phoneNumber;
-            anyDataUpdated = true;
-        }
+            { () => FirstName = firstName, FirstName != firstName },
+            { () => LastName = lastName, LastName != lastName },
+            { () => Gender = gender, Gender != gender },
+            { () => DateOfBirth = dateOfBirth, DateOfBirth != dateOfBirth },
+            { () => Email = email, Email != email },
+            { () => PhoneNumber = phoneNumber, PhoneNumber != phoneNumber },
+        };
+
+        var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);
 
         return anyDataUpdated;
     }
