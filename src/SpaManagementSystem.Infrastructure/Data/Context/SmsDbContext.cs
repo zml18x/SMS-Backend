@@ -102,8 +102,6 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
                 .HasForeignKey(p => p.SalonId);
 
             entity.Property(p => p.SalonId).IsRequired();
-            entity.Property(p => p.CreatedByEmployeeId).IsRequired();
-            entity.Property(p => p.UpdatedByEmployeeId).IsRequired();
             entity.Property(p => p.Name).IsRequired();
             entity.Property(p => p.Code).IsRequired();
             entity.Property(p => p.PurchasePrice).IsRequired();
@@ -111,7 +109,7 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
             entity.Property(p => p.SalePrice).IsRequired();
             entity.Property(p => p.SaleTaxRate).IsRequired();
             entity.Property(p => p.StockQuantity).IsRequired();
-            entity.Property(p => p.MinimumStockLevel).IsRequired();
+            entity.Property(p => p.MinimumStockQuantity).IsRequired();
             entity.Property(p => p.IsActive).IsRequired();
         });
         

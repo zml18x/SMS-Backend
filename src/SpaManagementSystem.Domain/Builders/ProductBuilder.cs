@@ -9,7 +9,6 @@ public class ProductBuilder(ISpecification<Product> specification) : IBuilder<Pr
 #nullable disable
     private Guid _id = Guid.Empty;
     private Guid _salonId;
-    private Guid _createdByEmployeeId;
     private string _name;
     private string _code;
     private decimal _purchasePrice;
@@ -17,7 +16,7 @@ public class ProductBuilder(ISpecification<Product> specification) : IBuilder<Pr
     private decimal _salePrice;
     private decimal _saleTaxRate;
     private decimal _stockQuantity;
-    private int _minimumStockLevel;
+    private int _minimumStockQuantity;
     private string _unitOfMeasure;
 #nullable enable
     private string? _description;
@@ -27,8 +26,8 @@ public class ProductBuilder(ISpecification<Product> specification) : IBuilder<Pr
     
     public Product Build()
     {
-        var product = new Product(_id, _salonId, _createdByEmployeeId, _name, _code, _description, _purchasePrice,
-            _purchaseTaxRate, _salePrice, _saleTaxRate, _stockQuantity, _minimumStockLevel, _unitOfMeasure, _imgUrl);
+        var product = new Product(_id, _salonId, _name, _code, _description, _purchasePrice,
+            _purchaseTaxRate, _salePrice, _saleTaxRate, _stockQuantity, _minimumStockQuantity, _unitOfMeasure, _imgUrl);
 
         var validationResult = specification.IsSatisfiedBy(product);
         
@@ -47,12 +46,6 @@ public class ProductBuilder(ISpecification<Product> specification) : IBuilder<Pr
     public ProductBuilder WithSalonId(Guid salonId)
     {
         _salonId = salonId;
-        return this;
-    }
-
-    public ProductBuilder WithEmployeeId(Guid createdByEmployeeId)
-    {
-        _createdByEmployeeId = createdByEmployeeId;
         return this;
     }
 
@@ -104,9 +97,9 @@ public class ProductBuilder(ISpecification<Product> specification) : IBuilder<Pr
         return this;
     }
 
-    public ProductBuilder WithMinimumStockLevel(int minimumStockLevel)
+    public ProductBuilder WithMinimumStockQuantity(int minimumStockQuantity)
     {
-        _minimumStockLevel = minimumStockLevel;
+        _minimumStockQuantity = minimumStockQuantity;
         return this;
     }
 
@@ -116,7 +109,7 @@ public class ProductBuilder(ISpecification<Product> specification) : IBuilder<Pr
         return this;
     }
 
-    public ProductBuilder WithImgUrl(string imgUrl)
+    public ProductBuilder WithImgUrl(string? imgUrl)
     {
         _imgUrl = imgUrl;
         return this;
