@@ -35,7 +35,7 @@ public class ProductController(IProductService productService) : BaseController
         return this.OkResponse(service, "Successful retrieved product.");
     }
     
-    [HttpGet("get-products")]
+    [HttpGet]
     [Authorize(Roles = "Admin, Manager, Employee")]
     public async Task<IActionResult> GetProductsAsync([FromQuery] Guid salonId, [FromQuery] string? code = null,
         [FromQuery] string? name = null, [FromQuery] bool? active = null)

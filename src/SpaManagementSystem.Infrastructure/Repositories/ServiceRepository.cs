@@ -5,12 +5,17 @@ using SpaManagementSystem.Infrastructure.Data.Context;
 
 namespace SpaManagementSystem.Infrastructure.Repositories;
 
-public class ServiceRepository(SmsDbContext context) : Repository<Service>(context), IServiceRepository, IUniqueCodeRepository
+public class ServiceRepository(SmsDbContext context) : Repository<Service>(context), IServiceRepository
 {
     private readonly SmsDbContext _context = context;
     
+    
+    
     public async Task<bool> IsExistsAsync(Guid salonId, string code)
         => await _context.Services.AnyAsync(x => x.SalonId == salonId && x.Code.ToUpper() == code.ToUpper());
+    
+    public async Task<Service?> GetWithEmployeesAsync(Guid serviceId)
+        => await _context.Services.Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == serviceId);
 
     public async Task<IEnumerable<Service>> GetServicesAsync(Guid salonId, string? code = null, string? name = null,
         bool? active = null)

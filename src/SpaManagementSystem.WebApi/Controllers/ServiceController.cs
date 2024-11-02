@@ -35,7 +35,7 @@ public class ServiceController(ISalonServiceService serviceService) : BaseContro
         return this.OkResponse(service, "Successful retrieved service.");
     }
 
-    [HttpGet("get-services")]
+    [HttpGet]
     [Authorize(Roles = "Admin, Manager, Employee")]
     public async Task<IActionResult> GetServicesAsync([FromQuery] Guid salonId, [FromQuery] string? code = null,
         [FromQuery] string? name = null, [FromQuery] bool? active = null)
@@ -64,5 +64,14 @@ public class ServiceController(ISalonServiceService serviceService) : BaseContro
         await serviceService.DeleteAsync(serviceId);
 
         return NoContent();
+    }
+    
+    [Authorize(Roles = "Admin, Manager, Employee")]
+    [HttpGet("{serviceId}/employees")]
+    public async Task<IActionResult> GetEmployeesByServiceAsync(Guid serviceId)
+    {
+        var employees = await serviceService.GetEmployeesAssignedToServiceAsync(serviceId);
+        
+        return this.OkResponse(employees, "Successful retrieved employees.");
     }
 }

@@ -11,6 +11,8 @@ public interface ISalonServiceService
     public Task<ServiceDto> GetServiceByIdAsync(Guid serviceId);
     public Task<IEnumerable<ServiceDto>> GetServicesAsync(Guid salonId, string? code = null, string? name = null,
         bool? active = null);
+
+    public Task<IEnumerable<EmployeeSummaryDto>> GetEmployeesAssignedToServiceAsync(Guid serviceId);
     public Task<OperationResult> UpdateServiceAsync(Guid serviceId, JsonPatchDocument<UpdateServiceRequest> patchDocument);
     public Task DeleteAsync(Guid serviceId);
 }

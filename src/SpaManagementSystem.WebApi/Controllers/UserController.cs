@@ -12,7 +12,7 @@ namespace SpaManagementSystem.WebApi.Controllers;
 [ApiController]
 public class UserController(UserManager<User> userManager) : BaseController
 {
-    [Authorize]
+    [Authorize(Roles = "Admin, Manager, Employee")]
     [HttpGet]
     public async Task<IActionResult> GetUserAsync()
     {
@@ -68,5 +68,41 @@ public class UserController(UserManager<User> userManager) : BaseController
             return this.BadRequestResponse("Error while removing the role.");
         
         return this.OkResponse("Manager role has been removed.");
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{userId}/lock-account")]
+    public async Task<IActionResult> LockAccountAsync(Guid userId)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            return this.BadRequestResponse("User not found. Please check the user ID.");
+
+        user.LockoutEnabled = true;
+        user.LockoutEnd = DateTimeOffset.MaxValue;
+
+        var result = await userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+            return this.BadRequestResponse("Error while locking the account.");
+        
+        return this.OkResponse("Account has been locked.");
+    }
+    
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{userId}/unlock-account")]
+    public async Task<IActionResult> UnLockAccount(Guid userId)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            return this.BadRequestResponse("User not found. Please check the user ID.");
+
+        user.LockoutEnabled = true;
+        user.LockoutEnd = null;
+
+        var result = await userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+            return this.BadRequestResponse("Error while unlocking the account.");
+        
+        return this.OkResponse("Account has been unlocked.");
     }
 }

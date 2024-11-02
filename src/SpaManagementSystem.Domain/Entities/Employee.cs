@@ -1,11 +1,12 @@
-﻿using SpaManagementSystem.Domain.Common;
+﻿using SpaManagementSystem.Domain.Enums;
+using SpaManagementSystem.Domain.Common;
 using SpaManagementSystem.Domain.Common.Helpers;
-using SpaManagementSystem.Domain.Enums;
 
 namespace SpaManagementSystem.Domain.Entities;
 
 public class Employee : BaseEntity
 {
+    private ISet<Service> _services = new HashSet<Service>();
     public Guid SalonId { get; protected set; }
     public Guid UserId { get; protected set; }
     public string Position { get; protected set; }
@@ -16,6 +17,7 @@ public class Employee : BaseEntity
     public string? Notes { get; protected set; }
     public Salon Salon { get; protected set; }
     public EmployeeProfile Profile { get; protected set; }
+    public IEnumerable<Service> Services => _services;
     
     
     
@@ -77,5 +79,15 @@ public class Employee : BaseEntity
             UpdateTimestamp();
 
         return anyDataUpdated;
+    }
+
+    public void AddService(Service service)
+    {
+        _services.Add(service);
+    }
+
+    public void RemoveService(Service service)
+    {
+        _services.Remove(service);
     }
 }

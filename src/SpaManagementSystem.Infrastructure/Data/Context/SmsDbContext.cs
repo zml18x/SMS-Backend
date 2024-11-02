@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using SpaManagementSystem.Domain.Entities;
 using SpaManagementSystem.Domain.Enums;
+using SpaManagementSystem.Domain.Entities;
 using SpaManagementSystem.Infrastructure.Identity.Entities;
 
 namespace SpaManagementSystem.Infrastructure.Data.Context;
@@ -88,6 +88,10 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
                 p.WithOwner().HasForeignKey("EmployeeId");
             });
             
+            entity.HasMany(e => e.Services)
+                .WithMany(s => s.Employees)
+                .UsingEntity(j => j.ToTable("EmployeeServices"));
+            
             entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.Position).IsRequired();
             entity.Property(e => e.Code).IsRequired();
@@ -129,6 +133,8 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
             entity.Property(s => s.Duration).IsRequired();
             entity.Property(s => s.IsActive).IsRequired();
         });
+        
+        
         
         // Customize table names for clarity and to follow specific naming conventions within the database.
         modelBuilder.Entity<User>().ToTable("Users");

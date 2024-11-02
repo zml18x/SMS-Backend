@@ -18,4 +18,8 @@
     <ProjectReference Include="..\SpaManagementSystem.Domain\SpaManagementSystem.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Dto\Employee\" />
+  </ItemGroup>
+
 </Project>

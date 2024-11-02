@@ -57,6 +57,13 @@ public class SalonServiceService(ISalonRepository salonRepository, IServiceRepos
         return mapper.Map<ServiceDto>(service);
     }
 
+    public async Task<IEnumerable<EmployeeSummaryDto>> GetEmployeesAssignedToServiceAsync(Guid serviceId)
+    {
+        var service = await serviceRepository.GetOrThrowAsync(() => serviceRepository.GetWithEmployeesAsync(serviceId));
+
+        return mapper.Map<IEnumerable<EmployeeSummaryDto>>(service.Employees);
+    }
+
     public async Task<OperationResult> UpdateServiceAsync(Guid serviceId, JsonPatchDocument<UpdateServiceRequest> patchDocument)
     {
         var existingService = await serviceRepository.GetOrThrowAsync(() => serviceRepository.GetByIdAsync(serviceId));

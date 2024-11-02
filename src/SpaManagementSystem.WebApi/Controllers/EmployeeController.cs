@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using SpaManagementSystem.Infrastructure.Identity.Entities;
 using SpaManagementSystem.Application.Interfaces;
 using SpaManagementSystem.Application.Requests.Employee;
-using SpaManagementSystem.Application.Requests.Employee.Validators;
+using SpaManagementSystem.Domain.Enums;
 using SpaManagementSystem.WebApi.Models;
 using SpaManagementSystem.WebApi.Extensions;
 
@@ -23,85 +23,49 @@ public class EmployeeController(IEmployeeService employeeService, UserManager<Us
         if (user == null)
             return this.BadRequestResponse($"User with ID '{request.UserId}' does not exist.");
         
-        var employee = await employeeService.AddEmployeeAsync(request);
+        var employee = await employeeService.CreateEmployeeAsync(request);
 
         return CreatedAtAction(
-            actionName: nameof(GetEmployeeDetailsAsync),
+            actionName: nameof(GetEmployeeByIdAsync),
             controllerName: "Employee",
-            routeValues: new { employee = employee.Employee.Id },
+            routeValues: new { employeeId = employee.Employee.Id },
             value: employee
         );
     }
     
-    [Authorize(Roles = "Manager, Employee")]
+    [Authorize(Roles = "Admin, Manager, Employee")]
     [HttpGet]
     public async Task<IActionResult> GetEmployeeAsync()
     {
-        var employee = await employeeService.GetEmployeeByUserIdAsync(UserId);
-
-        return this.OkResponse(employee, "Successfully retrieved employee.");
-    }
-    
-    [Authorize(Roles = "Manager, Employee")]
-    [HttpGet("details")]
-    public async Task<IActionResult> GetEmployeeDetailsAsync()
-    {
-        var employee = await employeeService.GetEmployeeDetailsByUserIdAsync(UserId);
+        var employee = await employeeService.GetEmployeeWithProfileByUserIdAsync(UserId);
 
         return this.OkResponse(employee, "Successfully retrieved employee.");
     }
     
     [Authorize(Roles = "Admin, Manager")]
-    [HttpGet("get-by-id/{employeeId:guid}")]
+    [HttpGet("{employeeId:guid}")]
     public async Task<IActionResult> GetEmployeeByIdAsync(Guid employeeId)
     {
-        var employee = await employeeService.GetEmployeeByIdAsync(employeeId);
+        var employee = await employeeService.GetEmployeeWithProfileByIdAsync(employeeId);
 
         return this.OkResponse(employee, "Successfully retrieved employee.");
     }
-    
-    [Authorize(Roles = "Admin, Manager")]
-    [HttpGet("get-details-by-id/{employeeId:guid}")]
-    public async Task<IActionResult> GetEmployeeDetailsByIdAsync(Guid employeeId)
-    {
-        var employee = await employeeService.GetEmployeeDetailsByIdAsync(employeeId);
 
-        return this.OkResponse(employee, "Successfully retrieved employee.");
-    }
-    
     [Authorize(Roles = "Admin, Manager, Employee")]
-    [HttpGet("get-by-code/{employeeCode}")]
-    public async Task<IActionResult> GetEmployeeByCodeAsync(string employeeCode)
+    [HttpGet("get-all")]
+    public async Task<IActionResult> GetAllEmployeesAsync(
+        [FromQuery] Guid salonId, 
+        [FromQuery] string? code = null,
+        [FromQuery] string? firstName = null,
+        [FromQuery] string? lastName = null,
+        [FromQuery] EmploymentStatus? status = null)
     {
-        var validationResult = await new EmployeeCodeValidator().ValidateAsync(employeeCode);
-        if (!validationResult.IsValid)
-        {
-            var errors = validationResult.Errors
-                .ToDictionary(error => error.ErrorCode, error => new[] { error.ErrorMessage });
-        
-            return BadRequest(new ValidationErrorResponse { Errors = errors });
-        }
-        
-        var employee = await employeeService.GetEmployeeByCodeAsync(employeeCode);
+        var employees = await employeeService.GetEmployeesAsync(salonId, code, firstName, lastName, status);
 
-        return this.OkResponse(employee, "Successfully retrieved employee.");
+        return this.OkResponse(employees, "Successfully retrieved employees.");
     }
     
-    
-    [Authorize(Roles = "Admin, Manager, Employee")]
-    [HttpGet("get-details-by-code/{employeeCode}")]
-    public async Task<IActionResult> GetEmployeeDetailsByCodeAsync(string employeeCode)
-    {
-        var validationResult = await new EmployeeCodeValidator().ValidateAsync(employeeCode);
-        if (!validationResult.IsValid)
-            return BadRequest(validationResult.Errors);
-        
-        var employee = await employeeService.GetEmployeeDetailsByCodeAsync(employeeCode);
-
-        return this.OkResponse(employee, "Successfully retrieved employee.");
-    }
-    
-    [Authorize(Roles ="Manager, Employee")]
+    [Authorize(Roles ="Admin, Manager, Employee")]
     [HttpPatch("update")]
     public async Task<IActionResult> UpdateEmployeeAsync([FromBody] JsonPatchDocument<UpdateEmployeeSelfRequest> patchDocument)
     {
@@ -112,7 +76,7 @@ public class EmployeeController(IEmployeeService employeeService, UserManager<Us
             : BadRequest(new ValidationErrorResponse { Errors = result.Errors });
     }
     
-    [Authorize(Roles = "Manager, Employee")]
+    [Authorize(Roles = "Admin, Manager, Employee")]
     [HttpPatch("details/update")]
     public async Task<IActionResult> UpdateEmployeeProfileAsync([FromBody] JsonPatchDocument<UpdateEmployeeProfileSelfRequest> patchDocument)
     {
@@ -125,7 +89,9 @@ public class EmployeeController(IEmployeeService employeeService, UserManager<Us
     
     [Authorize(Roles = "Admin, Manager")]
     [HttpPatch("update/{employeeId:guid}")]
-    public async Task<IActionResult> UpdateEmployeeAsync(Guid employeeId, [FromBody] JsonPatchDocument<UpdateEmployeeRequest> patchDocument)
+    public async Task<IActionResult> UpdateEmployeeAsync(
+        Guid employeeId,
+        [FromBody] JsonPatchDocument<UpdateEmployeeRequest> patchDocument)
     {
         var result = await employeeService.UpdateEmployeeAsync(employeeId, patchDocument);
         
@@ -136,12 +102,50 @@ public class EmployeeController(IEmployeeService employeeService, UserManager<Us
     
     [Authorize(Roles = "Admin, Manager")]
     [HttpPatch("details/update/{employeeId:guid}")]
-    public async Task<IActionResult> UpdateEmployeeProfileAsync(Guid employeeId, [FromBody] JsonPatchDocument<UpdateEmployeeProfileRequest> patchDocument)
+    public async Task<IActionResult> UpdateEmployeeProfileAsync(
+        Guid employeeId,
+        [FromBody] JsonPatchDocument<UpdateEmployeeProfileRequest> patchDocument)
     {
         var result = await employeeService.UpdateEmployeeProfileAsync(employeeId, patchDocument);
 
         return result.IsSuccess 
             ? NoContent() 
             : BadRequest(new ValidationErrorResponse { Errors = result.Errors });
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{employeeId}")]
+    public async Task<IActionResult> DeleteEmployeeAsync(Guid employeeId)
+    {
+        await employeeService.DeleteEmployeeAsync(employeeId);
+        
+        return NoContent();
+    }
+    
+    [HttpPost("{employeeId}/services/{serviceId}")]
+    [Authorize(Roles = "Admin, Manager")]
+    public async Task<IActionResult> AssignServiceToEmployeeAsync(Guid employeeId, Guid serviceId)
+    {
+        await employeeService.AssignServiceToEmployeeAsync(employeeId, serviceId);
+
+        return this.OkResponse("Successfully assigned service to employee.");
+    }
+    
+    [HttpDelete("{employeeId}/services/{serviceId}")]
+    [Authorize(Roles = "Admin, Manager")]
+    public async Task<IActionResult> RemoveServiceFromEmployeeAsync(Guid employeeId, Guid serviceId)
+    {
+        await employeeService.RemoveServiceFromEmployeeAsync(employeeId, serviceId);
+
+        return NoContent();
+    }
+    
+    [HttpGet("{employeeId}/services")]
+    [Authorize(Roles = "Admin, Manager, Employee")]
+    public async Task<IActionResult> GetEmployeeServicesAsync(Guid employeeId)
+    {
+        var services = await employeeService.GetEmployeeServices(employeeId);
+        
+        return this.OkResponse(services, "Successfully retrieved employee services.");
     }
 }

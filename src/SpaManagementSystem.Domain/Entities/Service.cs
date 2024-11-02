@@ -5,6 +5,7 @@ namespace SpaManagementSystem.Domain.Entities;
 
 public class Service : BaseEntity
 {
+    private ISet<Employee> _employees = new HashSet<Employee>();
     public string Name { get; protected set; }
     public string Code { get; protected set; }
     public string? Description { get; protected set; }
@@ -18,6 +19,7 @@ public class Service : BaseEntity
     public Salon Salon { get; protected set; }
     
     public decimal PriceWithTax => Price + Price * TaxRate;
+    public IEnumerable<Employee> Employees => _employees;
     
     
     
