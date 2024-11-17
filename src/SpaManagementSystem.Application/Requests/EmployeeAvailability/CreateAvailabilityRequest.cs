@@ -1,0 +1,3 @@
+﻿namespace SpaManagementSystem.Application.Requests.EmployeeAvailability;
+
+public record CreateAvailabilityRequest(IEnumerable<EmployeeAvailabilityRequest> EmployeeAvailabilities);

@@ -33,6 +33,15 @@ public class EmployeeRepository(SmsDbContext context) : Repository<Employee>(con
             .Include(x => x.Services)
             .FirstOrDefaultAsync(x => x.Id == employeeId);
     
+    public async Task<Employee?> GetWithAvailabilitiesByIdAsync(Guid employeeId, DateOnly? startDate = null,
+        DateOnly? endDate = null)
+        => await _context.Employees
+            .Include(e
+                => e.EmployeeAvailabilities.Where(ea =>
+                    (!startDate.HasValue || ea.Date >= startDate.Value) &&
+                    (!endDate.HasValue || ea.Date <= endDate.Value)))
+            .FirstOrDefaultAsync(e => e.Id == employeeId);
+    
     public async Task<IEnumerable<Employee>> GetEmployeesAsync(Guid salonId, string? code = null,
         string? firstName = null, string? lastName = null, EmploymentStatus? status = null)
     {
@@ -52,5 +61,20 @@ public class EmployeeRepository(SmsDbContext context) : Repository<Employee>(con
             query = query.Where(x => x.Code.ToLower().Contains(code.ToLower()));
 
         return await query.ToListAsync();
+    }
+
+    public Task<EmployeeAvailability?> GetAvailabilityByIdAsync(Guid employeeId, Guid availabilityId)
+        => _context.EmployeeAvailabilities.FirstOrDefaultAsync(
+            x => x.Id == availabilityId && x.EmployeeId == employeeId);
+
+    public async Task DeleteAvailabilitiesInRange(Guid employeeId, DateOnly? startDate = null, DateOnly? endDate = null)
+    {
+        var availabilities = await _context.EmployeeAvailabilities
+            .Where(x => x.EmployeeId == employeeId &&
+                        (!startDate.HasValue || x.Date >= startDate.Value) &&
+                        (!endDate.HasValue || x.Date <= endDate.Value))
+            .ToListAsync();
+        
+        _context.EmployeeAvailabilities.RemoveRange(availabilities);
     }
 }

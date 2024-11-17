@@ -35,17 +35,22 @@ public static class ApplicationDependencies
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<ISalonServiceService, SalonServiceService>();
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IEmployeeAvailabilityService, EmployeeAvailabilityService>();
+        
         services.AddScoped<ISpecification<Salon>, SalonSpecification>();
         services.AddScoped<ISpecification<Address>, AddressSpecification>();
         services.AddScoped<ISpecification<Employee>, EmployeeSpecification>();
         services.AddScoped<ISpecification<EmployeeProfile>, EmployeeProfileSpecification>();
         services.AddScoped<ISpecification<Service>, ServiceSpecification>();
         services.AddScoped<ISpecification<Product>, ProductSpecification>();
+        services.AddScoped<ISpecification<EmployeeAvailability>, EmployeeAvailabilitySpecification>();
+        
         services.AddScoped<SalonBuilder>();
         services.AddScoped<AddressBuilder>();
         services.AddScoped<EmployeeBuilder>();
         services.AddScoped<ServiceBuilder>();
         services.AddScoped<ProductBuilder>();
+        services.AddScoped<EmployeeAvailabilityBuilder>();
         
         return services;
     }

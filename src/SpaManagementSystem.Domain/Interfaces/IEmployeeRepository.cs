@@ -9,6 +9,9 @@ public interface IEmployeeRepository : IRepository<Employee> , IUniqueCodeReposi
     public Task<Employee?> GetWithProfileByUserIdAsync(Guid userId);
     public Task<Employee?> GetWithProfileByIdAsync(Guid employeeId);
     public Task<Employee?> GetWithServicesByIdAsync(Guid employeeId);
+    public Task<Employee?> GetWithAvailabilitiesByIdAsync(Guid employeeId, DateOnly? startDate = null,
+        DateOnly? endDate = null);
     public Task<IEnumerable<Employee>> GetEmployeesAsync(Guid salonId, string? code = null,
         string? firstName = null, string? lastName = null, EmploymentStatus? status = null);
+    public Task DeleteAvailabilitiesInRange(Guid employeeId, DateOnly? startDate = null, DateOnly? endDate = null);
 }

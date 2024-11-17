@@ -6,7 +6,6 @@ using SpaManagementSystem.Application.Requests.Employee;
 using SpaManagementSystem.Application.Requests.Product;
 using SpaManagementSystem.Application.Requests.Salon;
 using SpaManagementSystem.Application.Requests.Service;
-using SpaManagementSystem.Domain.Enums;
 
 namespace SpaManagementSystem.Application.Mappers;
 
@@ -38,7 +37,14 @@ public class AutoMapperProfile : Profile
                 src.Profile.Email,
                 src.Profile.PhoneNumber
             ));
-
+        
+        CreateMap<EmployeeAvailability, EmployeeAvailabilityDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.EmployeeId, opt => opt.MapFrom(src => src.EmployeeId))
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
+            .ForMember(dest => dest.AvailableHours, opt => opt.MapFrom(src => src.AvailableHours));
+        CreateMap<AvailableHours, AvailableHoursDto>();
+        
         CreateMap<Service, ServiceDto>();
         
         CreateMap<Product, ProductDto>()

@@ -7,6 +7,7 @@ namespace SpaManagementSystem.Domain.Entities;
 public class Employee : BaseEntity
 {
     private ISet<Service> _services = new HashSet<Service>();
+    private ISet<EmployeeAvailability> _employeeAvailabilities = new HashSet<EmployeeAvailability>();
     public Guid SalonId { get; protected set; }
     public Guid UserId { get; protected set; }
     public string Position { get; protected set; }
@@ -18,6 +19,7 @@ public class Employee : BaseEntity
     public Salon Salon { get; protected set; }
     public EmployeeProfile Profile { get; protected set; }
     public IEnumerable<Service> Services => _services;
+    public IEnumerable<EmployeeAvailability> EmployeeAvailabilities => _employeeAvailabilities;
     
     
     
@@ -90,4 +92,12 @@ public class Employee : BaseEntity
     {
         _services.Remove(service);
     }
+    
+    public void AddAvailability(EmployeeAvailability employeeAvailability)
+    {
+        _employeeAvailabilities.Add(employeeAvailability);
+    }
+
+    public bool HasAvailabilityOnDate(DateOnly date)
+        => EmployeeAvailabilities.Any(a => a.Date == date);
 }

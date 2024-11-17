@@ -15,6 +15,7 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     public DbSet<Employee> Employees { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<Service> Services { get; set; }
+    public DbSet<EmployeeAvailability> EmployeeAvailabilities { get; set; }
     
     
     
@@ -91,10 +92,36 @@ public class SmsDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
             entity.HasMany(e => e.Services)
                 .WithMany(s => s.Employees)
                 .UsingEntity(j => j.ToTable("EmployeeServices"));
+
+            entity.HasMany(e => e.EmployeeAvailabilities)
+                .WithOne(ea => ea.Employee)
+                .HasForeignKey(ea => ea.EmployeeId);
             
             entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.Position).IsRequired();
             entity.Property(e => e.Code).IsRequired();
+        });
+
+        modelBuilder.Entity<EmployeeAvailability>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity
+                .HasOne(ea => ea.Employee)
+                .WithMany(e => e.EmployeeAvailabilities)
+                .HasForeignKey(ea => ea.EmployeeId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.OwnsMany(e => e.AvailableHours, p =>
+            {
+                p.ToTable("EmployeeAvailabilityHours");
+
+                p.Property(h => h.Start).IsRequired();
+                p.Property(h => h.End).IsRequired();
+
+                p.WithOwner().HasForeignKey("EmployeeAvailabilityId");
+            });
         });
 
         modelBuilder.Entity<Product>(entity =>
