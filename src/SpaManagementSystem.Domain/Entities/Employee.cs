@@ -8,6 +8,7 @@ public class Employee : BaseEntity
 {
     private ISet<Service> _services = new HashSet<Service>();
     private ISet<EmployeeAvailability> _employeeAvailabilities = new HashSet<EmployeeAvailability>();
+    private ISet<Appointment> _appointments = new HashSet<Appointment>();
     public Guid SalonId { get; protected set; }
     public Guid UserId { get; protected set; }
     public string Position { get; protected set; }
@@ -20,6 +21,7 @@ public class Employee : BaseEntity
     public EmployeeProfile Profile { get; protected set; }
     public IEnumerable<Service> Services => _services;
     public IEnumerable<EmployeeAvailability> EmployeeAvailabilities => _employeeAvailabilities;
+    public IEnumerable<Appointment> Appointments => _appointments;
     
     
     

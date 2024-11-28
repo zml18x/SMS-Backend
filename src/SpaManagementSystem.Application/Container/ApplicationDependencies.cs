@@ -44,6 +44,7 @@ public static class ApplicationDependencies
         services.AddScoped<ISpecification<Service>, ServiceSpecification>();
         services.AddScoped<ISpecification<Product>, ProductSpecification>();
         services.AddScoped<ISpecification<EmployeeAvailability>, EmployeeAvailabilitySpecification>();
+        services.AddScoped<ISpecification<Customer>, CustomerSpecification>();
         
         services.AddScoped<SalonBuilder>();
         services.AddScoped<AddressBuilder>();
@@ -51,6 +52,7 @@ public static class ApplicationDependencies
         services.AddScoped<ServiceBuilder>();
         services.AddScoped<ProductBuilder>();
         services.AddScoped<EmployeeAvailabilityBuilder>();
+        services.AddScoped<CustomerBuilder>();
         
         return services;
     }

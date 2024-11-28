@@ -10,6 +10,8 @@ public class Salon : BaseEntity
     private ISet<Employee> _employees = new HashSet<Employee>();
     private ISet<Product> _products = new HashSet<Product>();
     private ISet<Service> _services = new HashSet<Service>();
+    private ISet<Customer> _customers = new HashSet<Customer>();
+    private ISet<Appointment> _appointments = new HashSet<Appointment>();
     public Guid UserId { get; protected set; }
     public string Name { get; protected set; } = String.Empty;
     public string Email { get; protected set; } = String.Empty;
@@ -20,6 +22,8 @@ public class Salon : BaseEntity
     public IEnumerable<Employee> Employees => _employees;
     public IEnumerable<Product> Products => _products;
     public IEnumerable<Service> Services => _services;
+    public IEnumerable<Customer> Customers => _customers;
+    public IEnumerable<Appointment> Appointments => _appointments;
         
 
     
