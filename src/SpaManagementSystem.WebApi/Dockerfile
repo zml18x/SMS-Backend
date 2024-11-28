@@ -11,7 +11,7 @@ ENV ASPNETCORE_HTTPS_PORT=8081
 ENV ASPNETCORE_Kestrel__Certificates__Default__Password="maslo#2!XX"
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path="/app/certs/aspnetapp.pfx"
 
-ENV SENDGRID_API_KEY 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
+ENV SENDGRID_API_KEY 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
 ENV SENDGRID_SENDER_EMAIL "zml18x@gmail.com"
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
