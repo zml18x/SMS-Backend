@@ -15,6 +15,8 @@ public class CustomerSpecification : ISpecification<Customer>
         if (!string.IsNullOrWhiteSpace(entity.Email))
             SpecificationHelper.ValidateEmail(entity.Email, _result);
         SpecificationHelper.ValidatePhoneNumber(entity.PhoneNumber, _result);
+        SpecificationHelper.ValidateOptionalStringLength(entity.Notes, 500, _result,
+            "Notes cannot be longer than 500 characters.");
 
         return _result;
     }

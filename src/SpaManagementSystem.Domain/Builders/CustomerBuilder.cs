@@ -14,10 +14,11 @@ public class CustomerBuilder(ISpecification<Customer> specification) : IBuilder<
     private GenderType _gender = GenderType.Male;
     private string _phoneNumber = string.Empty;
     private string? _email;
+    private string? _notes;
     
     public Customer Build()
     {
-        var customer = new Customer(_id, _salonId, _firstName, _lastName, _gender, _phoneNumber, _email);
+        var customer = new Customer(_id, _salonId, _firstName, _lastName, _gender, _phoneNumber, _email, _notes);
         
         var validationResult = specification.IsSatisfiedBy(customer);
         if (!validationResult.IsValid)
@@ -62,9 +63,16 @@ public class CustomerBuilder(ISpecification<Customer> specification) : IBuilder<
         return this;
     }
     
-    public CustomerBuilder WithEmail(string email)
+    public CustomerBuilder WithEmail(string? email)
     {
-        _email = email.ToLower();
+        
+        _email = email?.ToLower();
+        return this;
+    }
+
+    public CustomerBuilder WithNotes(string? notes)
+    {
+        _notes = notes;
         return this;
     }
 }

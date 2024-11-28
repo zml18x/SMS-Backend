@@ -2,6 +2,7 @@
 using SpaManagementSystem.Domain.Entities;
 using SpaManagementSystem.Domain.ValueObjects;
 using SpaManagementSystem.Application.Dto;
+using SpaManagementSystem.Application.Requests.Customer;
 using SpaManagementSystem.Application.Requests.Employee;
 using SpaManagementSystem.Application.Requests.Product;
 using SpaManagementSystem.Application.Requests.Salon;
@@ -53,6 +54,8 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.SalePriceWithTax, 
                 opt => opt.MapFrom(src => src.SalePriceWithTax));
 
+        CreateMap<Customer, CustomerDto>();
+
         CreateMap<Salon, UpdateSalonRequest>();
             
         CreateMap<Employee, UpdateEmployeeRequest>();
@@ -63,5 +66,7 @@ public class AutoMapperProfile : Profile
         CreateMap<Service, UpdateServiceRequest>();
         
         CreateMap<Product, UpdateProductRequest>();
+
+        CreateMap<Customer, UpdateCustomerRequest>();
     }
 }

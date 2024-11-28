@@ -109,4 +109,9 @@ public class Salon : BaseEntity
     {
         _products.Add(product);
     }
+
+    public void AddCustomer(Customer customer)
+    {
+        _customers.Add(customer);
+    }
 }

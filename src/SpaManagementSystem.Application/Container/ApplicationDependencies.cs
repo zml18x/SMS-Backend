@@ -36,6 +36,7 @@ public static class ApplicationDependencies
         services.AddScoped<ISalonServiceService, SalonServiceService>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IEmployeeAvailabilityService, EmployeeAvailabilityService>();
+        services.AddScoped<ICustomerService, CustomerService>();
         
         services.AddScoped<ISpecification<Salon>, SalonSpecification>();
         services.AddScoped<ISpecification<Address>, AddressSpecification>();
