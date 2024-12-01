@@ -19,9 +19,10 @@ public class AppointmentService : BaseEntity
     
     protected AppointmentService() { }
     
-    public AppointmentService(Guid id, Guid appointmentId, Guid serviceId, decimal price)
+    public AppointmentService(Guid id, Guid salonId, Guid appointmentId, Guid serviceId, decimal price)
     {
         Id = id;
+        SalonId = salonId;
         AppointmentId = appointmentId;
         ServiceId = serviceId;
         Price = price;
