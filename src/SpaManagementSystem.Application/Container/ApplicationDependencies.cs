@@ -37,6 +37,7 @@ public static class ApplicationDependencies
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IEmployeeAvailabilityService, EmployeeAvailabilityService>();
         services.AddScoped<ICustomerService, CustomerService>();
+        services.AddScoped<IAppointmentService, Services.AppointmentService>();
         
         services.AddScoped<ISpecification<Salon>, SalonSpecification>();
         services.AddScoped<ISpecification<Address>, AddressSpecification>();
@@ -46,6 +47,9 @@ public static class ApplicationDependencies
         services.AddScoped<ISpecification<Product>, ProductSpecification>();
         services.AddScoped<ISpecification<EmployeeAvailability>, EmployeeAvailabilitySpecification>();
         services.AddScoped<ISpecification<Customer>, CustomerSpecification>();
+        services.AddScoped<ISpecification<Appointment>, AppointmentSpecification>();
+        services.AddScoped<ISpecification<Domain.Entities.AppointmentService>, AppointmentServiceSpecification>();
+        services.AddScoped<ISpecification<Payment>, PaymentSpecification>();
         
         services.AddScoped<SalonBuilder>();
         services.AddScoped<AddressBuilder>();
@@ -54,6 +58,9 @@ public static class ApplicationDependencies
         services.AddScoped<ProductBuilder>();
         services.AddScoped<EmployeeAvailabilityBuilder>();
         services.AddScoped<CustomerBuilder>();
+        services.AddScoped<AppointmentBuilder>();
+        services.AddScoped<AppointmentServiceBuilder>();
+        services.AddScoped<PaymentBuilder>();
         
         return services;
     }

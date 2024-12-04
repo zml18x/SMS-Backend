@@ -55,6 +55,9 @@ public class AutoMapperProfile : Profile
                 opt => opt.MapFrom(src => src.SalePriceWithTax));
 
         CreateMap<Customer, CustomerDto>();
+        CreateMap<Appointment, AppointmentDto>();
+        CreateMap<AppointmentService, AppointmentServiceDto>();
+        CreateMap<Payment, PaymentDto>();
 
         CreateMap<Salon, UpdateSalonRequest>();
             

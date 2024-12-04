@@ -105,7 +105,10 @@ public static class ValidationExtensions
         => ruleBuilder
             .NotEmpty().WithMessage("URL is required.")
             .Matches(@"^(http|https):\/\/[^\s/$.?#].[^\s]*$").WithMessage("URL is invalid.");
-
+    
+    public static IRuleBuilderOptions<T, AppointmentStatus> MatchAppointmentStatus<T>(this IRuleBuilder<T, AppointmentStatus> rule)
+        => rule
+            .IsInEnum().WithMessage("Invalid appointment status.");
     
     private static bool BeAtLeast16YearsOld(DateOnly dateOfBirth)
     {

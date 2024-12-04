@@ -77,4 +77,27 @@ public class EmployeeRepository(SmsDbContext context) : Repository<Employee>(con
         
         _context.EmployeeAvailabilities.RemoveRange(availabilities);
     }
+
+    public async Task<bool> IsEmployeeAvailableForAppointmentAsync(Guid employeeId, DateOnly date, DateTime startTime,
+        DateTime endTime, Guid? appointmentId = null)
+    {
+        var hasAvailability = await _context.EmployeeAvailabilities.AnyAsync(a =>
+            a.EmployeeId == employeeId &&
+            a.Date == date &&
+            a.AvailableHours.Any(h =>
+                h.Start <= startTime.TimeOfDay &&
+                h.End >= endTime.TimeOfDay));
+        
+        var hasConflictingAppointment = await _context.Appointments.AnyAsync(a =>
+            a.EmployeeId == employeeId &&
+            a.Date == date &&
+            a.Id != appointmentId &&
+            (
+                (startTime >= a.StartTime && startTime < a.EndTime) ||
+                (endTime > a.StartTime && endTime <= a.EndTime) ||
+                (startTime <= a.StartTime && endTime >= a.EndTime)
+            ));
+        
+        return hasAvailability && !hasConflictingAppointment;
+    }
 }

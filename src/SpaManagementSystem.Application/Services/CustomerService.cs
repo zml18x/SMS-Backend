@@ -50,7 +50,9 @@ public class CustomerService(ISalonRepository salonRepository, ICustomerReposito
 
     public async Task<IEnumerable<CustomerDto>> GetCustomersAsync(Guid salonId, string? fistName = null,
         string? lastName = null, string? phoneNumber = null, string? email = null, bool? isActive = null)
-    {
+    { 
+        await salonRepository.GetOrThrowAsync(() => salonRepository.GetByIdAsync(salonId));
+        
         var customers =
             await customerRepository.GetCustomersAsync(salonId, fistName, lastName, phoneNumber, email, isActive);
         

@@ -14,4 +14,6 @@ public interface IEmployeeRepository : IRepository<Employee> , IUniqueCodeReposi
     public Task<IEnumerable<Employee>> GetEmployeesAsync(Guid salonId, string? code = null,
         string? firstName = null, string? lastName = null, EmploymentStatus? status = null);
     public Task DeleteAvailabilitiesInRange(Guid employeeId, DateOnly? startDate = null, DateOnly? endDate = null);
+    public Task<bool> IsEmployeeAvailableForAppointmentAsync(Guid employeeId, DateOnly date, DateTime startTime,
+        DateTime endTime, Guid? appointmentId = null);
 }
