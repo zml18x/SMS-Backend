@@ -26,7 +26,9 @@ public class ProductRepository(SmsDbContext context) : Repository<Product>(conte
 
         if (!string.IsNullOrEmpty(code))
             query = query.Where(x => x.Code.ToLower().Contains(code.ToLower()));
-
+        
+        query = query.OrderBy(x => x.Name);
+        
         return await query.ToListAsync();
     }
 }

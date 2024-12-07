@@ -59,7 +59,9 @@ public class EmployeeRepository(SmsDbContext context) : Repository<Employee>(con
 
         if (!string.IsNullOrEmpty(code))
             query = query.Where(x => x.Code.ToLower().Contains(code.ToLower()));
-
+        
+        query = query.OrderBy(x => x.Profile.LastName);
+        
         return await query.ToListAsync();
     }
 

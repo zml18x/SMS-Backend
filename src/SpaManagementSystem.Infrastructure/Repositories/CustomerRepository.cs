@@ -37,6 +37,8 @@ public class CustomerRepository(SmsDbContext context) : Repository<Customer>(con
         if (!string.IsNullOrWhiteSpace(email))
             query = query.Where(x => x.Email != null && x.Email.ToLower().Contains(email.ToLower()));
 
+        query = query.OrderBy(x => x.LastName);
+        
         return await query.ToListAsync();
     }
 }

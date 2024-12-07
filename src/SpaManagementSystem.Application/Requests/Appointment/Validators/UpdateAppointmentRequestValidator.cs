@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using SpaManagementSystem.Application.Common.Validation;
 
 namespace SpaManagementSystem.Application.Requests.Appointment.Validators;
 
@@ -7,12 +8,10 @@ public class UpdateAppointmentRequestValidator : AbstractValidator<UpdateAppoint
     public UpdateAppointmentRequestValidator()
     {
         RuleFor(x => x.EmployeeId)
-            .NotEmpty().WithMessage("EmployeeId is required.")
-            .Must(g => g != Guid.Empty).WithMessage("EmployeeId must be a valid non-empty GUID.");
+            .ValidateId("EmployeeId");
         
         RuleFor(x => x.CustomerId)
-            .NotEmpty().WithMessage("CustomerId is required.")
-            .Must(g => g != Guid.Empty).WithMessage("CustomerId must be a valid non-empty GUID.");
+            .ValidateId("CustomerId");
         
         RuleFor(x => x.Date)
             .NotEmpty().WithMessage("Date is required.")

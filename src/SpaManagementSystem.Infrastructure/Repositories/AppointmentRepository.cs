@@ -69,6 +69,8 @@ public class AppointmentRepository(SmsDbContext context) : Repository<Appointmen
         if (endDate.HasValue)
             query = query.Where(x => x.Date <= endDate);
         
+        query = query.OrderByDescending(x => x.Date);
+        
         return await query.ToListAsync();
     }
 }

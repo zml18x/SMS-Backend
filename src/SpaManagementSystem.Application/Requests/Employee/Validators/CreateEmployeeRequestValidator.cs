@@ -8,12 +8,10 @@ public class CreateEmployeeRequestValidator : AbstractValidator<CreateEmployeeRe
     public CreateEmployeeRequestValidator()
     {
         RuleFor(x => x.SalonId)
-            .NotEmpty().WithMessage("SalonId is required.")
-            .Must(g => g != Guid.Empty).WithMessage("SalonId must be a valid non-empty GUID.");
+            .ValidateId("SalonId");
 
         RuleFor(x => x.UserId)
-            .NotEmpty().WithMessage("UserId is required.")
-            .Must(g => g != Guid.Empty).WithMessage("UserId must be a valid non-empty GUID.");
+            .ValidateId("UserId");
 
         RuleFor(x => x.Position)
             .MatchEmployeePosition();

@@ -8,8 +8,7 @@ public class CreateServiceRequestValidator : AbstractValidator<CreateServiceRequ
     public CreateServiceRequestValidator()
     {
         RuleFor(x => x.SalonId)
-            .NotEmpty().WithMessage("SalonId is required.")
-            .Must(g => g != Guid.Empty).WithMessage("SalonId must be a valid non-empty GUID.");
+            .ValidateId("SalonId");
         
         RuleFor(x => x.Name)
             .MatchName();

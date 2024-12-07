@@ -8,8 +8,7 @@ public class CreateAppointmentServiceRequestValidator : AbstractValidator<Create
     public CreateAppointmentServiceRequestValidator()
     {
         RuleFor(x => x.ServiceId)
-            .NotEmpty().WithMessage("ServiceID is required.")
-            .Must(g => g != Guid.Empty).WithMessage("ServiceID must be a valid non-empty GUID.");
+            .ValidateId("ServiceId");
 
         RuleFor(x => x.Price)
             .ValidatePrice();
