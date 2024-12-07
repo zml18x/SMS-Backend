@@ -67,6 +67,7 @@ public static class InfrastructureDependencies
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddSingleton<IEmailSender<User>, EmailSender>();
         services.AddSingleton<IEmailService, EmailService>();
             

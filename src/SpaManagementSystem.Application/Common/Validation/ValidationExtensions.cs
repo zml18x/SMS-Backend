@@ -109,6 +109,11 @@ public static class ValidationExtensions
     public static IRuleBuilderOptions<T, AppointmentStatus> MatchAppointmentStatus<T>(this IRuleBuilder<T, AppointmentStatus> rule)
         => rule
             .IsInEnum().WithMessage("Invalid appointment status.");
+
+    public static IRuleBuilderOptions<T, Guid> ValidateId<T>(this IRuleBuilder<T, Guid> rule, string fieldName)
+        => rule
+            .NotEmpty().WithMessage($"{fieldName} is required.")
+            .Must(g => g != Guid.Empty).WithMessage($"{fieldName} must be a valid non-empty GUID.");
     
     private static bool BeAtLeast16YearsOld(DateOnly dateOfBirth)
     {

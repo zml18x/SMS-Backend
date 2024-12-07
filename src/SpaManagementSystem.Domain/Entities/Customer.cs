@@ -7,6 +7,7 @@ namespace SpaManagementSystem.Domain.Entities;
 public class Customer : BaseEntity
 {
     private ISet<Appointment> _appointments = new HashSet<Appointment>();
+    private ISet<Payment> _payments = new HashSet<Payment>();
     
     public Guid SalonId { get; protected set; }
     public Salon Salon { get; protected set; }  = null!;
@@ -19,6 +20,7 @@ public class Customer : BaseEntity
     public string? Notes { get; protected set; }
     public bool IsActive { get; protected set; }
     public IEnumerable<Appointment> Appointments => _appointments;
+    public IEnumerable<Payment> Payments => _payments;
 
 
     

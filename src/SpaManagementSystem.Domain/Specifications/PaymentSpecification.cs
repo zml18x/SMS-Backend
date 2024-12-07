@@ -11,7 +11,8 @@ public class PaymentSpecification : ISpecification<Payment>
     {
         SpecificationHelper.ValidateGuid(entity.SalonId, _result, "SalonId is required (Cannot be Guid.Empty");
         SpecificationHelper.ValidateGuid(entity.AppointmentId, _result, "AppointmentId is required (Cannot be Guid.Empty");
-        
+        SpecificationHelper.ValidateGuid(entity.CustomerId, _result, "CustomerId is required (Cannot be Guid.Empty");
+        ValidatePaymentDate(entity.PaymentDate);
         ValidatePaymentStatus(entity.Status);
         ValidatePaymentMethod(entity.Method);
         SpecificationHelper.ValidatePrice(entity.Amount, _result, "Amount is required (Cannot be Zero or Negative)", false);

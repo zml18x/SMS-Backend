@@ -24,9 +24,10 @@ public class Appointment : BaseEntity
     public AppointmentStatus Status { get; protected set; }
     public string? Notes { get; protected set; }
     public decimal TotalPrice => _appointmentServices.Sum(x => x.Price);
-    public bool IsFullyPaid => _payments.Sum(p => p.Amount) >= TotalPrice;
+    public bool IsFullyPaid => _payments.Sum(p => p.Amount) >= TotalPrice; //sumowac platnosci po statusie zakonczonym
     public bool CanUpdate => EnsureStatusAllowsAction(AppointmentStatus.Pending, AppointmentStatus.Confirmed);
     public bool CanDelete => EnsureStatusAllowsAction(AppointmentStatus.Pending, AppointmentStatus.Confirmed) && !_payments.Any();
+    public bool CanBePaid => EnsureStatusAllowsAction(AppointmentStatus.Confirmed, AppointmentStatus.Completed);
     public IEnumerable<AppointmentService> AppointmentServices => _appointmentServices;
     public IEnumerable<Payment> Payments => _payments;
     
@@ -97,6 +98,14 @@ public class Appointment : BaseEntity
             UpdateTimestamp();
 
         return anyDataUpdated;
+    }
+
+    public void AddPayment(Payment payment)
+    {
+        if (!CanBePaid)
+            throw new InvalidOperationException($"Cannot add payment when appointment status is {Status}.");
+        
+        _payments.Add(payment);
     }
 
     private bool IsValidStatusTransition(AppointmentStatus currentStatus, AppointmentStatus newStatus)

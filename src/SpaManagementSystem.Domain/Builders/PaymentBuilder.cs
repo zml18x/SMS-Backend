@@ -10,6 +10,7 @@ public class PaymentBuilder(ISpecification<Payment> specification) : IBuilder<Pa
     private Guid _id = Guid.Empty;
     private Guid _salonId = Guid.Empty;
     private Guid _appointmentId = Guid.Empty;
+    private Guid _customerId = Guid.Empty;
     private DateTime _paymentDate;
     private PaymentStatus _status;
     private PaymentMethod _method;
@@ -18,7 +19,7 @@ public class PaymentBuilder(ISpecification<Payment> specification) : IBuilder<Pa
     
     public Payment Build()
     {
-        var payment = new Payment(_id, _salonId, _appointmentId, _paymentDate, _status, _method, _amount, _notes);
+        var payment = new Payment(_id, _salonId, _appointmentId, _customerId, _paymentDate, _status, _method, _amount, _notes);
         
         var validationResult = specification.IsSatisfiedBy(payment);
         if (!validationResult.IsValid)
@@ -42,6 +43,12 @@ public class PaymentBuilder(ISpecification<Payment> specification) : IBuilder<Pa
     public PaymentBuilder WithAppointmentId(Guid appointmentId)
     {
         _appointmentId = appointmentId;
+        return this;
+    }
+
+    public PaymentBuilder WithCustomerId(Guid customerId)
+    {
+        _appointmentId = customerId;
         return this;
     }
 
