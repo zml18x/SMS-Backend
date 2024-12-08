@@ -94,6 +94,7 @@ public class EmployeeRepository(SmsDbContext context) : Repository<Employee>(con
             a.EmployeeId == employeeId &&
             a.Date == date &&
             a.Id != appointmentId &&
+            a.Status != AppointmentStatus.Canceled &&
             (
                 (startTime >= a.StartTime && startTime < a.EndTime) ||
                 (endTime > a.StartTime && endTime <= a.EndTime) ||

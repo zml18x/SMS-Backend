@@ -48,7 +48,7 @@ public class PaymentBuilder(ISpecification<Payment> specification) : IBuilder<Pa
 
     public PaymentBuilder WithCustomerId(Guid customerId)
     {
-        _appointmentId = customerId;
+        _customerId = customerId;
         return this;
     }
 

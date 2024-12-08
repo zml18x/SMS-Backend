@@ -10,9 +10,6 @@ public class UpdateAppointmentRequestValidator : AbstractValidator<UpdateAppoint
         RuleFor(x => x.EmployeeId)
             .ValidateId("EmployeeId");
         
-        RuleFor(x => x.CustomerId)
-            .ValidateId("CustomerId");
-        
         RuleFor(x => x.Date)
             .NotEmpty().WithMessage("Date is required.")
             .Must(d => d >= DateOnly.FromDateTime(DateTime.Now))

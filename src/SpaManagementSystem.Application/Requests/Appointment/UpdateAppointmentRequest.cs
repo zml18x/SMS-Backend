@@ -2,7 +2,6 @@
 
 public record UpdateAppointmentRequest(
     Guid EmployeeId,
-    Guid CustomerId,
     DateOnly Date,
     DateTime StartTime,
     DateTime EndTime,

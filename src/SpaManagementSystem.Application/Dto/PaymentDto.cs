@@ -6,6 +6,7 @@ public record PaymentDto(
     Guid Id,
     Guid SalonId,
     Guid AppointmentId,
+    Guid CustomerId,
     DateTime PaymentDate,
     PaymentStatus Status,
     PaymentMethod Method,

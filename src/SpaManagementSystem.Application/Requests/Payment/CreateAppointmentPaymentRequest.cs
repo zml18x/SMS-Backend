@@ -3,8 +3,6 @@
 namespace SpaManagementSystem.Application.Requests.Payment;
 
 public record CreateAppointmentPaymentRequest(
-    Guid SalonId,
-    Guid AppointmentId,
     Guid CustomerId,
     DateTime PaymentDate,
     PaymentMethod PaymentMethod,

@@ -7,12 +7,6 @@ public class CreateAppointmentPaymentRequestValidator : AbstractValidator<Create
 {
     public CreateAppointmentPaymentRequestValidator()
     {
-        RuleFor(x => x.SalonId)
-            .ValidateId("SalonId");
-        
-        RuleFor(x => x.AppointmentId)
-            .ValidateId("AppointmentId");
-        
         RuleFor(x => x.CustomerId)
             .ValidateId("CustomerId");
         

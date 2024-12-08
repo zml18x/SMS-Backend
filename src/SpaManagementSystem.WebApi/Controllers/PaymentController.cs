@@ -10,11 +10,11 @@ namespace SpaManagementSystem.WebApi.Controllers;
 [Route("api/payment")]
 public class PaymentController(IPaymentService paymentService) : BaseController
 {
-    [HttpPost("appointment")]
+    [HttpPost("appointment/{appointmentId}")]
     [Authorize(Roles = "Admin, Manager, Employee")]
-    public async Task<IActionResult> CreateAppointmentPaymentAsync([FromBody] CreateAppointmentPaymentRequest request)
+    public async Task<IActionResult> CreateAppointmentPaymentAsync(Guid appointmentId, [FromBody] CreateAppointmentPaymentRequest request)
     {
-        var payment = await paymentService.CreateAppointmentPaymentAsync(request);
+        var payment = await paymentService.CreateAppointmentPaymentAsync(appointmentId, request);
         
         return CreatedAtAction(
             actionName: nameof(GetPaymentDetailsAsync),

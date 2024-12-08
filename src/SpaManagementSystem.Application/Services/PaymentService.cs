@@ -16,16 +16,18 @@ public class PaymentService(
     PaymentBuilder paymentBuilder,
     IMapper mapper) : IPaymentService
 {
-    public async Task<PaymentDto> CreateAppointmentPaymentAsync(CreateAppointmentPaymentRequest request)
+    public async Task<PaymentDto> CreateAppointmentPaymentAsync(Guid appointmentId, CreateAppointmentPaymentRequest request)
     {
-        var appointment = await appointmentRepository.GetOrThrowAsync(() => appointmentRepository.GetByIdAsync(request.AppointmentId));
+        var appointment = await appointmentRepository.GetOrThrowAsync(() => appointmentRepository.GetByIdAsync(appointmentId));
 
         if (!appointment.CanBePaid)
             throw new InvalidOperationException($"Appointment with status {appointment.Status} cannot be paid.");
-
+        
+        await customerRepository.GetOrThrowAsync(() => customerRepository.GetByIdAsync(request.CustomerId));
+        
         var payment = paymentBuilder
-            .WithSalonId(request.SalonId)
-            .WithAppointmentId(request.AppointmentId)
+            .WithSalonId(appointment.SalonId)
+            .WithAppointmentId(appointmentId)
             .WithCustomerId(request.CustomerId)
             .WithPaymentDate(request.PaymentDate)
             .WithStatus(PaymentStatus.Pending)
