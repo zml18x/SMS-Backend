@@ -87,7 +87,7 @@ public class AppointmentController(IAppointmentService appointmentService) : Bas
         return NoContent();
     }
 
-    [HttpPatch("{appointmentId:guid}")]
+    [HttpPut("{appointmentId:guid}")]
     [Authorize(Roles = "Admin, Manager, Employee")]
     public async Task<IActionResult> UpdateAppointmentAsync(Guid appointmentId, [FromBody] UpdateAppointmentRequest request)
     {

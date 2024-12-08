@@ -35,10 +35,10 @@ public class CustomerController(ICustomerService customerService) : BaseControll
         return this.OkResponse(customer, "Successful retrieved customer.");
     }
 
-    [HttpGet]
+    [HttpGet("salon/{salonId:guid}")]
     [Authorize(Roles = "Admin, Manager, Employee")]
     public async Task<IActionResult> GetCustomersAsync(
-        [FromQuery] Guid salonId,
+        Guid salonId,
         [FromQuery] string? firstName = null,
         [FromQuery] string? lastName = null,
         [FromQuery] string? phoneNumber = null,

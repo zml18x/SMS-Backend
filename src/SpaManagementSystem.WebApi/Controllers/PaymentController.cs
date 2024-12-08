@@ -24,7 +24,7 @@ public class PaymentController(IPaymentService paymentService) : BaseController
         );
     }
 
-    [HttpGet("{payment:guid}")]
+    [HttpGet("{paymentId:guid}")]
     [Authorize(Roles = "Admin, Manager, Employee")]
     public async Task<IActionResult> GetPaymentDetailsAsync(Guid paymentId)
     {

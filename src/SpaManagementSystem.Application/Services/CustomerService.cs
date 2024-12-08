@@ -65,17 +65,21 @@ public class CustomerService(ISalonRepository salonRepository, ICustomerReposito
         var existingCustomer = await customerRepository.GetOrThrowAsync(() => customerRepository.GetByIdAsync(customerId));
         
         var request = mapper.Map<UpdateCustomerRequest>(existingCustomer);
-        
+
+
         await ValidateUniqueFieldAsync(
             existingCustomer.SalonId,
             "email",
+            request.Email!,
             patchDocument,
             customerRepository.GetByEmailAsync,
             "Customer with this email already exists.");
-        
+
+
         await ValidateUniqueFieldAsync(
             existingCustomer.SalonId,
             "phoneNumber",
+            request.PhoneNumber!,
             patchDocument,
             customerRepository.GetByPhoneNumberAsync,
             "Customer with this phone number already exists.");
@@ -95,6 +99,9 @@ public class CustomerService(ISalonRepository salonRepository, ICustomerReposito
     public async Task DeleteAsync(Guid customerId)
     {
         var customer = await customerRepository.GetOrThrowAsync(() => customerRepository.GetByIdAsync(customerId));
+
+        if (await customerRepository.HasAnyAppointmentOrPaymentAsync(customer.SalonId, customerId))
+            throw new InvalidOperationException("Unable to delete the customer because they have existing appointments or payments. Consider setting their status to inactive instead.");
         
         customerRepository.Delete(customer);
         await customerRepository.SaveChangesAsync();
@@ -103,6 +110,7 @@ public class CustomerService(ISalonRepository salonRepository, ICustomerReposito
     private async Task ValidateUniqueFieldAsync<TRequest, TEntity>(
         Guid salonId,
         string fieldName,
+        string currentFieldValue,
         JsonPatchDocument<TRequest> patchDocument,
         Func<Guid, string, Task<TEntity?>> getByFieldFunc,
         string errorMessage) where TRequest : class where TEntity : class
@@ -112,10 +120,13 @@ public class CustomerService(ISalonRepository salonRepository, ICustomerReposito
 
         if (operation?.value is string value && !string.IsNullOrWhiteSpace(value))
         {
-            value = value.ToLower().Trim();
-            var existingEntity = await getByFieldFunc(salonId, value);
-            if (existingEntity != null)
-                throw new InvalidOperationException(errorMessage);
+            if (value != currentFieldValue)
+            {
+                value = value.ToLower().Trim();
+                var existingEntity = await getByFieldFunc(salonId, value);
+                if (existingEntity != null)
+                    throw new InvalidOperationException(errorMessage);
+            }
         }
     }
 }

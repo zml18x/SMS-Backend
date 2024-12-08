@@ -41,4 +41,8 @@ public class CustomerRepository(SmsDbContext context) : Repository<Customer>(con
         
         return await query.ToListAsync();
     }
+
+    public async Task<bool> HasAnyAppointmentOrPaymentAsync(Guid salonId, Guid customerId)
+        => await _context.Appointments.AnyAsync(a => a.SalonId == salonId && a.CustomerId == customerId) ||
+           await _context.Payments.AnyAsync(p => p.SalonId == salonId && p.CustomerId == customerId);
 }
