@@ -182,9 +182,11 @@ public class EmployeeService(
     
     public async Task AssignServiceToEmployeeAsync(Guid employeeId, Guid serviceId)
     {
-        var employee = await employeeRepository.GetOrThrowAsync(() => employeeRepository.GetByIdAsync(employeeId));
-        var service = await serviceRepository.GetOrThrowAsync(() => serviceRepository.GetByIdAsync(serviceId));
+        var employee = await employeeRepository.GetOrThrowAsync(() => employeeRepository.GetWithServicesByIdAsync(employeeId));
+        if(employee.Services.Any(x => x.Id == serviceId))
+            throw new InvalidOperationException("Service already assigned to employee");
         
+        var service = await serviceRepository.GetOrThrowAsync(() => serviceRepository.GetByIdAsync(serviceId));
         if(service.SalonId != employee.SalonId)
             throw new InvalidOperationException(
                 $"Cannot assign service with id {serviceId} to employee with id {employeeId} because the service belongs" +
