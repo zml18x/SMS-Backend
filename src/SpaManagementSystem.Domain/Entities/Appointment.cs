@@ -83,13 +83,13 @@ public class Appointment : BaseEntity
         if (!CanUpdate)
             throw new InvalidOperationException($"Cannot update appointment when status is {Status}.");
         
-        var propertyChanges = new Dictionary<Action, bool>
+        var propertyChanges = new Dictionary<Action, Func<bool>>
         {
-            { () => EmployeeId = employeeId, EmployeeId != employeeId },
-            { () => Date = date, Date != date },
-            { () => StartTime = startTime, StartTime != startTime },
-            { () => EndTime = endTime, EndTime != endTime },
-            { () => Notes = notes, Notes != notes },
+            { () => EmployeeId = employeeId, () => EmployeeId != employeeId },
+            { () => Date = date, () => Date != date },
+            { () => StartTime = startTime, () => StartTime != startTime },
+            { () => EndTime = endTime, () => EndTime != endTime },
+            { () => Notes = notes, () => Notes != notes },
         };
 
         var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);

@@ -54,20 +54,20 @@ public class Product : BaseEntity
         decimal salePrice, decimal saleTaxRate, decimal stockQuantity, int minimumStockQuantity, string unitOfMeasure,
         bool isActive, string? imgUrl)
     {
-        var propertyChanges = new Dictionary<Action, bool>
+        var propertyChanges = new Dictionary<Action, Func<bool>>
         {
-            { () => Name = name, Name != name },
-            { () => Code = code, Code != code },
-            { () => Description = description, Description != description },
-            { () => PurchasePrice = purchasePrice, PurchasePrice != purchasePrice },
-            { () => PurchaseTaxRate = purchaseTaxRate, PurchaseTaxRate != purchaseTaxRate },
-            { () => SalePrice = salePrice, SalePrice != salePrice },
-            { () => SaleTaxRate = saleTaxRate, SaleTaxRate != saleTaxRate },
-            { () => StockQuantity = stockQuantity, StockQuantity != stockQuantity },
-            { () => MinimumStockQuantity = minimumStockQuantity, MinimumStockQuantity != minimumStockQuantity },
-            { () => UnitOfMeasure = unitOfMeasure, UnitOfMeasure != unitOfMeasure },
-            { () => ImgUrl = imgUrl, ImgUrl != imgUrl },
-            { () => IsActive = isActive, IsActive != isActive }
+            { () => Name = name, () => Name != name },
+            { () => Code = code, () => Code != code },
+            { () => Description = description, () => Description != description },
+            { () => PurchasePrice = purchasePrice, () => PurchasePrice != purchasePrice },
+            { () => PurchaseTaxRate = purchaseTaxRate, () => PurchaseTaxRate != purchaseTaxRate },
+            { () => SalePrice = salePrice, () => SalePrice != salePrice },
+            { () => SaleTaxRate = saleTaxRate, () => SaleTaxRate != saleTaxRate },
+            { () => StockQuantity = stockQuantity, () =>  StockQuantity != stockQuantity },
+            { () => MinimumStockQuantity = minimumStockQuantity, () => MinimumStockQuantity != minimumStockQuantity },
+            { () => UnitOfMeasure = unitOfMeasure, () => UnitOfMeasure != unitOfMeasure },
+            { () => ImgUrl = imgUrl, () => ImgUrl != imgUrl },
+            { () => IsActive = isActive, () => IsActive != isActive }
         };
 
         var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);

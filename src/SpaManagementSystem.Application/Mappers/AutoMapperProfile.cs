@@ -36,7 +36,8 @@ public class AutoMapperProfile : Profile
                 src.Profile.LastName,
                 src.Profile.Gender,
                 src.Profile.Email,
-                src.Profile.PhoneNumber
+                src.Profile.PhoneNumber,
+                src.Notes
             ));
         
         CreateMap<EmployeeAvailability, EmployeeAvailabilityDto>()

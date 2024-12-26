@@ -44,15 +44,15 @@ public class Customer : BaseEntity
     public bool UpdateCustomer(string firstName, string lastName, GenderType gender, string phoneNumber, string? email,
         string? notes, bool isActive)
     {
-        var propertyChanges = new Dictionary<Action, bool>
+        var propertyChanges = new Dictionary<Action, Func<bool>>
         {
-            { () => FirstName = firstName, FirstName != firstName },
-            { () => LastName = lastName, LastName != lastName },
-            { () => Gender = gender, Gender != gender },
-            { () => PhoneNumber = phoneNumber, PhoneNumber != phoneNumber },
-            { () => Email = email, Email != email },
-            { () => Notes = notes, Notes != notes },
-            { () => IsActive = isActive, IsActive != isActive }
+            { () => FirstName = firstName, () => FirstName != firstName },
+            { () => LastName = lastName, () => LastName != lastName },
+            { () => Gender = gender, () => Gender != gender },
+            { () => PhoneNumber = phoneNumber, () => PhoneNumber != phoneNumber },
+            { () => Email = email, () => Email != email },
+            { () => Notes = notes, () => Notes != notes },
+            { () => IsActive = isActive, () => IsActive != isActive }
         };
 
         var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);

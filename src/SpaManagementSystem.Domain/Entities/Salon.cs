@@ -42,12 +42,12 @@ public class Salon : BaseEntity
     
     public bool UpdateSalon(string name, string email, string phoneNumber, string? description)
     {
-        var propertyChanges = new Dictionary<Action, bool>
+        var propertyChanges = new Dictionary<Action, Func<bool>>
         {
-            { () => Name = name, Name != name },
-            { () => Email = email, Email != email },
-            { () => PhoneNumber = phoneNumber, PhoneNumber != phoneNumber },
-            { () => Description = description, Description != description }
+            { () => Name = name, () => Name != name },
+            { () => Email = email, () => Email != email },
+            { () => PhoneNumber = phoneNumber, () => PhoneNumber != phoneNumber },
+            { () => Description = description, () => Description != description }
         };
 
         var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);

@@ -30,10 +30,10 @@ public class EmployeeProfile
 
     public bool UpdateEmployeeProfile(string email, string phoneNumber)
     {
-        var propertyChanges = new Dictionary<Action, bool>
+        var propertyChanges = new Dictionary<Action, Func<bool>>
         {
-            { () => Email = email, Email != email },
-            { () => PhoneNumber = phoneNumber, PhoneNumber != phoneNumber },
+            { () => Email = email, () => Email != email },
+            { () => PhoneNumber = phoneNumber, () => PhoneNumber != phoneNumber },
         };
 
         var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);
@@ -44,14 +44,14 @@ public class EmployeeProfile
     public bool UpdateEmployeeProfile(string firstName, string lastName, GenderType gender, DateOnly dateOfBirth,
         string email, string phoneNumber)
     {
-        var propertyChanges = new Dictionary<Action, bool>
+        var propertyChanges = new Dictionary<Action, Func<bool>>
         {
-            { () => FirstName = firstName, FirstName != firstName },
-            { () => LastName = lastName, LastName != lastName },
-            { () => Gender = gender, Gender != gender },
-            { () => DateOfBirth = dateOfBirth, DateOfBirth != dateOfBirth },
-            { () => Email = email, Email != email },
-            { () => PhoneNumber = phoneNumber, PhoneNumber != phoneNumber },
+            { () => FirstName = firstName, () => FirstName != firstName },
+            { () => LastName = lastName, () => LastName != lastName },
+            { () => Gender = gender, () => Gender != gender },
+            { () => DateOfBirth = dateOfBirth, () => DateOfBirth != dateOfBirth },
+            { () => Email = email, () => Email != email },
+            { () => PhoneNumber = phoneNumber, () => PhoneNumber != phoneNumber },
         };
 
         var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);

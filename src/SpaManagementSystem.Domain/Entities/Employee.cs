@@ -50,10 +50,10 @@ public class Employee : BaseEntity
 
     public bool UpdateEmployee(string color, string? notes)
     {
-        var propertyChanges = new Dictionary<Action, bool>
+        var propertyChanges = new Dictionary<Action, Func<bool>>
         {
-            { () => Color = color, Color != color },
-            { () => Notes = notes, Notes != notes },
+            { () => Color = color, () => Color != color },
+            { () => Notes = notes, () => Notes != notes },
         };
 
         var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);
@@ -67,14 +67,14 @@ public class Employee : BaseEntity
     public bool UpdateEmployee(string position, EmploymentStatus employmentStatus, string code, string color,
         DateOnly hireDate, string? notes)
     {
-        var propertyChanges = new Dictionary<Action, bool>
+        var propertyChanges = new Dictionary<Action, Func<bool>>
         {
-            { () => Position = position, Position != position },
-            { () => EmploymentStatus = employmentStatus, EmploymentStatus != employmentStatus },
-            { () => Code = code, Code != code },
-            { () => Color = color, Color != color },
-            { () => HireDate = hireDate, HireDate != hireDate },
-            { () => Notes = notes, Notes != notes },
+            { () => Position = position, () => Position != position },
+            { () => EmploymentStatus = employmentStatus, () => EmploymentStatus != employmentStatus },
+            { () => Code = code, () => Code != code },
+            { () => Color = color, () => Color != color },
+            { () => HireDate = hireDate, () => HireDate != hireDate },
+            { () => Notes = notes, () => Notes != notes },
         };
 
         var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);

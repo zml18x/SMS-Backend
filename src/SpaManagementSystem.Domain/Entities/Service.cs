@@ -44,16 +44,16 @@ public class Service : BaseEntity
     public bool UpdateService(string name, string code, string? description, decimal price, decimal taxRate, 
         TimeSpan duration, string? imgUrl, bool isActive)
     {
-        var propertyChanges = new Dictionary<Action, bool>
+        var propertyChanges = new Dictionary<Action, Func<bool>>
         {
-            { () => Name = name, Name != name },
-            { () => Code = code, Code != code },
-            { () => Description = description, Description != description },
-            { () => Price = price, Price != price },
-            { () => TaxRate = taxRate, TaxRate != taxRate },
-            { () => Duration = duration, Duration != duration },
-            { () => ImgUrl = imgUrl, ImgUrl != imgUrl },
-            { () => IsActive = isActive, IsActive != isActive }
+            { () => Name = name, () => Name != name },
+            { () => Code = code, () => Code != code },
+            { () => Description = description, () => Description != description },
+            { () => Price = price, () => Price != price },
+            { () => TaxRate = taxRate, () => TaxRate != taxRate },
+            { () => Duration = duration, () => Duration != duration },
+            { () => ImgUrl = imgUrl, () => ImgUrl != imgUrl },
+            { () => IsActive = isActive, () => IsActive != isActive }
         };
 
         var anyDataUpdated = EntityUpdater.ApplyChanges(propertyChanges);

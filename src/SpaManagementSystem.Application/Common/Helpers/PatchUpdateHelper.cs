@@ -56,7 +56,8 @@ public class PatchUpdateHelper
         var entityValidationResult = validateEntity(entity);
         if (!entityValidationResult.IsValid)
             throw new DomainValidationException($"Update failed: {string.Join(", ", entityValidationResult.Errors)}");
-        
+
+        repository.Update(entity);
         await repository.SaveChangesAsync();
 
         return OperationResult.Success();

@@ -2,13 +2,21 @@
 
 public static class EntityUpdater
 {
-    public static bool ApplyChanges(Dictionary<Action, bool> propertyChanges)
-        => propertyChanges
-            .Where(change => change.Value)
-            .Select(change =>
+    public static bool ApplyChanges(Dictionary<Action, Func<bool>> propertyChanges)
+    {
+        bool anyChangesApplied = false;
+
+        // Przechodzimy przez każdy element, wykonując zmianę tylko wtedy, gdy warunek jest spełniony
+        foreach (var change in propertyChanges)
+        {
+            // Sprawdzamy, czy właściwość powinna zostać zmieniona
+            if (change.Value()) // Evaluating the change condition
             {
-                change.Key();
-                return true;
-            })
-            .Any();
+                change.Key(); // Jeśli tak, wykonujemy akcję
+                anyChangesApplied = true; // Zmieniono dane
+            }
+        }
+
+        return anyChangesApplied;
+    }
 }

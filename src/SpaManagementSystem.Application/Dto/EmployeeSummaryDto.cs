@@ -13,4 +13,5 @@ public record EmployeeSummaryDto(
     string LastName,
     GenderType Gender,
     string Email,
-    string PhoneNumber);
+    string PhoneNumber,
+    string? Notes);
