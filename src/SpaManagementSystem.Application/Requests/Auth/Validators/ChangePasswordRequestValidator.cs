@@ -7,9 +7,6 @@ public class ChangePasswordRequestValidator : AbstractValidator<ChangePasswordRe
 {
     public ChangePasswordRequestValidator()
     {
-        RuleFor(x => x.CurrentPassword)
-            .MatchPassword();
-            
         RuleFor(x => x.NewPassword)
             .MatchPassword();
     }
