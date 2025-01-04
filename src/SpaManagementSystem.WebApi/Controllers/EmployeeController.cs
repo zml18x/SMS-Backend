@@ -42,7 +42,7 @@ public class EmployeeController(IEmployeeService employeeService, UserManager<Us
         return this.OkResponse(employee, "Successfully retrieved employee.");
     }
     
-    [Authorize(Roles = "Admin, Manager")]
+    [Authorize(Roles = "Admin, Manager, Employee")]
     [HttpGet("{employeeId:guid}")]
     public async Task<IActionResult> GetEmployeeByIdAsync(Guid employeeId)
     {

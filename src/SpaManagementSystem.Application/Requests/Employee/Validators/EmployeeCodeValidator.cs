@@ -7,7 +7,7 @@ public class EmployeeCodeValidator : AbstractValidator<string>
 {
     public EmployeeCodeValidator()
     {
-        RuleFor(code => code)
-            .MatchCode();
+        //RuleFor(code => code)
+            //.MatchCode();
     }
 }
