@@ -24,7 +24,9 @@ public class Appointment : BaseEntity
     public AppointmentStatus Status { get; protected set; }
     public string? Notes { get; protected set; }
     public decimal TotalPrice => _appointmentServices.Sum(x => x.Price);
-    public bool IsFullyPaid => _payments.Sum(p => p.Amount) >= TotalPrice; //sumowac platnosci po statusie zakonczonym
+    public bool IsFullyPaid => _payments
+        .Where(p => p.Status == PaymentStatus.Completed)
+        .Sum(p => p.Amount) >= TotalPrice;
     public bool CanUpdate => EnsureStatusAllowsAction(AppointmentStatus.Pending, AppointmentStatus.Confirmed);
     public bool CanDelete => EnsureStatusAllowsAction(AppointmentStatus.Pending, AppointmentStatus.Confirmed) && !_payments.Any();
     public bool CanBePaid => EnsureStatusAllowsAction(AppointmentStatus.Confirmed, AppointmentStatus.Completed);
