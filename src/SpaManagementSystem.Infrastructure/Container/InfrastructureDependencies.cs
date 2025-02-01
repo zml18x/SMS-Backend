@@ -47,8 +47,7 @@ public static class InfrastructureDependencies
                 options.Password.RequireUppercase = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireDigit = true;
-
-                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedEmail = true;
             })
             .AddEntityFrameworkStores<SmsDbContext>()
             .AddDefaultTokenProviders();
