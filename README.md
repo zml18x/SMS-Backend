@@ -33,7 +33,6 @@ ToDo
    ENV SENDGRID_API_KEY your_sendgrid_api_key
    ENV SENDGRID_SENDER_EMAIL your_sender_email@example.com
    ```
-   Note: Ensure that the password used here matches the one in the Dockerfile for the API.
 
 3. Navigate to the project folder:
 
