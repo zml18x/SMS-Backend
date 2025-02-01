@@ -26,18 +26,20 @@ ToDo
    git clone https://github.com/zml18x/SMS-Backend
    ```
    
-2. Navigate to the project folder:
+2. Configure Sendgrid API Key and Sender Email:
+
+   Open the Dockerfile and and add the following environment variables for Sendgrid:
+   ```bash
+   ENV SENDGRID_API_KEY your_sendgrid_api_key
+   ENV SENDGRID_SENDER_EMAIL your_sender_email@example.com
+   ```
+   Note: Ensure that the password used here matches the one in the Dockerfile for the API.
+
+3. Navigate to the project folder:
 
    ```bash
    cd SMS-Backend
    ```
-
-3. Generate HTTPS certificates:
-
-   ```bash
-   dotnet dev-certs https --export-path ./certs/aspnetapp.pfx --password your_password
-   ```
-   Note: Ensure that the password used here matches the one in the Dockerfile for the API.
 
 4. Start the Docker containers (this will run WebAPI, PostgreSQL and pgAdmin):
 
