@@ -1,5 +1,5 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
+USER root
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
@@ -17,12 +17,13 @@ ENV SENDGRID_SENDER_EMAIL "zml18x@gmail.com"
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
 COPY ["src/SpaManagementSystem.WebApi/SpaManagementSystem.WebApi.csproj", "src/SpaManagementSystem.WebApi/"]
 COPY ["src/SpaManagementSystem.Domain/SpaManagementSystem.Domain.csproj", "src/SpaManagementSystem.Domain/"]
 COPY ["src/SpaManagementSystem.Application/SpaManagementSystem.Application.csproj", "src/SpaManagementSystem.Application/"]
 COPY ["src/SpaManagementSystem.Infrastructure/SpaManagementSystem.Infrastructure.csproj", "src/SpaManagementSystem.Infrastructure/"]
 RUN dotnet restore "src/SpaManagementSystem.WebApi/SpaManagementSystem.WebApi.csproj"
-COPY . .
+COPY . . 
 WORKDIR "/src/src/SpaManagementSystem.WebApi"
 RUN dotnet build "SpaManagementSystem.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
@@ -30,8 +31,19 @@ FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "SpaManagementSystem.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS certgen
+WORKDIR /app
+
+RUN mkdir -p /app/certs
+
+RUN dotnet dev-certs https --export-path /app/certs/aspnetapp.pfx --password "maslo#2!XX"
+
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
-COPY ./certs /app/certs
+
+COPY --from=publish /app/publish . 
+COPY --from=certgen /app/certs /app/certs
+
+RUN chmod 755 /app/certs && chmod 644 /app/certs/aspnetapp.pfx
+
 ENTRYPOINT ["dotnet", "SpaManagementSystem.WebApi.dll"]
